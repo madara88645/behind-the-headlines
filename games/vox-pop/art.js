@@ -682,7 +682,8 @@
     ctx.fillRect(0.5, -2.2 - l2, 5, 2.4);
     // back arm
     const armSw = sw * 2.2;
-    rrect(ctx, flip * 6.2 - 2, -24 - armSw * 0.4, 4, 12, 2, shade(look.top, -0.25));
+    const backArmSide = look.reporter ? -flip : flip;
+    rrect(ctx, backArmSide * 6.2 - 2, -24 - armSw * 0.4, 4, 12, 2, shade(look.top, -0.25));
     // body
     rrect(ctx, -7.5, -27, 15, 17, 5, look.top);
     rrect(ctx, flip > 0 ? 1.5 : -7.5, -27, 6, 17, 4, shade(look.top, -0.14));
@@ -695,8 +696,9 @@
     }
     // front arm (holds the mic for the reporter)
     if (look.reporter) {
-      const hx = -flip * 9, hy = -20;
-      rrect(ctx, -flip * 6.2 - 2, -25, 4, 9, 2, shade(look.top, -0.08));
+      // Keep the microphone and its arm on the side the reporter faces.
+      const hx = flip * 9, hy = -20;
+      rrect(ctx, flip * 6.2 - 2, -25, 4, 9, 2, shade(look.top, -0.08));
       ctx.fillStyle = '#2A2A2A'; ctx.fillRect(hx - 1.3, hy - 8, 2.6, 9);
       circle(ctx, hx, hy - 10, 4.2, C.opinion);
       circle(ctx, hx - 1.3, hy - 11.4, 1.3, 'rgba(255,255,255,.5)');
