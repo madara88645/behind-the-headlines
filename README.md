@@ -1,17 +1,18 @@
 # Behind the Headlines
 
-Three browser games built on the Maynooth University survey *Social Acceptance of Sustainable Data Centres in Ireland* (200 people, 104 questions) for the BU Induction Hack 2026: "Data centres: behind the headlines - make data playable."
+Four browser games built on the Maynooth University survey *Social Acceptance of Sustainable Data Centres in Ireland* (200 people, 104 questions) for the BU Induction Hack 2026: "Data centres: behind the headlines - make data playable."
 
-The idea running through all three: **data ≠ opinion ≠ assumption.**
+The idea running through all of them: **data ≠ opinion ≠ assumption.**
 
 | Game | What you do | Survey part it uses |
 |---|---|---|
 | **Bubble Sort** | Sort 12 claims into Data / Opinion / Assumption bubbles and bet on how sure you are. Then see what the survey believed, what's actually true, and whose information bubble you're in. | True/false beliefs (q18-q25), opinion statements, information sources (q16), self-rated knowledge (q17) |
 | **5 KM** | Zoom from Ireland to your own street while support drops from 56% to 30%. Then try to win over a town hall of 100 residents with a limited planning budget. | Overall attitude (q96), acceptance within 5 km (q77), area type (q4), living near one (q7), the ten conditions (q78-q88) |
 | **Rigged** | Three psychology experiments, all rigged (anchoring wheel, alarming feed, fake crowd), each debriefed straight away. Your behaviour is set next to what respondents said about themselves. | Cognitive-bias statements (q55-q65), acceptance (q77), gut feeling (q66) |
+| **Vox Pop** | Walk around a made-up Irish town next to a data-centre campus (isometric, keyboard or click). Interview made-up residents whose answers are drawn from the survey, read sourced facts at the campus, and file a headline number. Then meet the real 200 and see how far a small sample drifts. | Area type (q4) as the town's districts; unease near home (q67) or acceptance within 5 km (q77); AI-tool and streaming use (q11, q8); view change (q97), investment (q99), benefits vs costs (q104) |
 
 ## Run it
-Open `index.html` in any modern browser - double-click works, no install or server needed. Each game can also be opened directly: `bubble-sort.html`, `5km.html`, `rigged.html`. Fonts come from Google Fonts; offline, the games fall back to system fonts.
+Open `index.html` in any modern browser - double-click works, no install or server needed. Each game can also be opened directly: `bubble-sort.html`, `5km.html`, `rigged.html`, `vox-pop.html`. Fonts come from Google Fonts; offline, the games fall back to system fonts.
 
 Optional local server (for testing on a phone on the same Wi-Fi):
 ```bash
@@ -24,6 +25,7 @@ index.html              launcher page
 bubble-sort.html        game pages - kept in the project root on purpose (see note below)
 5km.html
 rigged.html
+vox-pop.html
 games/<game>/           each game's style.css, game.js (+ helpers)
 data/survey_stats.js    aggregated survey results (generated - do not edit by hand)
 data/facts.js           checked facts, true/false answer key, policies, paraphrased news claims - every item has a source URL

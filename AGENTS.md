@@ -40,6 +40,7 @@ index.html              launcher - add a card for every new game
 bubble-sort.html        game pages (project root - see rule 2)
 5km.html
 rigged.html
+vox-pop.html
 games/<slug>/           that game's style.css, game.js and helpers
 data/survey_stats.js    aggregated survey (generated) -> window.SURVEY_STATS
 data/facts.js           checked facts -> window.DC_FACTS
@@ -66,23 +67,23 @@ Question blocks and who already uses them - prefer the unused ones for new games
 
 | Block | Ids | Used by |
 |---|---|---|
-| Demographics (age, gender, county, area type, education, employment, DC within 10 km) | q1-q7 | 5 KM uses q4, q7 |
-| Digital technology use (streaming, social media, cloud, AI tools, banking, video calls) | q8-q13 | **unused** |
+| Demographics (age, gender, county, area type, education, employment, DC within 10 km) | q1-q7 | 5 KM uses q4, q7; Vox Pop uses q4 (districts), q7 |
+| Digital technology use (streaming, social media, cloud, AI tools, banking, video calls) | q8-q13 | Vox Pop uses q8, q11 - **q9, q10, q12, q13 unused** |
 | Awareness | q14-q15 | **unused** |
 | Where views were formed (multi-select) | q16 | Bubble Sort, Rigged |
 | Self-rated energy knowledge | q17 | Bubble Sort |
 | True/false beliefs | q18-q25 | Bubble Sort |
 | "Capitals" agree/disagree blocks: Natural q26-31, Human q32-36, Social q37-41, Manufactured q42-46, Financial q47-51 | q26-q51 | Bubble Sort uses q26, q31, q42, q46, q50 - **the rest unused** |
 | Most negative / positive impact areas (multi-select) | q52-q53 | **unused** |
-| Bias blocks: Availability q54-57, Social proof q58-61, Anchoring q62-65, Affect q67-70, Fluency q71-76 | q54-q76 | Rigged uses q55, q57, q59, q61, q62, q65; Bubble Sort uses q69; 5 KM uses q74 - **affect and fluency mostly unused** |
+| Bias blocks: Availability q54-57, Social proof q58-61, Anchoring q62-65, Affect q67-70, Fluency q71-76 | q54-q76 | Rigged uses q55, q57, q59, q61, q62, q65; Bubble Sort uses q69; 5 KM uses q74; Vox Pop uses q67 - **affect and fluency mostly unused** |
 | Gut feeling | q66 | Rigged |
-| Acceptable within 5 km | q77 | 5 KM, Rigged |
+| Acceptable within 5 km | q77 | 5 KM, Rigged, Vox Pop |
 | Ten conditions + forced top three | q78-q88 | 5 KM |
 | Trust in messengers | q89-q94 | **do not use** - the export doesn't say which end of the 1-6 scale means "most trusted" |
 | What "community acceptance" means | q95 | **unused** |
-| Overall attitude | q96 | Bubble Sort, 5 KM |
-| View change over two years, single most influential factor | q97-q98 | **unused** |
-| Overall statements (investment, information, consent, climate role, forum, benefits vs costs) | q99-q104 | Bubble Sort uses q101 - **the rest unused** |
+| Overall attitude | q96 | Bubble Sort, 5 KM, Vox Pop (q11 cross-tab only) |
+| View change over two years, single most influential factor | q97-q98 | Vox Pop uses q97 - **q98 unused** |
+| Overall statements (investment, information, consent, climate role, forum, benefits vs costs) | q99-q104 | Bubble Sort uses q101; Vox Pop uses q99, q104 - **q100, q102, q103 unused** |
 
 Data rules:
 - **Groups under 30 people** (cross-tabs) must show a visible "small group (n = X)" caveat. Don't build a headline claim on them.
@@ -165,6 +166,7 @@ Already taken - pick something clearly different:
 | Bubble Sort | science-museum soap bubbles | periwinkle #EEF0FF, cobalt #1F5BFF, raspberry #D6246E, marigold #F2A007 | Bricolage Grotesque, Atkinson Hyperlegible, JetBrains Mono |
 | 5 KM | Irish planning notice + map | field green #DDE8CF, notice yellow #FFD400, orange #E4572E | Archivo, Public Sans, IBM Plex Mono |
 | Rigged | psychology-lab paperwork, red pen | lab mint #E6F0EA, navy #14213D, red #D62828 | Chivo, Chivo Mono, Caveat |
+| Vox Pop | isometric Irish town diorama, local-radio reporter | sea-glass #CFE4E4, peat ink #241C17, raincoat yellow #FFC933, heather #9B3D8F, teal #00727C | Unbounded, Figtree, DM Mono, Kalam |
 | Launcher | "Data ≠ Opinion ≠ Assumption" | grey #F3F4F6, ink #111318, orange ≠ #E4572E | Schibsted Grotesk, IBM Plex Mono |
 
 How to design a new one: ground it in something real from the subject's world (a server hall, a council meeting, a phone feed, an electricity bill, a weather map...). Define colours as CSS custom properties on `:root`. Pick one **signature moment** the game will be remembered for (the bubble gulp, the 56% → 30% meter drop, the RIGGED stamp) and keep everything else calm.
