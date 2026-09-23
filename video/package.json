@@ -1,0 +1,41 @@
+{
+  "name": "behind-the-headlines-video",
+  "version": "1.0.0",
+  "description": "Hackathon submission video (Remotion) for Behind the Headlines - BU Induction Hack 2026",
+  "repository": {},
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@remotion/cli": "4.0.527",
+    "@remotion/google-fonts": "4.0.527",
+    "@remotion/media": "4.0.527",
+    "@remotion/noise": "4.0.527",
+    "@remotion/paths": "4.0.527",
+    "@remotion/transitions": "4.0.527",
+    "@remotion/zod-types": "4.0.527",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.527",
+    "zod": "4.5.4"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "4.0.527",
+    "@types/react": "19.2.7",
+    "@types/web": "0.0.166",
+    "eslint": "9.19.0",
+    "prettier": "3.8.1",
+    "typescript": "5.9.3"
+  },
+  "scripts": {
+    "data": "node scripts/build-data.mjs",
+    "dev": "npm run data && remotion studio",
+    "studio": "npm run data && remotion studio",
+    "render": "npm run data && remotion render BehindTheHeadlines out/behind-the-headlines.mp4",
+    "render:draft": "npm run data && remotion render BehindTheHeadlines out/draft.mp4 --scale=0.5 --crf=30",
+    "stills": "npm run data && node scripts/stills.mjs BehindTheHeadlines out/stills 660 1740 2066 2780 3230",
+    "lint": "eslint src && tsc"
+  },
+  "sideEffects": [
+    "*.css"
+  ]
+}

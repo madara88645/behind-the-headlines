@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+
+# Video project: dependencies and rendered output (re-create with `npm install` / `npm run render` in video/)
+video/node_modules/
+video/out/
+
+# Python
+__pycache__/
+*.pyc
+
+# Never commit the raw survey export - only the aggregated data/ files belong in the repo
+*.xlsx
+*.xls
+*.csv
+
+# Local env / secrets
+.env
+.env.*

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rigged · Behind the Headlines</title>
+<meta name="description" content="Three rigged psychology experiments about data centres, each followed by a debrief that shows you the trick and what 200 survey respondents believed about themselves.">
+<meta name="theme-color" content="#E6F0EA">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Chivo+Mono:wght@400;500;700&family=Chivo:wght@400;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="games/rigged/style.css">
+</head>
+<body>
+<a class="skip" href="#stage">Skip to the experiment</a>
+
+<header class="labbar">
+  <div class="labbar-in">
+    <a class="back" href="index.html"><span aria-hidden="true">←</span> All games</a>
+    <div class="brand" aria-label="Rigged">
+      <span class="wordmark">Rigged</span>
+      <span class="brand-sub">Behavioural lab · data centres</span>
+    </div>
+    <ol class="steps" aria-label="Progress">
+      <li data-step="0"><span class="st-n">00</span><span class="st-t">Briefing</span></li>
+      <li data-step="1"><span class="st-n">01</span><span class="st-t">Wheel</span></li>
+      <li data-step="2"><span class="st-n">02</span><span class="st-t">Feed</span></li>
+      <li data-step="3"><span class="st-n">03</span><span class="st-t">Crowd</span></li>
+      <li data-step="4"><span class="st-n">R</span><span class="st-t">Report</span></li>
+    </ol>
+  </div>
+</header>
+
+<main id="stage" class="stage" tabindex="-1"></main>
+
+<p id="announcer" class="sr-only" aria-live="polite"></p>
+
+<footer class="foot">
+  <div class="foot-in">
+    <span>Rigged · part of <a href="index.html">Data Centres: Behind the Headlines</a></span>
+    <span id="foot-survey">Survey comparisons: Maynooth University survey</span>
+    <span>No personal data collected. Answers stay on this device.</span>
+  </div>
+</footer>
+
+<noscript><p class="noscript">Rigged needs JavaScript to run its experiments.</p></noscript>
+
+<script src="data/survey_stats.js"></script>
+<script src="data/facts.js"></script>
+<script src="shared/survey.js"></script>
+<script src="games/rigged/components.js"></script>
+<script src="games/rigged/game.js"></script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+SURVEY: Social Acceptance of Sustainable Data Centres in Ireland - 200 respondents in Ireland. Aggregate results (percent of those who answered each item):
+
+q1 [single] What is your age group? -> Under 18 2%; 18–24 19%; 25–34 28%; 35–44 24%; 45–54 18%; 55–64 6%; 65 or over 3%
+
+q2 [single] What is your gender? -> Man 47%; Woman 46%; Non-binary / gender non-conforming 6%; Prefer not to say 2%
+
+q3 [single] In which county do you currently reside? -> Dublin 21%; Other Leinster 20%; Limerick 17%; Galway 14%; Cork 14%; Other Munster 8%; Other Connacht 2%; Ulster (Republic) 2%
+
+q4 [single] How would you describe your local area? -> Urban (city or large town) 42%; Suburban (on the edge of a city or large town) 38%; Rural 20%
+
+q5 [single] What is the highest level of education you have completed? -> Postgraduate degree (Masters/PhD) 24%; Further Education (e.g. PLC, apprenticeship) 21%; Secondary school (Leaving Certificate) 19%; Secondary school (Junior Certificate) 15%; Undergraduate degree 12%; Primary school or less 7%; Prefer not to say 2%
+
+q6 [single] What is your current employment status? -> Employed full-time 26%; Employed part-time 21%; Self-employed 19%; Student 13%; Homemaker / carer 12%; Retired 6%; Unemployed / seeking work 2%; Prefer not to say 0%
+
+q7 [single] Is there a data centre currently located within 10 km of your home, to your knowledge? -> No 29%; I don't know 14%; Yes 56%
+
+## To what extent do you use the following digital technologies?
+q8 [single] Streaming services (e.g. Netflix, Spotify) -> Never 28%; Rarely 16%; Sometimes 18%; Often 10%; Daily 28%
+q9 [single] Social media platforms -> Never 16%; Rarely 25%; Sometimes 18%; Often 12%; Daily 28%
+q10 [single] Cloud storage (e.g. Google Drive, iCloud) -> Never 14%; Rarely 23%; Sometimes 26%; Often 18%; Daily 18%
+q11 [single] AI tools (e.g. ChatGPT, Copilot, Google Gemini) -> Never 20%; Rarely 19%; Sometimes 24%; Often 16%; Daily 20%
+q12 [single] Online banking and financial services -> Never 14%; Rarely 22%; Sometimes 23%; Often 20%; Daily 21%
+q13 [single] Remote work / video conferencing tools -> Never 16%; Rarely 20%; Sometimes 28%; Often 18%; Daily 17%
+
+q14 [single] Before reading the introduction to this survey, how aware were you of data centres? -> I had never heard of them 12%; I had heard the term but didn't know what they do 30%; I had a general idea of what they are 31%; I had a good understanding of how they operate 19%; I had detailed technical knowledge 8%
+
+q15 [single] Before this survey, were you aware that data centres exist in Ireland? -> I was not aware 19%; I am still not sure 5%; I had some awareness 38%; Yes, I was very aware 38%
+
+q16 [multi] Where have you primarily formed your view on data centres? -> Social media (Facebook, X/Twitter, Instagram, TikTok) 42%; Online news websites 36%; Friends, family or colleagues 32%; Local community groups or meetings 32%; National news media (TV, radio, newspaper) 26%; Environmental organisations or NGOs 26%; Academic or scientific publications 23%; Company communications or official reports 18%; I have not formed a view 8%
+
+q17 [single] How much do you feel you know about how data centres use energy? -> Nothing at all 14%; Very little 26%; A moderate amount 30%; Quite a lot 19%; A great deal 10%
+
+## Please indicate whether you believe each of the following statements is true or false.
+q18 [truefalse] All data centres in Ireland run on fossil fuels -> True 52%; False 29%; Don't know 20%
+q19 [truefalse] Data centres can use surplus wind energy that would otherwise be wasted -> True 49%; False 26%; Don't know 25%
+q20 [truefalse] Data centres can redirect waste heat to nearby homes and businesses -> True 53%; False 23%; Don't know 24%
+q21 [truefalse] Data centres are major employers in the communities where they are built -> True 44%; False 36%; Don't know 20%
+q22 [truefalse] Sustainable data centres must meet strict EU energy efficiency regulations by 2030 -> True 53%; False 25%; Don't know 22%
+q23 [truefalse] Ireland's cool, rainy climate makes it particularly well-suited to hosting data centres -> True 59%; False 22%; Don't know 20%
+q24 [truefalse] Data centres are responsible for a significant proportion of Ireland's total electricity use -> True 54%; False 28%; Don't know 18%
+q25 [truefalse] AI-assisted data centres can adjust their workload based on available renewable energy -> True 55%; False 25%; Don't know 20%
+
+## Natural Capital
+q26 [single] Data centres place an unacceptable strain on Ireland's national electricity grid -> Strongly Disagree 35%; Disagree 26%; Neither 16%; Agree 9%; Strongly Agree 14%
+q27 [single] Data centres contribute significantly to carbon emissions in Ireland -> Strongly Disagree 19%; Disagree 36%; Neither 13%; Agree 20%; Strongly Agree 12%
+q28 [single] Data centres generate harmful wastewater and environmental pollutants -> Strongly Disagree 21%; Disagree 35%; Neither 14%; Agree 17%; Strongly Agree 13%
+q29 [single] A sustainably-designed data centre can co-exist with local natural ecosystems -> Strongly Disagree 19%; Disagree 30%; Neither 16%; Agree 16%; Strongly Agree 19%
+q30 [single] Using Ireland's wind energy surplus to power data centres is an environmentally responsible approach -> Strongly Disagree 19%; Disagree 29%; Neither 13%; Agree 14%; Strongly Agree 26%
+q31 [single] Data centres should be required by law to use 100% renewable energy -> Strongly Disagree 18%; Disagree 24%; Neither 14%; Agree 16%; Strongly Agree 28%
+
+## Human Capital
+q32 [single] Data centres create meaningful, long-term employment for local people -> Strongly Disagree 24%; Disagree 31%; Neither 21%; Agree 10%; Strongly Agree 14%
+q33 [single] I feel I have enough information to form an informed view about data centres -> Strongly Disagree 20%; Disagree 33%; Neither 22%; Agree 17%; Strongly Agree 9%
+q34 [single] Schools and communities should receive education about what data centres do -> Strongly Disagree 18%; Disagree 24%; Neither 17%; Agree 16%; Strongly Agree 24%
+q35 [single] Data centres have a negative effect on the health of people living near them -> Strongly Disagree 21%; Disagree 29%; Neither 18%; Agree 20%; Strongly Agree 12%
+q36 [single] People who live near data centres should be actively involved in decisions about their construction -> Strongly Disagree 18%; Disagree 20%; Neither 22%; Agree 13%; Strongly Agree 27%
+
+## Social Capital
+q37 [single] Data centres are visually out of place in most Irish communities -> Strongly Disagree 21%; Disagree 34%; Neither 19%; Agree 11%; Strongly Agree 15%
+q38 [single] The appearance of a data centre would negatively affect how I feel about my local area -> Strongly Disagree 20%; Disagree 31%; Neither 20%; Agree 17%; Strongly Agree 12%
+q39 [single] Communities near data centres should receive direct social or community benefits -> Strongly Disagree 16%; Disagree 23%; Neither 19%; Agree 19%; Strongly Agree 24%
+q40 [single] Local residents should have a formal say in whether a data centre is built near them -> Strongly Disagree 18%; Disagree 24%; Neither 15%; Agree 18%; Strongly Agree 24%
+q41 [single] Data centres make communities feel less connected and more transient -> Strongly Disagree 20%; Disagree 26%; Neither 24%; Agree 16%; Strongly Agree 14%
+
+## Manufactured Capital
+q42 [single] Land used for data centres should be prioritised for housing instead -> Strongly Disagree 28%; Disagree 27%; Neither 22%; Agree 12%; Strongly Agree 10%
+q43 [single] The size and appearance of data centres is incompatible with Irish landscapes -> Strongly Disagree 22%; Disagree 32%; Neither 22%; Agree 12%; Strongly Agree 12%
+q44 [single] Data centres should be designed with the local built environment in mind -> Strongly Disagree 20%; Disagree 19%; Neither 21%; Agree 18%; Strongly Agree 22%
+q45 [single] The operations of data centres are too hidden and opaque to inspire public trust -> Strongly Disagree 17%; Disagree 33%; Neither 21%; Agree 13%; Strongly Agree 16%
+q46 [single] Data centres are necessary infrastructure for a modern digital economy -> Strongly Disagree 19%; Disagree 20%; Neither 25%; Agree 16%; Strongly Agree 20%
+
+## Financial Capital
+q47 [single] The economic benefits of data centres primarily flow to large corporations, not local communities -> Strongly Disagree 23%; Disagree 27%; Neither 18%; Agree 14%; Strongly Agree 19%
+q48 [single] Data centres should be required to make financial contributions to local services and infrastructure -> Strongly Disagree 14%; Disagree 25%; Neither 19%; Agree 20%; Strongly Agree 22%
+q49 [single] I would be more accepting of a data centre if it demonstrably reduced local energy costs -> Strongly Disagree 18%; Disagree 24%; Neither 16%; Agree 18%; Strongly Agree 25%
+q50 [single] Ireland benefits economically from being a hub for international data centre investment -> Strongly Disagree 18%; Disagree 23%; Neither 17%; Agree 18%; Strongly Agree 23%
+q51 [single] The financial gains from data centres are not shared fairly across Irish society -> Strongly Disagree 17%; Disagree 26%; Neither 21%; Agree 17%; Strongly Agree 20%
+
+q52 [multi] Overall, which two areas do you feel data centres most negatively impact in your community? -> People's health, skills and wellbeing (Human) 56%; Land use and built infrastructure (Manufactured) 44%; Community identity and cohesion (Social) 40%; Natural environment 39%; Local economy and finances (Financial) 12%
+
+q53 [multi] Overall, which two areas do you believe a well-designed data centre could most positively impact? -> Community identity and cohesion (Social) 47%; People's health, skills and wellbeing (Human) 40%; Land use and built infrastructure (Manufactured) 39%; Natural environment 26%; Local economy and finances (Financial) 26%
+
+## Availability Heuristic
+q54 [single] When I think about data centres, the first thing that comes to mind is their negative environmental impact -> Strongly Disagree 29%; Disagree 22%; Neither 20%; Agree 10%; Strongly Agree 20%
+q55 [single] News stories about data centres using excessive energy have strongly shaped my views -> Strongly Disagree 14%; Disagree 34%; Neither 15%; Agree 22%; Strongly Agree 15%
+q56 [single] I can recall at least one news item or social media post about data centres in the past 6 months -> Strongly Disagree 30%; Disagree 19%; Neither 18%; Agree 13%; Strongly Agree 20%
+q57 [single] The information I have encountered about data centres has mostly been negative -> Strongly Disagree 18%; Disagree 26%; Neither 20%; Agree 20%; Strongly Agree 16%
+
+## Social Proof / Herd Mentality
+q58 [single] Most people I know are concerned about data centres being built in Ireland -> Strongly Disagree 25%; Disagree 29%; Neither 22%; Agree 10%; Strongly Agree 13%
+q59 [single] If my local community opposed a data centre development, I would also oppose it -> Strongly Disagree 26%; Disagree 24%; Neither 18%; Agree 21%; Strongly Agree 12%
+q60 [single] Environmental groups' opinions about data centres are more trustworthy than those of developers -> Strongly Disagree 17%; Disagree 19%; Neither 21%; Agree 19%; Strongly Agree 24%
+q61 [single] Public protests against data centres have influenced my own views -> Strongly Disagree 23%; Disagree 25%; Neither 23%; Agree 15%; Strongly Agree 13%
+
+## Anchoring
+q62 [single] My first impression of data centres — before I read any detailed information — has stayed with me -> Strongly Disagree 24%; Disagree 29%; Neither 22%; Agree 14%; Strongly Agree 11%
+q63 [single] I already had a strong opinion about data centres before seeing this survey -> Strongly Disagree 19%; Disagree 24%; Neither 25%; Agree 22%; Strongly Agree 10%
+q64 [single] Even if given new information, I find it difficult to change my view on data centres -> Strongly Disagree 25%; Disagree 27%; Neither 22%; Agree 13%; Strongly Agree 13%
+q65 [single] I tend to trust the first source of information I encounter on a topic like data centres -> Strongly Disagree 23%; Disagree 27%; Neither 21%; Agree 18%; Strongly Agree 11%
+
+q66 [single] Which word or phrase best describes your instinctive, gut-level feeling about data centres? -> Very negative 5%; Somewhat negative 18%; Neutral / no strong feeling 32%; Somewhat positive 25%; Very positive 20%
+
+## Affect (Emotional Response)
+q67 [single] I feel uneasy about data centres being built near where I live -> Strongly Disagree 29%; Disagree 25%; Neither 18%; Agree 11%; Strongly Agree 16%
+q68 [single] I feel reassured that data centre operators are doing enough to protect the environment -> Strongly Disagree 24%; Disagree 26%; Neither 19%; Agree 14%; Strongly Agree 17%
+q69 [single] Thinking about data centres makes me feel that the interests of large technology companies outweigh those of ordinary people -> Strongly Disagree 23%; Disagree 19%; Neither 16%; Agree 22%; Strongly Agree 20%
+q70 [single] I feel proud that Ireland is a European leader in attracting sustainable technology investment -> Strongly Disagree 26%; Disagree 17%; Neither 17%; Agree 19%; Strongly Agree 21%
+
+## Fluency & Familiarity (Effort Reduction)
+q71 [single] Information about data centres is usually presented in a way that is easy to understand -> Strongly Disagree 30%; Disagree 23%; Neither 27%; Agree 8%; Strongly Agree 12%
+q72 [single] I would be more accepting of data centres if their operations were explained more clearly to the public -> Strongly Disagree 18%; Disagree 20%; Neither 22%; Agree 19%; Strongly Agree 21%
+q73 [single] When I encounter technical language about data centres, I tend to stop reading -> Strongly Disagree 24%; Disagree 21%; Neither 21%; Agree 20%; Strongly Agree 14%
+q74 [single] If I had visited a data centre in person, I think I would feel more comfortable about them -> Strongly Disagree 17%; Disagree 17%; Neither 23%; Agree 24%; Strongly Agree 17%
+q75 [single] I am more likely to trust a technology I have seen or experienced directly -> Strongly Disagree 22%; Disagree 16%; Neither 17%; Agree 23%; Strongly Agree 22%
+q76 [single] A clear, plain-language explanation of how a data centre works would positively change my view -> Strongly Disagree 20%; Disagree 19%; Neither 20%; Agree 20%; Strongly Agree 21%
+
+q77 [single] How acceptable would it be for a sustainable data centre to be built within 5 km of your home? -> Completely unacceptable 17%; Somewhat unacceptable 18%; Neither acceptable nor unacceptable 34%; Somewhat acceptable 21%; Completely acceptable 9%
+
+## If a sustainable data centre met the following conditions, how much would each increase your acceptance?
+q78 [single] Powered entirely by renewable (wind/solar) energy -> No impact 26%; Small 18%; Moderate 20%; Large 11%; Fully accepting 25%
+q79 [single] Redirected waste heat to warm local homes and businesses -> No impact 17%; Small 24%; Moderate 21%; Large 17%; Fully accepting 22%
+q80 [single] Required to fund local community projects or amenities -> No impact 17%; Small 22%; Moderate 20%; Large 18%; Fully accepting 23%
+q81 [single] Required to create a minimum number of local jobs -> No impact 16%; Small 21%; Moderate 20%; Large 18%; Fully accepting 25%
+q82 [single] Subject to independent, publicly reported environmental monitoring -> No impact 18%; Small 18%; Moderate 20%; Large 18%; Fully accepting 27%
+q83 [single] Architecturally designed to complement the local landscape -> No impact 19%; Small 16%; Moderate 23%; Large 18%; Fully accepting 24%
+q84 [single] Operated with regular open days or public information sessions -> No impact 18%; Small 21%; Moderate 21%; Large 16%; Fully accepting 24%
+q85 [single] Supported local schools with STEM education programmes -> No impact 19%; Small 19%; Moderate 19%; Large 15%; Fully accepting 27%
+q86 [single] Provided a direct reduction in local energy tariffs or bills -> No impact 16%; Small 19%; Moderate 15%; Large 24%; Fully accepting 26%
+q87 [single] Established a Community Liaison Committee with local decision-making power -> No impact 15%; Small 22%; Moderate 20%; Large 16%; Fully accepting 28%
+
+q88 [multi] Which three of the above conditions would most increase your personal acceptance of a sustainable data centre? -> Redirected waste heat to warm local homes and businesses 54%; Powered entirely by renewable (wind/solar) energy 49%; Required to create a minimum number of local jobs 40%; Required to fund local community projects or amenities 39%; Subject to independent, publicly reported environmental monitoring 25%; Architecturally designed to complement the local landscape 25%; Operated with regular open days or public information sessions 15%; Supported local schools with STEM education programmes 13%; Provided a direct reduction in local energy tariffs or bills 13%; Established a Community Liaison Committee with local decision-making power 7%
+
+## Who do you most trust to provide accurate information about a proposed data centre in your area?
+q89 [scale_numeric] Independent environmental scientists or academics -> 1 29%; 2 23%; 3 20%; 4 7%; 5 5%; 6 16%
+q90 [scale_numeric] The data centre company itself -> 1 25%; 2 32%; 3 14%; 4 5%; 5 10%; 6 14%
+q91 [scale_numeric] Local government / county council -> 1 22%; 2 28%; 3 22%; 4 8%; 5 11%; 6 9%
+q92 [scale_numeric] National government / regulatory bodies -> 1 32%; 2 26%; 3 18%; 4 7%; 5 9%; 6 9%
+q93 [scale_numeric] Environmental NGOs (e.g. Friends of the Earth) -> 1 16%; 2 35%; 3 18%; 4 10%; 5 7%; 6 14%
+q94 [scale_numeric] Local community representatives or residents -> 1 19%; 2 22%; 3 21%; 4 17%; 5 8%; 6 13%
+
+q95 [single] In your opinion, which of the following best describes what 'community acceptance' of a data centre means? -> Receiving direct community benefits in exchange for its presence 28%; Being informed about its construction and operations 24%; Having the legal right to object during planning 22%; Genuinely welcoming it as part of the community 14%; Being consulted, even if the final decision lies elsewhere 10%; None of the above — I don't think community acceptance is possible 2%
+
+q96 [single] Overall, what is your current attitude toward sustainable data centres in Ireland? -> Strongly opposed 7%; Somewhat opposed 16%; Neutral 18%; Somewhat supportive 32%; Strongly supportive 24%; I don't have enough information to form a view 4%
+
+q97 [single] Has your view on data centres changed over the past two years? -> Become much more negative 14%; Become somewhat more negative 20%; Stayed the same 22%; Become somewhat more positive 20%; Become much more positive 17%; I didn't have a view two years ago 8%
+
+q98 [single] What single factor most influences your view of data centres? -> Energy use and sustainability 20%; Environmental impact 20%; Economic benefits for Ireland 15%; Job creation 13%; Impact on local communities 12%; Visual impact on the landscape 10%; Transparency and trust in operators 8%; Government regulation and oversight 3%
+
+## To what extent do you agree with the following overall statements?
+q99 [single] Ireland should continue to attract sustainable data centre investment -> Strongly Disagree 29%; Disagree 22%; Neither 17%; Agree 11%; Strongly Agree 22%
+q100 [single] The Irish public needs much better information about how data centres work -> Strongly Disagree 18%; Disagree 21%; Neither 22%; Agree 16%; Strongly Agree 23%
+q101 [single] Community consent should be a legal requirement before a data centre is approved -> Strongly Disagree 20%; Disagree 19%; Neither 18%; Agree 18%; Strongly Agree 25%
+q102 [single] Sustainable data centres can play a positive role in Ireland's climate action strategy -> Strongly Disagree 15%; Disagree 21%; Neither 27%; Agree 15%; Strongly Agree 22%
+q103 [single] I would be willing to participate in a deliberative forum to help shape local policy on data centres -> Strongly Disagree 19%; Disagree 21%; Neither 21%; Agree 15%; Strongly Agree 23%
+q104 [single] I believe the benefits of sustainable data centres can outweigh their costs if managed well -> Strongly Disagree 19%; Disagree 20%; Neither 23%; Agree 15%; Strongly Agree 23%
