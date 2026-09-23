@@ -1,5 +1,7 @@
 # Build rules for all three games
 
+> The up-to-date guide for adding games (and for AI assistants) is `AGENTS.md` in the project root. This file is the original checklist used to build the first three games.
+
 These apply to every game in `games/`. They exist so the games work on any laptop at the hackathon, look finished, and never misrepresent the data.
 
 ## Tech
