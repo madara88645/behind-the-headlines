@@ -54,6 +54,7 @@ Every game can jump straight to a screen with sample answers for screenshots, e.
 - Before opening a PR, open the game you changed in **Safari and Chrome** and play it to the end screen.
 - The raw survey spreadsheet (`.xlsx`) is ignored by git on purpose - only the aggregated `data/` files are shared.
 - Open tasks live in the repo's Issues tab.
+- Building with an AI assistant? It should follow `AGENTS.md` (Claude Code reads it through `CLAUDE.md`; Codex, Cursor, Copilot and Gemini read `AGENTS.md` directly).
 
 ## Main sources
 CSO (data-centre electricity 2015-2025) · SEAI (renewable share) · EirGrid (wind dispatch-down 2024) · CRU (connection policy, Dec 2025) · KPMG for the Department of Enterprise (economic value, 2026) · Uisce Éireann via TheJournal.ie (water) · IEA (Energy and AI). Every game lists the exact sources it shows on its end screen.
