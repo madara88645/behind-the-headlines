@@ -1004,40 +1004,41 @@
       f.item = { x0: f.x - 0.12, y0: f.y - 0.12, x1: f.x + 0.12, y1: f.y + 0.12, bx0: s.x - 14, bx1: s.x + 14, by0: s.y - 50, by1: s.y + 6, draw: () => Art.crowdFig(ctx, s.x, s.y, cat, f.k * clamp(0.5 / view.zoom, 1, 1.8)) };
     });
     G.crowd = { st, figs: order, t0: G.t, shown: 0, done: false, total: order.length };
-    const q = S.q(st.qid);
     const hidden = order.filter((f) => f.cat === 'hidden').length;
+    const gap = Math.abs(st.estimate - st.survey.pct);
+    const difference = gap < 0.05 ? 'Your guess matched the survey result.' :
+      'Your guess was ' + (gap < 1 ? 'less than 1 percentage point' : 'about ' + r0(gap) + ' percentage ' + (r0(gap) === 1 ? 'point' : 'points')) +
+      (st.estimate > st.survey.pct ? ' higher.' : ' lower.');
     const b = $('#onair-banner');
     b.innerHTML =
       '<span class="onair-pill"><i aria-hidden="true"></i>On air</span>' +
-      '<p class="ob-head">“' + esc(Sim.Q[st.qid].headline(st.estimate)) + '”</p>' +
-      '<p class="ob-crowd"><b>Meet the ' + S.n + '.</b> The real survey, one figure per person: <b><span id="ob-yes">0</span> of ' + st.survey.n + '</b> who answered said ' + esc(Sim.measureText(st.qid)) + ' · <b id="ob-pct">…</b></p>' +
+      '<h2 class="ob-head">' + esc(Sim.Q[st.qid].title) + '</h2>' +
+      '<div class="ob-compare"><div>' + CHIP.assume + '<span>Your headline</span><b>' + st.estimate + '%</b></div>' +
+      '<div>' + CHIP.opinion + '<span>Survey result</span><b>' + pc(st.survey.pct) + '</b></div></div>' +
+      '<p class="ob-gap">' + difference + '</p>' +
+      '<p class="ob-crowd">Based on <b>' + st.survey.n + ' answers</b> in this survey.</p>' +
       '<ul class="ob-legend">' +
-      '<li><span class="fig yes" aria-hidden="true"></span>Counts toward your headline <b class="mono">' + st.survey.yes + '</b></li>' +
-      '<li><span class="fig no" aria-hidden="true"></span>Another answer <b class="mono">' + (st.survey.n - st.survey.yes) + '</b></li>' +
+      '<li><span class="fig yes" aria-hidden="true"></span><span>' + esc(Sim.measureText(st.qid)) + '</span> <b class="mono">' + st.survey.yes + '</b></li>' +
+      '<li><span class="fig no" aria-hidden="true"></span>Other answers <b class="mono">' + (st.survey.n - st.survey.yes) + '</b></li>' +
       '<li><span class="fig none" aria-hidden="true"></span>Didn\'t answer' + (hidden ? ' or too few people to show' : '') + ' <b class="mono">' + (S.n - st.survey.n) + '</b></li></ul>' +
-      '<p class="ob-note">One figure per survey answer, placed by the area people said they live in (q4). Counts only - no figure is a real person.</p>' +
+      '<p class="ob-note">Figures represent survey counts, not identifiable people.</p>' +
+      '<details class="how"><summary>Headline and crowd details</summary><p>Your headline: “' + esc(Sim.Q[st.qid].headline(st.estimate)) + '”</p><p>' + S.n + ' people in Ireland (Maynooth University survey). Figures are grouped by their reported area type (q4). Percentages exclude those who did not answer this question.</p></details>' +
       '<div class="row"><button class="btn primary" type="button" id="btn-report" hidden>See the report <span aria-hidden="true">→</span></button></div>';
     b.hidden = false;
     $('#btn-report').addEventListener('click', showReport);
     announce('On air: ' + Sim.Q[st.qid].headline(st.estimate) + '. The survey: ' + st.survey.yes + ' of ' + st.survey.n + ', ' + pc(st.survey.pct) + '.');
-    void q;
   }
   function updateCrowd() {
     const c = G.crowd;
-    let shownYes = 0, all = true;
+    let all = true;
     for (let i = 0; i < c.figs.length; i++) {
       const f = c.figs[i];
       const k = (G.t - c.t0 - f.delay) / 0.28;
       if (k <= 0) { f.k = 0; all = false; continue; }
       f.k = reduced() ? 1 : k >= 1 ? 1 : k < 0.7 ? (k / 0.7) * 1.2 : 1.2 - ((k - 0.7) / 0.3) * 0.2;
-      if (f.cat === 'yes') shownYes++;
     }
-    const y = $('#ob-yes');
-    if (y && G.mode === 'crowd') y.textContent = shownYes;
     if (all && !c.done) {
       c.done = true;
-      const p = $('#ob-pct'); if (p) p.textContent = pc(c.st.survey.pct);
-      if (y) y.textContent = c.st.survey.yes;
       const b = $('#btn-report');
       if (b && G.mode === 'crowd') { b.hidden = false; b.focus({ preventScroll: true }); }
     }
