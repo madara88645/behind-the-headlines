@@ -40,7 +40,7 @@ Evidence points on the map. Reading one costs clock time and adds it to the note
 Each story question lists the facts that are relevant to it (e.g. q11 → `prompt-gemini`, `global-2030`). If the player collected one before filing, the story is "Sourced".
 
 ## Minute by minute
-1. **Start: messages from your editor (0:00-0:20).** The living town diorama fills the screen; on the left, the reporter's phone opens a chat with Maura, the editor. The top of the thread shows the game's name ("Vox Pop"); under the phone a fixed caption says *"Built on a survey of 200 people in Ireland (Maynooth University). Residents are made up; their answers are drawn from how real respondents answered."* (200 from `Survey.n`). Then four one-sentence messages arrive, each after a short typing indicator, while the camera glides to the place it talks about:
+1. **Start: messages from your editor (0:00-0:20).** The living town diorama fills the screen; on the left, the reporter's phone opens a chat with Maura, the editor. The top of the thread shows the game's name ("Vox Pop"); under the phone a fixed caption says *"Built on a survey of 200 people in Ireland (Maynooth University). Residents are made up; their answers are drawn from how real respondents answered."* (200 from `Survey.n`). The first screen is a new-message notice ("1 new message") with *Open* and *Skip intro*: browsers only start sound after a tap or key press, and opening the message is that tap, so the music and Maura's first line start together. Then four one-sentence messages arrive, each after a short typing indicator, while the camera glides to the place it talks about:
    - "Morning! You're our street reporter today." - close on the reporter at the bus stop (yellow ring, "You" tag).
    - "The town's data centre wants another hall." - the campus, where a dashed yellow outline of the planned hall draws itself (the one memorable touch; decoration only).
    - "Ask a few people, then guess what the whole town thinks." - Main Street, "…" speech bubbles over a few residents.
@@ -67,8 +67,14 @@ Each story question lists the facts that are relevant to it (e.g. q11 → `promp
 - Canvas 2D for the world (tiles, buildings, people, all drawn in code), DOM for every control and panel (real buttons, visible focus). Reduced motion: no camera shake or bobbing, crowd appears at once, the parallel-vox-pop dots appear without falling, turbines turn slowly.
 - Laptop first (1280×800+). Narrow windows: panels become full-width sheets; no horizontal scroll.
 
+## Sound
+- **Background music** on every version: a quiet bed under everything, starting with the first tap or key press (the *Open* button). One *Sound* switch in the top bar, or <kbd>M</kbd>, turns all sound on or off; the choice is remembered on this device (`localStorage`, wrapped in try/catch). Where the music comes from is credited in "How this works".
+- **Two versions to choose from:** `vox-pop.html` (music only) and `vox-pop-voiced.html` (music + voices). They share every file; the voiced page also loads `games/vox-pop/voices.js`.
+- **Voices (voiced version only):** only direct speech by the game's characters is spoken - Maura's messages in the phone and each resident's answer (or refusal) in an interview; the sheep says "Baa". The player's own question, the coach notes and all other text are not read out. Every spoken line is also on screen. Clips are computer-generated (text to speech) ahead of time by `tools/make_vox_pop_voices.py` and looked up by speaker + exact text, so a line whose wording changes simply plays silently until the clips are regenerated. Residents get one of three female or three male voices by name; the voice never affects an answer. The music ducks while someone speaks.
+- `games/vox-pop/audio.js` does all of this with the Web Audio API from data inside script files (no `fetch()`, so it works from `file://` in Safari and Chrome). Without it the game runs silently.
+
 ## Debug screens
-`#screen=` `start` (= `beat1`), `beat1`, `beat2`, `beat3`, `beat4` (the intro messages), `brief` (story-1 brief after the intro), `brief2` (story-2 brief), `first-walk` (walking before the first interview), `play`, `talk`, `fact`, `notebook`, `file`, `crowd`, `report`, `end`, `help`, `evening` (story 3 at dusk).
+`#screen=` `start` (the new-message notice), `beat1`, `beat2`, `beat3`, `beat4` (the intro messages), `brief` (story-1 brief after the intro), `brief2` (story-2 brief), `first-walk` (walking before the first interview), `play`, `talk`, `fact`, `notebook`, `file`, `crowd`, `report`, `end`, `help`, `evening` (story 3 at dusk).
 
 ---
 

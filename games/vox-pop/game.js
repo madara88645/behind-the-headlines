@@ -9,7 +9,7 @@
  * per beat, the camera gliding to each place), and the same thread then carries each story's brief.
  *
  * Debug screens: add #screen=<name> to the URL:
- *   start (= beat1), beat1, beat2, beat3, beat4  - the intro beats on the phone
+ *   start (the new-message notice), beat1, beat2, beat3, beat4  - the intro beats on the phone
  *   brief (story 1 brief, after the intro), brief2 (story 2 brief), first-walk (walking, before the first interview)
  *   play, talk, fact, notebook, file, crowd, report, end, help, evening (story 3 at dusk)
  */
@@ -19,6 +19,8 @@
   const S = window.Survey, F = window.DC_FACTS || { facts: [] };
   const VP = window.VP || {};
   const Wd = VP.World, Art = VP.Art, Sim = VP.Sim, People = VP.People;
+  const Snd = VP.Audio || null;            // music and voices (audio.js); optional
+  const sayLine = (who, text) => { if (Snd && who && text) Snd.say(who, text); };
   if (!S || !Wd || !Art || !Sim || !People) return;
 
   /* ============================================================ helpers */
@@ -182,6 +184,7 @@
     const k = e.key.toLowerCase();
     const ae = document.activeElement;
     const onWorld = ae === cv || ae === document.body || !ae;
+    if (k === 'm' && Snd) { toggleSound(); e.preventDefault(); return; }
     if (k === 'escape') {
       if (!$('#p-help').hidden) { closeHelp(); e.preventDefault(); return; }
       if (G.mode === 'intro') { skipIntro(); e.preventDefault(); return; }
@@ -283,7 +286,7 @@
     keys.clear();
     if (tg.kind === 'res') { if (interviewed(tg.obj)) { toast(tg.obj.name + ' has already answered this story\'s question.'); return; } startTalk(tg.obj); }
     else if (tg.kind === 'ev') openFact(tg.obj);
-    else { toast('Baa. (Sheep weren\'t in the survey.)'); G.fx.push({ kind: 'bubble', x: tg.obj.x, y: tg.obj.y, t0: G.t, text: 'Baa' }); }
+    else { toast('Baa. (Sheep weren\'t in the survey.)'); sayLine('sheep', 'Baa'); G.fx.push({ kind: 'bubble', x: tg.obj.x, y: tg.obj.y, t0: G.t, text: 'Baa' }); }
   }
 
   /* ============================================================ update */
@@ -910,11 +913,6 @@
     setHud(false);
     $('#onair-banner').hidden = true;
     phOpen(Sim.SLOTS[0].start);
-    $('#ph-foot').innerHTML =
-      '<button class="btn primary" type="button" id="ph-next" data-autofocus>Next <span aria-hidden="true">→</span></button>' +
-      '<button class="btn ghost small" type="button" id="ph-skip">Skip intro</button>';
-    $('#ph-next').addEventListener('click', introNext);
-    $('#ph-skip').addEventListener('click', skipIntro);
     // the top of a new conversation: the game's name (it scrolls away as the messages arrive)
     const hello = document.createElement('div');
     hello.className = 'ph-hello';
@@ -922,14 +920,47 @@
       '<p class="ph-title">Vox Pop</p>';
     $('#ph-thread').appendChild(hello);
     G.introBeat = -1;
-    if (upTo == null) {
-      setCam('town', true);      // open on the whole town, then glide to the reporter
-      introNext();
+    G.locked = false;
+    if (upTo == null || upTo < 0) {
+      setCam('town', true);      // open on the whole town; the first message waits for "Open"
+      showLock();
     } else {
+      introFoot();
       for (let i = 0; i <= upTo && i < BEATS.length; i++) beat(i, true);
       setCam(G.cam, true);
     }
     focusIn($('#p-phone'));
+  }
+  function introFoot() {
+    $('#ph-foot').innerHTML =
+      '<button class="btn primary" type="button" id="ph-next" data-autofocus>Next <span aria-hidden="true">→</span></button>' +
+      '<button class="btn ghost small" type="button" id="ph-skip">Skip intro</button>';
+    $('#ph-next').addEventListener('click', introNext);
+    $('#ph-skip').addEventListener('click', skipIntro);
+  }
+  /** Before the first message: a new-message notice and one button. Browsers only start sound after a tap or key, and this is it. */
+  function showLock() {
+    G.locked = true;
+    const n = document.createElement('p');
+    n.className = 'ph-new';
+    n.id = 'ph-new';
+    n.innerHTML = '<i aria-hidden="true"></i>1 new message';
+    $('#ph-thread').appendChild(n);
+    $('#ph-foot').innerHTML =
+      '<button class="btn primary" type="button" id="ph-open" data-autofocus>Open <span aria-hidden="true">→</span></button>' +
+      '<button class="btn ghost small" type="button" id="ph-skip">Skip intro</button>';
+    $('#ph-open').addEventListener('click', openLock);
+    $('#ph-skip').addEventListener('click', skipIntro);
+  }
+  function openLock() {
+    if (G.mode !== 'intro' || !G.locked) return;
+    G.locked = false;
+    if (Snd) Snd.unlock();
+    const n = $('#ph-new');
+    if (n) n.remove();
+    introFoot();
+    grab($('#ph-next'));
+    introNext();
   }
   function beat(b, instant) {
     G.introBeat = b;
@@ -937,10 +968,12 @@
     if (B.cam === 'hall') G.hallT = instant ? -99 : G.t;
     if (B.cam === 'street') G.chatty = chattyResidents();
     setCam(B.cam);
-    phSay(esc(B.text()), instant);
+    const t = B.text();
+    phSay(esc(t), instant, instant ? null : () => sayLine('editor', t));
   }
   function introNext() {
     if (G.mode !== 'intro') return;
+    if (G.locked) { openLock(); return; }
     if (phFlush()) return;                  // still typing: show that message first
     const b = G.introBeat + 1;
     if (b >= BEATS.length) { endIntro(); return; }
@@ -990,7 +1023,8 @@
     setCam('town', !carryOn);
     $('#ph-thread').focus({ preventScroll: true });
     phAdd('Story ' + slot.n + '/' + Sim.SLOTS.length, 'day');
-    phSay(esc(BRIEF_LINE[slot.n] || slot.editor), false, () => showReplies(st));
+    const line = BRIEF_LINE[slot.n] || slot.editor;
+    phSay(esc(line), false, () => { sayLine('editor', line); showReplies(st); });
   }
   /** The footer's buttons change under the pointer: ignore the second click of a double-click. */
   let armT = null;
@@ -1125,6 +1159,7 @@
       '<div class="row"><button class="btn primary" type="button" id="talk-next" data-autofocus>Thanks! <kbd>E</kbd></button><span class="cost">' + (G.relaxed ? 'No deadline' : COST_TALK + ' min spent') + '</span></div>';
     el.hidden = false;
     drawPortrait($('.portrait', el), res.look);
+    sayLine(res.voice, answerLine);
     $('#talk-next').addEventListener('click', advanceTalk);
     clearTalkTimers();
     finishTalkUI();
@@ -1627,7 +1662,7 @@
       '<h2 id="help-h" tabindex="-1">How this works</h2>' +
       '<p class="help-mode"><label class="check"><input type="checkbox" id="help-relaxed"' + (G.relaxed ? ' checked' : '') + '> Relaxed mode (no deadline)</label> <span class="muted small">The clock stops, so you can take your time.</span></p>' +
       '<h3>Controls</h3>' +
-      '<p>Walk with the arrow keys or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>, or click where you want to go. <kbd>E</kbd> interview someone or read a data point · <kbd>N</kbd> notebook · <kbd>F</kbd> file your story.</p>' +
+      '<p>Walk with the arrow keys or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>, or click where you want to go. <kbd>E</kbd> interview someone or read a data point · <kbd>N</kbd> notebook · <kbd>F</kbd> file your story' + (Snd ? ' · <kbd>M</kbd> sound on or off' : '') + '.</p>' +
       '<h3>What\'s real and what\'s made up</h3>' +
       '<p><b>Real:</b> the survey - ' + S.n + ' people in Ireland (Maynooth University, <i>' + esc(S.meta.title) + '</i>) - and every fact on a teal marker, each with its source. <b>Made up:</b> the town of ' + TOWN + ' and everyone in it.</p>' +
       '<h3>How a resident answers</h3>' +
@@ -1640,6 +1675,7 @@
       '<p>A simulation: 100 imaginary reporters each ask the same number of random residents as you did (answers drawn exactly as above). It shows how much a small sample moves by luck. It is not a prediction.</p>' +
       '<h3>Scoring</h3>' +
       '<p>Your miss is the gap between your headline number and the survey. ★★★ within 5 points, ★★ within 12, ★ within 20, plus one for citing a relevant fact. With small samples luck plays a big part - that is the point of the game.</p>' +
+      (Snd ? '<h3>Sound</h3><p>' + soundCredits() + '</p>' : '') +
       '<h3>Labels</h3>' +
       '<ul class="legend small"><li>' + CHIP.data + '<span>Measured, with a source.</span></li><li>' + CHIP.opinion + '<span>What people say - your interviews and the survey.</span></li><li>' + CHIP.assume + '<span>Your guess - the headline number.</span></li></ul>' +
       '<div class="row"><button class="btn primary" type="button" id="help-close" data-autofocus>Close</button></div>';
@@ -1648,6 +1684,13 @@
     $('#help-relaxed').addEventListener('change', (e) => setRelaxed(e.target.checked));
     focusIn(el);
   }
+  /** Where the music and (on the voiced version) the voices come from. */
+  function soundCredits() {
+    const m = window.VP_MUSIC, v = window.VP_VOICES;
+    const music = m && m.credit ? esc(m.credit) : (Snd && Snd.musicCredit ? esc(Snd.musicCredit) : 'Music made for this game.');
+    const voices = Snd.hasVoices() ? ' The residents\' and the editor\'s voices are computer-generated (text to speech)' + (v && v.credit ? ': ' + esc(v.credit) : '') + '.' : '';
+    return music + voices + ' Turn sound on or off with the Sound button or <kbd>M</kbd>.';
+  }
   function closeHelp() {
     $('#p-help').hidden = true;
     if (helpReturn && document.body.contains(helpReturn) && !helpReturn.closest('[hidden]')) helpReturn.focus({ preventScroll: true });
@@ -1655,6 +1698,21 @@
   }
 
   /* ============================================================ wiring */
+  // Browsers only start sound after a tap or a key press: the first one anywhere starts the music.
+  if (Snd) ['pointerdown', 'click', 'keydown'].forEach((t) => document.addEventListener(t, () => Snd.unlock(), true));
+  const sndBtn = $('#btn-sound');
+  function syncSound() {
+    if (!Snd || !sndBtn) return;
+    sndBtn.hidden = false;
+    sndBtn.setAttribute('aria-pressed', Snd.isMuted() ? 'false' : 'true');
+  }
+  function toggleSound() {
+    Snd.unlock();
+    Snd.toggleMuted();
+    syncSound();
+    announce(Snd.isMuted() ? 'Sound off.' : 'Sound on.');
+  }
+  if (Snd && sndBtn) { sndBtn.addEventListener('click', toggleSound); if (Snd.onChange) Snd.onChange(syncSound); syncSound(); }
   $('#btn-help').addEventListener('click', openHelp);
   $('#btn-talk').addEventListener('click', () => { interact(); });
   $('#btn-notebook').addEventListener('click', openNotebook);
@@ -1702,7 +1760,7 @@
     return st;
   }
   const DEBUG = {
-    start: () => showIntro(0),
+    start: () => showIntro(-1),
     beat1: () => showIntro(0),
     beat2: () => showIntro(1),
     beat3: () => showIntro(2),
