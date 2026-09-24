@@ -47,36 +47,26 @@
 </div>
 
 <p class="toast" id="toast" hidden></p>
-<div class="controls-hint" id="controls-hint" hidden>
-  <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrows: walk</span>
-  <span>Click: walk there</span>
-  <span><kbd>E</kbd> talk / read</span>
-  <span><kbd>N</kbd> notebook</span>
-  <span><kbd>F</kbd> file story</span>
+<div class="coach" id="coach" hidden>
+  <canvas class="coach-av" id="coach-av" width="96" height="96" aria-hidden="true"></canvas>
+  <p id="coach-text" aria-live="polite"></p>
 </div>
 
-<!-- ======================================================= START -->
-<section class="panel start" id="p-start" data-screen="start" aria-labelledby="start-h" hidden>
-  <p class="kicker">A reporting game · about 5 minutes</p>
-  <h1 id="start-h" tabindex="-1">Vox Pop</h1>
-  <p class="tagline">Ask the street. Guess the town. Then meet the 200.</p>
-  <p class="lede">Three radio stories. Can a few interviews tell you what a town thinks?</p>
-  <ol class="quick-steps"><li><b>Ask</b> residents around town.</li><li><b>Guess</b> a percentage for your headline.</li><li><b>Compare</b> it with the real survey.</li></ol>
-  <p class="honest"><span class="chip opinion"><i aria-hidden="true" class="ico ico-talk"></i>Opinion</span> <span>Built on a survey of <b id="start-n"></b> people in Ireland (Maynooth University survey). <b>Fictional town and residents;</b> answers sampled from survey totals.</span></p>
-  <ul class="legend" aria-label="How to read the labels in this game">
-    <li><span class="chip data"><i aria-hidden="true" class="ico ico-bars"></i>Data</span><span>Sourced facts at teal markers.</span></li>
-    <li><span class="chip opinion"><i aria-hidden="true" class="ico ico-talk"></i>Opinion</span><span>Interviews and survey views.</span></li>
-    <li><span class="chip assume"><i aria-hidden="true" class="ico ico-pencil"></i>Assumption</span><span>Your headline guess.</span></li>
-  </ul>
-  <div class="start-row">
-    <button class="btn primary big" type="button" id="btn-start">Start reporting <span aria-hidden="true">→</span></button>
-    <label class="check"><input type="checkbox" id="relaxed"> Relaxed mode (no deadline)</label>
+<!-- ======================================================= PHONE: messages from your editor (the intro, then each story's brief) -->
+<section class="panel phone" id="p-phone" data-screen="start brief" aria-label="Messages from Maura, your editor" hidden>
+  <div class="device">
+    <div class="screen">
+      <div class="ph-status" aria-hidden="true"><span id="ph-time">09:00</span><span class="ph-island"></span><span class="ph-icons"><i class="sig"></i><i class="bat"></i></span></div>
+      <div class="ph-head">
+        <canvas class="ph-av" id="ph-av" width="96" height="96" aria-hidden="true"></canvas>
+        <p class="ph-who"><b>Maura</b><span>Editor</span></p>
+      </div>
+      <div class="ph-thread" id="ph-thread" role="log" aria-live="polite" tabindex="-1"></div>
+      <div class="ph-foot" id="ph-foot"></div>
+    </div>
   </div>
-  <p class="keys">Click to walk · <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrows to move · <kbd>E</kbd> to talk</p>
+  <p class="ph-cap" id="ph-cap"></p>
 </section>
-
-<!-- ======================================================= BRIEF -->
-<section class="panel brief" id="p-brief" data-screen="brief" aria-labelledby="brief-h" hidden></section>
 
 <!-- ======================================================= INTERVIEW -->
 <section class="panel talk" id="p-talk" data-screen="talk" aria-labelledby="talk-name" hidden></section>
