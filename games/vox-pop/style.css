@@ -117,7 +117,8 @@ kbd {
 #btn-help { margin-left: auto; }
 
 .tally {
-  position: fixed; left: 12px; bottom: 12px; z-index: 10; width: 300px;
+  position: fixed; left: 12px; bottom: 12px; z-index: 10;
+  width: clamp(300px, 28vw, 360px); max-width: calc(100vw - 24px);
   background: rgba(255, 255, 255, .96); border-radius: 16px; box-shadow: var(--shadow); padding: 12px 14px;
   font-size: 13px;
 }
@@ -126,8 +127,8 @@ kbd {
 .t-q { margin-top: 4px !important; font-weight: 600; }
 .t-q .mono { color: var(--ink-soft); font-weight: 400; }
 .t-bars { list-style: none; padding: 0; margin: 8px 0; display: grid; gap: 3px; }
-.t-bars li { display: grid; grid-template-columns: minmax(0, 1fr) 84px 18px; align-items: center; gap: 8px; border-radius: 6px; padding: 1px 4px; transition: background .3s ease; }
-.t-l { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.t-bars li { display: grid; grid-template-columns: minmax(0, 2fr) minmax(36px, 1fr) 2ch; align-items: center; gap: 8px; border-radius: 6px; padding: 3px 4px; transition: background .3s ease; }
+.t-l { min-width: 0; white-space: normal; overflow-wrap: anywhere; line-height: 1.4; }
 .t-b { height: 9px; background: var(--wash); border-radius: 5px; overflow: hidden; border: 1px solid var(--line); }
 .t-b i { display: block; height: 100%; background: #B9AEA4; border-radius: 5px; transition: width .4s cubic-bezier(.3, 1.5, .6, 1); }
 .t-bars li.yes .t-b i { background: var(--opinion); }
