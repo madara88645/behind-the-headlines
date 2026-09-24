@@ -396,6 +396,13 @@ input[type=range]:focus-visible { box-shadow: none; outline-offset: 4px; }
 details.how { font-size: 13px; background: var(--wash); border-radius: 10px; padding: 8px 12px; margin: 8px 0; }
 details.how summary { cursor: pointer; font-weight: 700; }
 details.how p { margin: 6px 0 0 !important; }
+.quick-steps { padding-left: 24px; margin: 12px 0; }
+.quick-steps li { padding: 3px 0; }
+details.explore { padding: 12px 0; }
+details.explore > summary { cursor: pointer; font-weight: 700; line-height: 1.5; }
+details.explore[open] > summary { margin-bottom: 12px; }
+.report .q-full { font: 400 15px/1.5 var(--body); color: var(--ink); }
+.report .miss { padding: 12px; background: var(--wash); border-radius: 10px; }
 table { border-collapse: collapse; width: 100%; font-size: 13px; }
 th, td { text-align: left; padding: 6px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
 thead th { font: 500 11px var(--mono); text-transform: uppercase; letter-spacing: .04em; color: var(--ink-soft); }

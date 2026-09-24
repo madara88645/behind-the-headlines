@@ -659,14 +659,14 @@
     el.innerHTML =
       '<p class="kicker">Story ' + slot.n + ' of ' + Sim.SLOTS.length + ' · ' + esc(slot.bulletin) + ' · ' + hhmm(slot.start) + '</p>' +
       '<h2 id="brief-h" tabindex="-1">' + esc(slot.name) + '</h2>' +
-      '<blockquote class="editor"><span class="who">Your editor</span>“' + esc(slot.editor) + '”</blockquote>' +
+      '<p class="editor">' + ['Find out how people feel about living near data centres.', 'Find out how often people use digital services.', 'Find out what people think about data centres.'][G.story] + '</p>' +
       '<p class="pick">Pick the question you\'ll ask people:</p>' +
       '<div class="angles">' + st.offered.map((id) => {
         const places = placesFor(id);
         return '<button type="button" class="angle" data-q="' + id + '">' +
           '<span class="a-title">' + esc(Sim.Q[id].title) + '</span>' +
-          '<span class="a-q"><b>You\'ll ask:</b> ' + esc(Sim.askText(id)) + '</span>' +
-          '<span class="a-m">' + CHIP.assume + ' Your headline: the % who answer ' + esc(Sim.measureText(id)) + '</span>' +
+          '<span class="a-q">' + esc(Sim.askText(id)) + '</span>' +
+          '<span class="a-m">' + CHIP.assume + ' Guess the % answering ' + esc(Sim.measureText(id)) + '</span>' +
           (places.length ? '<span class="a-d">' + CHIP.data + ' Useful data at ' + esc(joinList(places)) + '</span>' : '') +
           '<span class="a-id mono">Survey question q' + esc(id.slice(1)) + '</span>' +
           '</button>';
@@ -730,33 +730,16 @@
       '<div class="who"><canvas class="portrait" width="96" height="96" aria-hidden="true"></canvas>' +
       '<div><h2 id="talk-name">' + esc(res.name) + '</h2><p class="meta">' + esc(Sim.D[res.district].name) + ' · ' + esc(res.doing) + '</p><p class="made">Made-up resident · answer drawn from the survey</p></div></div>' +
       '<div class="lines">' +
-      '<p class="line them" data-step="0">“' + esc(res.greet) + '”</p>' +
       '<p class="line you" data-step="1"><b>You:</b> ' + esc(Sim.askText(st.qid)) + '</p>' +
       '<p class="line them answer" data-step="2">“<span class="typed" data-full="' + esc(answerLine) + '"></span>”</p>' +
       '</div>' +
-      '<div class="recorded" data-step="3">' + CHIP.opinion + ' ' + (opt ? 'Recorded: <b>' + esc(opt.short || opt.label) + '</b>' + (yes ? ' <span class="counts yes">● counts toward your headline</span>' : ' <span class="counts no">○ doesn\'t count toward your headline</span>') : 'Recorded: <b>no answer</b> <span class="counts none">◌ declined</span>') + '</div>' +
-      '<p class="bye" data-step="3">“' + esc(res.bye) + '”</p>' +
-      '<div class="row"><button class="btn primary" type="button" id="talk-next" data-autofocus>Skip <kbd>E</kbd></button><span class="mono cost">−' + COST_TALK + ' min</span></div>';
+      '<div class="recorded" data-step="3">' + CHIP.opinion + ' ' + (opt ? 'Recorded: <b>' + esc(opt.short || opt.label) + '</b>' + (yes ? ' <span class="counts yes">● included in headline %</span>' : ' <span class="counts no">○ outside headline %</span>') : 'Recorded: <b>no answer</b> <span class="counts none">◌ declined</span>') + '</div>' +
+      '<div class="row"><button class="btn primary" type="button" id="talk-next" data-autofocus>Skip <kbd>E</kbd></button><span class="mono cost">' + (G.relaxed ? 'No deadline' : '−' + COST_TALK + ' min') + '</span></div>';
     el.hidden = false;
     drawPortrait($('.portrait', el), res.look);
     $('#talk-next').addEventListener('click', advanceTalk);
     clearTalkTimers();
-    const steps = $$('[data-step]', el);
-    steps.forEach((s) => s.classList.add('pending'));
-    const reveal = (n) => steps.forEach((s) => { if (+s.dataset.step <= n) s.classList.remove('pending'); });
-    const typed = $('.typed', el);
-    if (reduced()) { typed.textContent = answerLine; reveal(3); finishTalkUI(); }
-    else {
-      reveal(0);
-      talkTimers.push(setTimeout(() => reveal(1), 450));
-      talkTimers.push(setTimeout(() => {
-        reveal(2);
-        el.classList.add('speaking');
-        let i = 0;
-        const tick = () => { i++; typed.textContent = answerLine.slice(0, i); if (i < answerLine.length) talkTimers.push(setTimeout(tick, 32)); else { el.classList.remove('speaking'); talkTimers.push(setTimeout(() => { reveal(3); finishTalkUI(); }, 180)); } };
-        tick();
-      }, 1100));
-    }
+    finishTalkUI();
     focusIn(el);
     announce(res.name + ' says: ' + answerLine + (opt ? ' Recorded as ' + (opt.short || opt.label) + '.' : ' No answer recorded.'));
   }
@@ -950,7 +933,7 @@
       '<br><span class="mono small">Asked in: ' + Sim.DISTRICTS.map((d) => esc(d.inText) + ' ' + t.by[d.key].asked).join(' · ') + '</span></p></div>' +
       '<div class="f-block">' + CHIP.assume + '<div class="f-slider"><label for="est"><b>Your headline number.</b> What share of ' + TOWN + ' would answer ' + esc(Sim.measureText(st.qid)) + '?</label>' +
       '<div class="est-row"><input type="range" id="est" min="0" max="100" step="1" value="' + start + '" aria-describedby="est-help"><output id="est-out" for="est">' + start + '%</output></div>' +
-      '<p id="est-help" class="mono small">Start from your vox pop, then adjust if you think it\'s off. Arrow keys move 1 point.</p></div></div>' +
+      '<p id="est-help" class="mono small">Adjust your guess. Arrow keys move 1 point.</p></div></div>' +
       '<div class="script"><span class="onair-pill"><i aria-hidden="true"></i>On air at ' + hhmm(st.slot.start + STORY_MIN) + '</span><p class="script-h" id="script-h"></p></div>' +
       '<div class="f-block">' + CHIP.data + '<p>' + (held.length ? '<b>Facts you can cite:</b> ' + held.map((f) => esc(f.source)).join(', ') + '. Your story counts as sourced.' : '<b>No sourced facts for this story.</b> Useful ones were at ' + esc(joinList(placesFor(st.qid))) + '.') + '</p></div>' +
       '<div class="row">' + (forced ? '' : '<button class="btn ghost" type="button" id="file-back">Keep reporting</button>') + '<button class="btn primary big" type="button" id="file-go" data-autofocus>Go on air <span aria-hidden="true">→</span></button></div>';
@@ -1083,7 +1066,8 @@
     el.innerHTML =
       '<p class="kicker">Story ' + st.slot.n + ' report · ' + esc(Sim.Q[st.qid].title) + '</p>' +
       '<h2 id="report-h" tabindex="-1">' + verdict + ' <span class="stars" aria-label="' + st.stars + ' of 3 stars">' + '★'.repeat(st.stars) + '<span class="off">' + '★'.repeat(3 - st.stars) + '</span></span>' + (st.sourced ? ' <span class="sourced">✓ Sourced</span>' : '') + '</h2>' +
-      '<p class="q-full mono">q' + esc(st.qid.slice(1)) + ' · ' + esc(Sim.surveyWording(st.qid)) + '</p>' +
+      '<p class="q-full">Share answering ' + esc(Sim.measureText(st.qid)) + '</p>' +
+      '<details class="how"><summary>Original survey question</summary><p>q' + esc(st.qid.slice(1)) + ' · ' + esc(Sim.surveyWording(st.qid)) + '</p></details>' +
       '<div class="three">' +
       '<div class="n assume">' + CHIP.assume + '<b>' + st.estimate + '%</b><span>Your headline</span></div>' +
       '<div class="n opinion small">' + CHIP.opinion + '<b>' + (t.k ? pc(t.pct) : '–') + '</b><span>Your vox pop · ' + t.k + ' ' + (t.k === 1 ? 'person' : 'people') + '</span></div>' +
@@ -1091,18 +1075,18 @@
       '</div>' +
       '<p class="miss">Your headline missed the survey by <b>' + r0(st.miss) + ' points</b>. ' + esc(luck) + '</p>' +
       '<p class="map-key small"><span>On the map, the survey\'s ' + S.n + ' people:</span> <span><i class="fig yes" aria-hidden="true"></i> ' + sv.yes + ' said ' + esc(Sim.measureText(st.qid)) + '</span> <span><i class="fig no" aria-hidden="true"></i> ' + (sv.n - sv.yes) + ' another answer</span> <span><i class="fig none" aria-hidden="true"></i> ' + (S.n - sv.n) + ' didn\'t answer</span></p>' +
-      '<section class="rep-sec"><h3>100 parallel vox pops <span class="tag-sim">simulation</span></h3>' +
+      '<details class="rep-sec explore"><summary>Could another sample change the result? <span class="tag-sim">simulation</span></summary>' +
       '<p>' + (t.k ? 'If 100 reporters each asked ' + st.simK + ' random residents, this is what they would have got. Yours is marked.' : 'You didn\'t get any answers. If 100 reporters each asked 5 random residents, this is what they would have got.') + '</p>' +
       voxChart(st) +
       '<p class="small">' + within10 + ' of 100 landed within 10 points of the survey; results ran from ' + r0(mn) + '% to ' + r0(mx) + '%. Asking 30 people each, 90 of 100 would land between about ' + r0(st.range30[0]) + '% and ' + r0(st.range30[1]) + '%.</p>' +
       '<details class="how"><summary>How this is calculated</summary><p>Each simulated reporter picks residents at random, in the same mix of districts as the survey (q4), and each resident\'s answer is drawn the same way as in the game - from the q4 cross-tab row for their district. People who would decline are left out, so every reporter gets ' + st.simK + ' answers. It shows sampling luck, not a prediction.</p></details>' +
-      '</section>' +
-      '<section class="rep-sec"><h3>Where you asked</h3>' + whereTable(st) +
-      '<p class="small muted">Survey figures are the q4 cross-tab: people who described their own area as urban, suburban or rural. A pattern, not a cause.</p></section>' +
+      '</details>' +
+      '<details class="rep-sec explore"><summary>Compare districts</summary>' + whereTable(st) +
+      '<p class="small muted">Survey figures are the q4 cross-tab: people who described their own area as urban, suburban or rural. A pattern, not a cause.</p></details>' +
       (extras.length ? extras.map(extraBlock).join('') : '') +
-      '<section class="rep-sec"><h3>' + CHIP.data + ' What\'s measured</h3>' +
+      '<details class="rep-sec explore"><summary>' + CHIP.data + ' Read the evidence and sources</summary>' +
       rel.map((f) => { const where = G.facts.has(f.id); const ev = Wd.evidence.find((e) => e.facts.includes(f.id)); return '<div class="rep-fact ' + (where ? 'got' : 'missed') + '"><p class="rf-tag">' + (where ? '✓ In your notebook' : '✗ Missed - it was at ' + esc(ev ? ev.place : 'a data point')) + '</p>' + factCard(f, false) + '</div>'; }).join('') +
-      '<p class="small muted">A fact doesn\'t settle how people feel - but a story with both is a better story.</p></section>' +
+      '<p class="small muted">Facts explain impacts; the survey records views.</p></details>' +
       '<div class="row sticky"><button class="btn primary big" type="button" id="rep-next">' + (last ? 'See your day <span aria-hidden="true">→</span>' : 'Next story <span aria-hidden="true">→</span>') + '</button></div>';
     el.hidden = false;
     el.scrollTop = 0;
@@ -1157,10 +1141,10 @@
     const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
     const g = (v) => esc(v.label) + ' (' + pc(v.pct) + ', n = ' + v.n + ')';
     const line = Math.abs(a.pct - b.pct) < 3 ? 'About the same among ' + g(a) + ' and ' + g(b) + '.' : (a.pct > b.pct ? 'Higher' : 'Lower') + ' among ' + g(a) + ' than among ' + g(b) + '.';
-    return '<section class="rep-sec"><h3>' + CHIP.opinion + ' A pattern in the survey</h3>' +
+    return '<details class="rep-sec explore"><summary>' + CHIP.opinion + ' Explore a survey pattern</summary>' +
       '<p>' + (x.ofText ? 'Share who ' + esc(x.ofText) : 'Share answering ' + esc(Sim.measureText(x.of)) + ' (q' + esc(x.of.slice(1)) + ')') + ', split by survey q' + esc(x.by.slice(1)) + ':</p>' +
       '<div class="xbars">' + x.groups.map((v) => '<div class="xb"><span class="xl">' + esc(cap(v.label)) + ' <span class="mono small">n = ' + v.n + '</span>' + (v.small ? ' <span class="small-n">small group (n = ' + v.n + ')</span>' : '') + '</span><span class="xt"><i style="width:' + v.pct + '%"></i></span><b>' + pc(v.pct) + '</b></div>').join('') + '</div>' +
-      '<p class="small muted">' + line + ' That\'s a pattern among these respondents, not proof that one causes the other.</p></section>';
+      '<p class="small muted">' + line + ' That\'s a pattern among these respondents, not proof that one causes the other.</p></details>';
   }
 
   /* ============================================================ end */
@@ -1196,22 +1180,22 @@
       '<div class="table-wrap"><table class="stories"><thead><tr><th scope="col">Story</th><th scope="col">Asked</th><th scope="col">' + CHIP.assume + ' Your headline</th><th scope="col">' + CHIP.opinion + ' Your vox pop</th><th scope="col">' + CHIP.opinion + ' Survey</th><th scope="col">Miss</th><th scope="col">' + CHIP.data + ' Sourced</th></tr></thead><tbody>' +
       done.map((s) => '<tr><th scope="row">' + esc(Sim.Q[s.qid].title) + ' <span class="mono small">q' + esc(s.qid.slice(1)) + '</span></th><td>' + s.interviews.length + '</td><td>' + s.estimate + '%</td><td>' + (s.tally.k ? pc(s.tally.pct) : '–') + '</td><td>' + pc(s.survey.pct) + ' <span class="mono small nline">n = ' + s.survey.n + '</span></td><td class="nw">' + r0(s.miss) + ' pts</td><td>' + (s.sourced ? '✓ yes' : '✗ no') + '</td></tr>').join('') +
       '</tbody></table></div>' +
-      '<section class="lesson"><h3>What your day shows</h3>' +
+      '<section class="lesson"><h3>A few voices are not the whole town</h3>' +
       (worst && best && worst !== best ? '<p>Your biggest miss was <b>' + r0(worst.miss) + ' points</b> on story ' + worst.slot.n + ', from ' + worst.tally.k + (worst.tally.k === 1 ? ' answer' : ' answers') + '. Your closest was <b>' + r0(best.miss) + ' points</b> on story ' + best.slot.n + ', from ' + best.tally.k + '.</p>' : '') +
-      (tm ? '<p>In the simulation for your first story, a vox pop of 5 people typically missed the survey by <b>' + r0(tm.k5) + ' points</b>; with 30 people, by <b>' + r0(tm.k30) + '</b>. Asking more people doesn\'t make you right - it makes you less likely to be wrong by luck.</p>' : '') +
-      '<p>And a survey of ' + S.n + ' is itself a sample: it tells you what these ' + S.n + ' people in Ireland said, not what everyone thinks.</p></section>' +
+      (tm ? '<details class="how"><summary>What happens with more interviews?</summary><p>In the simulation for your first story, a vox pop of 5 people typically missed the survey by <b>' + r0(tm.k5) + ' points</b>; with 30 people, by <b>' + r0(tm.k30) + '</b>. Asking more people doesn\'t make you right - it makes you less likely to be wrong by luck.</p></details>' : '') +
+      '<p>This survey represents ' + S.n + ' people in Ireland (Maynooth University survey), not everyone.</p></section>' +
       '<section class="recap"><h3>Data ≠ opinion ≠ assumption</h3><ul>' +
-      '<li>' + CHIP.assume + '<span>Your headlines (' + done.map((s) => s.estimate + '%').join(', ') + ') were guesses about a town you had only partly heard from.</span></li>' +
-      '<li>' + CHIP.opinion + '<span>Your ' + asked + ' interviews and the survey\'s ' + S.n + ' answers are both what people said - real, and data about people, but not proof about data centres themselves.</span></li>' +
-      '<li>' + CHIP.data + '<span>You read ' + G.facts.size + ' measured facts with sources. They don\'t tell you what people think - and people\'s views don\'t change what\'s measured.</span></li>' +
+      '<li>' + CHIP.assume + '<span>Your headlines were guesses.</span></li>' +
+      '<li>' + CHIP.opinion + '<span>Interviews were simulated views. Survey answers are real views, not proof about data centres.</span></li>' +
+      '<li>' + CHIP.data + '<span>You read ' + G.facts.size + ' sourced facts. Facts and feelings answer different questions.</span></li>' +
       '</ul></section>' +
-      '<section class="device"><h3>Reporters on this device</h3><p>' + (runs.length ? runs.length + ' finished ' + (runs.length === 1 ? 'day' : 'days') + ' played in this browser. Average headline miss: <b>' + r0(devAvg) + ' points</b>. (Stored only on this device - not a live poll.)' : (storageOk() ? 'No finished days saved on this device yet.' : 'Nothing saved - this browser blocks storage.')) + '</p>' + (avgMiss ? '<p class="small muted">Your average miss today: ' + r0(avgMiss) + ' points.</p>' : '') + '</section>' +
+      '<details class="device explore"><summary>Reporters on this device</summary><p>' + (runs.length ? runs.length + ' finished ' + (runs.length === 1 ? 'day' : 'days') + ' played in this browser. Average headline miss: <b>' + r0(devAvg) + ' points</b>. (Stored only on this device - not a live poll.)' : (storageOk() ? 'No finished days saved on this device yet.' : 'Nothing saved - this browser blocks storage.')) + '</p>' + (avgMiss ? '<p class="small muted">Your average miss today: ' + r0(avgMiss) + ' points.</p>' : '') + '</details>' +
+      '<div class="row"><button class="btn primary big" type="button" id="end-again" data-autofocus>Play again</button><button class="btn ghost" type="button" id="end-how">How this works</button><a class="btn ghost" href="index.html">All games</a></div>' +
       '<section class="sources"><h3>Sources</h3><ul>' +
       '<li>Survey: <i>' + esc(S.meta.title) + '</i> - ' + esc(S.meta.source) + '. ' + S.n + ' respondents. Questions used: ' + Array.from(new Set(['q4'].concat(done.map((s) => s.qid)).concat(done.flatMap((s) => (Sim.Q[s.qid].extras || []).flatMap((e) => [e.by, e.of || s.qid]))))).map((x) => 'q' + x.slice(1)).join(', ') + '.</li>' +
       (G.visited.has('hall') ? '<li><a href="' + esc(F.csoSeries.url) + '" target="_blank" rel="noopener">' + esc(F.csoSeries.source) + '</a></li>' : '') +
       shownFacts.map((f) => '<li><a href="' + esc(f.url) + '" target="_blank" rel="noopener">' + esc(f.source) + '</a> (' + esc(f.year) + ', ' + esc(f.confidence) + ' confidence) - ' + esc(f.text) + '</li>').join('') +
       '</ul></section>' +
-      '<div class="row"><button class="btn primary big" type="button" id="end-again" data-autofocus>Play again</button><button class="btn ghost" type="button" id="end-how">How this works</button><a class="btn ghost" href="index.html">All games</a></div>' +
       '</div>';
     el.hidden = false;
     el.scrollTop = 0;
