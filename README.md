@@ -14,6 +14,8 @@ The idea running through all of them: **data ≠ opinion ≠ assumption.**
 ## Run it
 Open `index.html` in any modern browser - double-click works, no install or server needed. Each game can also be opened directly: `bubble-sort.html`, `5km.html`, `rigged.html`, `vox-pop.html`. Fonts come from Google Fonts; offline, the games fall back to system fonts.
 
+**Vox Pop has sound.** Quiet background music starts with the first click or key press (the phone's *Open* button). The *Sound* button in the top bar, or the M key, turns it on or off, and the choice is remembered on that device. Music: "Etirwer" by Kistol, CC0 1.0 (public domain) - https://opengameart.org/content/etirwer. Everything is embedded in `games/vox-pop/music.js` and played by `games/vox-pop/audio.js`, so it works offline from a double-clicked file.
+
 Optional local server (for testing on a phone on the same Wi-Fi):
 ```bash
 python3 -m http.server 8765 --directory .
