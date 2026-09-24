@@ -294,7 +294,7 @@
       updatePlayer(dt);
       if (!G.relaxed) {
         G.clock += dt / SEC_PER_MIN;
-        if (!G.warned && STORY_MIN - G.clock <= 20) { G.warned = true; toast('Twenty minutes to the deadline.'); announce('Twenty minutes to the deadline.'); }
+        if (!G.warned && STORY_MIN - G.clock <= 20) { G.warned = true; toast('Twenty game minutes left.'); announce('Twenty game minutes left.'); }
         if (G.clock >= STORY_MIN) { G.clock = STORY_MIN; openFile(true); }
       }
       const tg = findTarget();
@@ -542,7 +542,7 @@
 
   /* ============================================================ UI helpers */
   function show(id, on) { const el = $(id); if (el) el.hidden = !on; }
-  function hideAllPanels() { $$('.panel').forEach((p) => { if (p.id !== 'p-help') p.hidden = true; }); }
+  function hideAllPanels() { document.body.classList.remove('interviewing'); $$('.panel').forEach((p) => { if (p.id !== 'p-help') p.hidden = true; }); }
   function focusIn(el) {
     const f = el.querySelector('[data-autofocus]') || el.querySelector('h1[tabindex],h2[tabindex]') || el.querySelector('button, [href], input');
     if (f) setTimeout(() => f.focus({ preventScroll: true }), 30);
@@ -564,6 +564,7 @@
   }
   /** While a panel is open during reporting, the walk-around buttons step aside. */
   function playHud(on) {
+    document.body.classList.toggle('interviewing', !on && G.mode === 'talk');
     show('#actions', on);
     if (!on) { $('#controls-hint').hidden = true; G.hintUntil = 0; }
   }
@@ -585,9 +586,9 @@
       $('#clock-left').textContent = 'file when ready';
     } else {
       const left = STORY_MIN - G.clock;
-      $('#onair-light').textContent = 'Deadline ' + hhmm(slot.start + STORY_MIN);
-      $('#clock-time').textContent = hhmm(slot.start + G.clock);
-      $('#clock-left').textContent = Math.ceil(left) + ' min left';
+      $('#onair-light').textContent = 'Time left';
+      $('#clock-time').textContent = Math.max(0, Math.ceil(left)) + ' game min';
+      $('#clock-left').textContent = '';
       $('#clock').classList.toggle('hurry', left <= 20);
       $('#clock').style.setProperty('--left', clamp(left / STORY_MIN, 0, 1));
     }
@@ -662,16 +663,12 @@
       '<p class="editor">' + ['Find out how people feel about living near data centres.', 'Find out how often people use digital services.', 'Find out what people think about data centres.'][G.story] + '</p>' +
       '<p class="pick">Pick the question you\'ll ask people:</p>' +
       '<div class="angles">' + st.offered.map((id) => {
-        const places = placesFor(id);
         return '<button type="button" class="angle" data-q="' + id + '">' +
           '<span class="a-title">' + esc(Sim.Q[id].title) + '</span>' +
-          '<span class="a-q">' + esc(Sim.askText(id)) + '</span>' +
-          '<span class="a-m">' + CHIP.assume + ' Guess the % answering ' + esc(Sim.measureText(id)) + '</span>' +
-          (places.length ? '<span class="a-d">' + CHIP.data + ' Useful data at ' + esc(joinList(places)) + '</span>' : '') +
-          '<span class="a-id mono">Survey question q' + esc(id.slice(1)) + '</span>' +
+          '<span class="a-choose">Choose this story <span aria-hidden="true">→</span></span>' +
           '</button>';
       }).join('') + '</div>' +
-      '<p class="deadline mono">' + (G.relaxed ? 'Relaxed mode: no deadline. File when you are ready.' : 'Deadline ' + hhmm(slot.start + STORY_MIN) + '. Walking uses the clock; each interview takes ' + COST_TALK + ' minutes and reading data takes ' + COST_FACT + '.') + '</p>';
+      '<p class="deadline">' + (G.relaxed ? 'No deadline. File when ready.' : 'You have ' + STORY_MIN + ' game minutes. Walking, interviews and reading use time.') + '</p>';
     el.hidden = false;
     $$('.angle', el).forEach((b) => b.addEventListener('click', () => chooseAngle(b.dataset.q)));
     focusIn(el);
@@ -722,7 +719,6 @@
     const st = story(), T = G.talk, res = T.res;
     const q = S.q(st.qid);
     const opt = T.idx >= 0 ? q.options[T.idx] : null;
-    const yes = T.idx >= 0 && Sim.isYes(st.qid, T.idx);
     const answerLine = opt ? Sim.spoken(st.qid, opt) : res.decline;
     const el = $('#p-talk');
     el.innerHTML =
@@ -733,8 +729,8 @@
       '<p class="line you" data-step="1"><b>You:</b> ' + esc(Sim.askText(st.qid)) + '</p>' +
       '<p class="line them answer" data-step="2">“<span class="typed" data-full="' + esc(answerLine) + '"></span>”</p>' +
       '</div>' +
-      '<div class="recorded" data-step="3">' + CHIP.opinion + ' ' + (opt ? 'Recorded: <b>' + esc(opt.short || opt.label) + '</b>' + (yes ? ' <span class="counts yes">● included in headline %</span>' : ' <span class="counts no">○ outside headline %</span>') : 'Recorded: <b>no answer</b> <span class="counts none">◌ declined</span>') + '</div>' +
-      '<div class="row"><button class="btn primary" type="button" id="talk-next" data-autofocus>Skip <kbd>E</kbd></button><span class="mono cost">' + (G.relaxed ? 'No deadline' : '−' + COST_TALK + ' min') + '</span></div>';
+      '<div class="recorded" data-step="3">' + CHIP.opinion + ' <b>' + (opt ? esc(opt.short || opt.label) : 'Declined to answer') + '</b></div>' +
+      '<div class="row"><button class="btn primary" type="button" id="talk-next" data-autofocus>Thanks! <kbd>E</kbd></button><span class="cost">' + (G.relaxed ? 'No deadline' : 'Used ' + COST_TALK + ' game minutes') + '</span></div>';
     el.hidden = false;
     drawPortrait($('.portrait', el), res.look);
     $('#talk-next').addEventListener('click', advanceTalk);
@@ -822,7 +818,7 @@
       '<h2 id="fact-h" tabindex="-1">What\'s measured</h2>' +
       (ev.chart === 'cso' ? csoChart() : '') +
       facts.map((f) => factCard(f, rel.has(f.id))).join('') +
-      '<p class="fact-note">' + (first ? 'Added to the <b>Data</b> page of your notebook.' + (G.relaxed ? '' : ' Reading took ' + COST_FACT + ' minutes.') : 'You\'ve read this already - no time used.') + '</p>' +
+      '<p class="fact-note">' + (first ? 'Added to the <b>Data</b> page of your notebook.' + (G.relaxed ? '' : ' Used ' + COST_FACT + ' game minutes.') : 'You\'ve read this already - no time used.') + '</p>' +
       '<div class="row"><button class="btn primary" type="button" id="fact-close" data-autofocus>Back to reporting <kbd>E</kbd></button></div>';
     el.hidden = false;
     $('#fact-close').addEventListener('click', closeFact);
@@ -901,7 +897,7 @@
       const cat = iv.idx < 0 ? 'none' : Sim.isYes(st.qid, iv.idx) ? 'yes' : 'no';
       return '<li class="' + cat + '"><span class="mk" aria-hidden="true"></span><b>' + esc(p.name) + '</b> <span class="mono">' + esc(Sim.D[iv.d].short) + '</span> - ' + (o ? esc(o.short || o.label) : 'no answer') + '</li>';
     });
-    return '<p class="nb-q">“' + esc(Sim.askText(st.qid)) + '”</p>' +
+    return '<p class="nb-q">“' + esc(Sim.askText(st.qid)) + '”</p><p class="small muted">Survey question ' + esc(st.qid) + '</p>' +
       (lines.length ? '<ol class="nb-list hand">' + lines.join('') + '</ol>' : '<p class="muted">No interviews yet.</p>') +
       (t.k ? '<p class="nb-sum">' + t.yes + ' of ' + t.k + ' answered ' + esc(Sim.measureText(st.qid)) + ' = <b>' + pc(t.pct) + '</b></p>' : '');
   }
