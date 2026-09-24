@@ -51,8 +51,9 @@
   const atMost2 = (o) => o.value != null && o.value <= 2;
 
   const SPOKEN = {
-    agree: ['Strongly disagree.', "I'd disagree, yeah.", 'Neither, really.', "I'd agree with that.", 'Strongly agree.'],
-    accept: ['Completely unacceptable.', 'Somewhat unacceptable.', 'Neither, to be honest.', 'Somewhat acceptable.', 'Completely acceptable.'],
+    // the middle answers name both ends: a bare "Neither" sounds like a reply to an either/or question
+    agree: ['Strongly disagree.', "I'd disagree, yeah.", 'Neither agree nor disagree, really.', "I'd agree with that.", 'Strongly agree.'],
+    accept: ['Completely unacceptable.', 'Somewhat unacceptable.', 'Neither acceptable nor unacceptable, to be honest.', 'Somewhat acceptable.', 'Completely acceptable.'],
     freq: ['Never.', 'Rarely.', 'Sometimes.', 'Often.', 'Every day, pretty much.'],
     change: ['Much more negative.', 'A bit more negative.', "It's stayed the same.", 'A bit more positive.', 'Much more positive.'],
   };
