@@ -5,11 +5,11 @@
  * Survey numbers only come from window.Survey (via sim.js); facts only from window.DC_FACTS.
  * The residents are made up - see sim.js for how their answers are drawn from the survey.
  *
- * The opening is a short thread of messages from your editor on the reporter's phone (one sentence
- * per beat, the camera gliding to each place), and the same thread then carries each story's brief.
+ * The opening is the reporter's phone: how to play in three steps (ask, guess, compare), then
+ * each story's brief arrives in the same thread as a message from Maura, the editor.
  *
  * Debug screens: add #screen=<name> to the URL:
- *   start (the new-message notice), beat1, beat2, beat3, beat4  - the intro beats on the phone
+ *   start (how to play, on the phone)
  *   brief (story 1 brief, after the intro), brief2 (story 2 brief), first-walk (walking, before the first interview)
  *   play, talk, fact, notebook, file, crowd, report, end, help, evening (story 3 at dusk)
  */
@@ -80,10 +80,7 @@
       taught: G ? G.taught : { hud: false, opinion: false, data: false, assume: false, next: false },
       cam: 'town',             // camera spot during the intro and the briefs
       camShift: { sx: 0, sy: 0 },
-      introBeat: -1,
-      introSkipped: false,
       hallT: 0,                // when the planned hall started drawing itself
-      chatty: [],              // residents with a speech bubble on beat 3
       glideUntil: 0,
       residents: People.makeResidents(Sim.rng(seed + 11), RESIDENTS),
       sheep: People.makeSheep(Sim.rng(seed + 29), SHEEP),
@@ -187,7 +184,7 @@
     if (k === 'm' && Snd) { toggleSound(); e.preventDefault(); return; }
     if (k === 'escape') {
       if (!$('#p-help').hidden) { closeHelp(); e.preventDefault(); return; }
-      if (G.mode === 'intro') { skipIntro(); e.preventDefault(); return; }
+      if (G.mode === 'intro') { endIntro(); e.preventDefault(); return; }
       if (G.mode === 'talk') { endTalk(); e.preventDefault(); return; }
       if (G.mode === 'fact') { closeFact(); e.preventDefault(); return; }
       if (G.mode === 'notebook') { closeNotebook(); e.preventDefault(); return; }
@@ -196,9 +193,9 @@
     }
     if (!$('#p-help').hidden) return;
     if (G.mode === 'intro') {
-      // Enter / Space anywhere moves the messages on (the focused Next button handles its own keys)
+      // Enter / Space anywhere starts (the focused Start button handles its own keys)
       const onControl = ae && /^(BUTTON|A|INPUT|SUMMARY|SELECT|TEXTAREA|LABEL)$/.test(ae.tagName);
-      if ((k === 'enter' || k === ' ') && !onControl) { introNext(); e.preventDefault(); }
+      if ((k === 'enter' || k === ' ') && !onControl) { endIntro(); e.preventDefault(); }
       return;
     }
     if (G.mode === 'brief') {
@@ -575,10 +572,7 @@
   // The planned new hall: a dashed outline between the campus fence and Main Street (decoration only).
   const NEW_HALL = { x0: 18.3, y0: 8.3, x1: 21.7, y1: 10.8, h: 70 };
   function introOverlays(env) {
-    const b = G.introBeat, inIntro = G.mode === 'intro';
-    if (inIntro && b === 0) youRing(env, true);
-    if ((inIntro && b >= 1) || (G.mode === 'brief' && G.story === 0)) ghostHall(env, inIntro && b === 1);
-    if (inIntro && b === 2) G.chatty.forEach((id) => { const p = G.residents[id]; if (p) { const s = Wd.iso(p.x, p.y); Art.nameTag(ctx, s.x, s.y - 58, '…'); } });
+    if (G.mode === 'intro' || (G.mode === 'brief' && G.story === 0)) ghostHall(env, true);
   }
   function ghostHall(env, label) {
     const g = env.reduced ? 1 : clamp((G.t - G.hallT) / 1.1, 0, 1);
@@ -607,12 +601,6 @@
     ctx.restore();
     if (label && g >= 1) Art.nameTag(ctx, (w.x + e.x) / 2, n.y - h - 8, 'New data hall?', 'planning application');
   }
-  function chattyResidents() {
-    const c = { x: 17.5, y: 15.5 };
-    return G.residents.filter((p) => p.district === 'urban')
-      .map((p) => [Math.hypot(p.x - c.x, p.y - c.y), p.id]).sort((a, b) => a[0] - b[0]).slice(0, 4).map((p) => p[1]);
-  }
-
   function lighting(env, z, ox, oy) {
     const e = env.evening;
     if (e <= 0.02) return;
@@ -820,17 +808,11 @@
   }
 
   /* ============================================================ the phone: messages from your editor */
-  // The intro is a few one-sentence messages; each story's brief arrives in the same thread.
+  // The phone opens on how to play (three steps); each story's brief then arrives in the same thread.
   const EDITOR = { skin: '#E4B08E', hair: '#B9B1A8', hairStyle: 'bun', top: '#9B3D8F', bottom: '#2E3440' };
-  const BEATS = [
-    { cam: 'reporter', text: () => 'Morning! You\'re our street reporter today.' },
-    { cam: 'hall', text: () => 'The town\'s data centre wants another hall.' },
-    { cam: 'street', text: () => 'Ask a few people, then guess what the whole town thinks.' },
-    { cam: 'town', text: () => 'Later, we\'ll check your guess against the real survey of ' + S.n + ' people.' },
-  ];
   // one line per story brief (falls back to the long editor note in sim.js)
   const BRIEF_LINE = {
-    1: 'First up: the new hall. What will you ask?',
+    1: 'First up: the data centre wants a new hall. What will you ask?',
     2: 'Lunchtime story: life online. What will you ask?',
     3: 'Top story at six: where is the town heading? What will you ask?',
   };
@@ -888,10 +870,7 @@
     const availH = sh.sy ? vh + 2 * sh.sy - 70 : vh - 90;
     return clamp(Math.min(availW / 1680, availH / 1020), 0.2, 1);
   }
-  function camSpot(name) {
-    if (name === 'reporter') { const s = Wd.iso(G.player.x, G.player.y); return { x: s.x, y: s.y - 34, z: baseZoom * 1.35 }; }
-    if (name === 'hall') { const s = Wd.iso(24, 7.4); return { x: s.x, y: s.y - 34, z: baseZoom * 0.9 }; }
-    if (name === 'street') { const s = Wd.iso(17.2, 15.4); return { x: s.x, y: s.y - 24, z: baseZoom * 1.15 }; }
+  function camSpot() {
     return { x: MAP_C.x, y: MAP_C.y - 80, z: townZoom() };
   }
   function camTarget() {
@@ -904,86 +883,43 @@
     if (snap) { const c = camTarget(); view.x = c.x; view.y = c.y; view.zoom = c.z; }
   }
 
-  /* ============================================================ flow: intro */
-  /** upTo = null plays the intro from the start; a number shows beats 0..upTo at once (debug screens). */
-  function showIntro(upTo) {
+  /* ============================================================ flow: intro - how to play in three steps */
+  const ICO = {
+    ask: '<svg viewBox="0 0 32 32" width="30" height="30"><rect x="13.2" y="16" width="5.6" height="12" rx="2.2" fill="#241C17"/><circle cx="16" cy="11" r="7.2" fill="#9B3D8F"/><path d="M10.6 9.4h10.8M9.8 11.8h12.4M10.6 14.2h10.8" stroke="#fff" stroke-opacity=".35" stroke-width="1"/></svg>',
+    guess: '<svg viewBox="0 0 32 32" width="30" height="30"><circle cx="16" cy="16" r="13" fill="#FFC933" stroke="#241C17" stroke-width="2"/><circle cx="11.6" cy="11.8" r="2.6" fill="none" stroke="#241C17" stroke-width="2.2"/><circle cx="20.4" cy="20.2" r="2.6" fill="none" stroke="#241C17" stroke-width="2.2"/><path d="M21 10.5L11 21.5" stroke="#241C17" stroke-width="2.4" stroke-linecap="round"/></svg>',
+    compare: '<svg viewBox="0 0 32 32" width="30" height="30"><path d="M4 27.5h24" stroke="#241C17" stroke-width="2" stroke-linecap="round"/><rect x="7" y="9" width="7.5" height="17.5" rx="1.6" fill="#FFC933" stroke="#241C17" stroke-width="2"/><rect x="17.5" y="15" width="7.5" height="11.5" rx="1.6" fill="#9B3D8F" stroke="#241C17" stroke-width="2"/></svg>',
+  };
+  const GUIDE = [
+    { ico: 'ask', k: 'Ask', t: 'Interview people around town.' },
+    { ico: 'guess', k: 'Guess', t: 'What does the whole town think?' },
+    { ico: 'compare', k: 'Compare', t: 'Check your guess against a real survey.' },
+  ];
+  function showIntro() {
     G.mode = 'intro';
-    G.introSkipped = false;
     hideAllPanels();
     setHud(false);
     $('#onair-banner').hidden = true;
     phOpen(Sim.SLOTS[0].start);
-    // the top of a new conversation: the game's name (it scrolls away as the messages arrive)
+    // the top of the conversation: the game's name, then how to play (it scrolls up when the brief arrives)
     const hello = document.createElement('div');
     hello.className = 'ph-hello';
     hello.innerHTML = '<svg viewBox="0 0 24 24" width="52" height="52" aria-hidden="true"><rect x="9.2" y="12" width="5.6" height="10.5" rx="2" fill="#241C17"/><circle cx="12" cy="8" r="6.6" fill="#9B3D8F"/><path d="M7.4 6.4h9.2M6.6 8.6h10.8M7.4 10.8h9.2" stroke="#fff" stroke-opacity=".35" stroke-width=".9"/><circle cx="9.8" cy="5.6" r="1.7" fill="#fff" opacity=".55"/></svg>' +
       '<p class="ph-title">Vox Pop</p>';
     $('#ph-thread').appendChild(hello);
-    G.introBeat = -1;
-    G.locked = false;
-    if (upTo == null || upTo < 0) {
-      setCam('town', true);      // open on the whole town; the first message waits for "Open"
-      showLock();
-    } else {
-      introFoot();
-      for (let i = 0; i <= upTo && i < BEATS.length; i++) beat(i, true);
-      setCam(G.cam, true);
-    }
+    const guide = document.createElement('div');
+    guide.className = 'ph-guide';
+    guide.innerHTML = '<p class="g-h" id="guide-h">How to play</p>' +
+      '<ol class="g-steps" aria-labelledby="guide-h">' + GUIDE.map((g, i) =>
+        '<li style="--i:' + i + '"><span class="g-ico" aria-hidden="true">' + ICO[g.ico] + '</span><span class="g-txt"><b>' + (i + 1) + ' · ' + g.k + '</b><span>' + g.t + '</span></span></li>').join('') + '</ol>';
+    $('#ph-thread').appendChild(guide);
+    $('#ph-foot').innerHTML = '<button class="btn primary" type="button" id="ph-start" data-autofocus>Start reporting <span aria-hidden="true">→</span></button>';
+    $('#ph-start').addEventListener('click', endIntro);
+    G.hallT = G.debug || reduced() ? -99 : G.t;   // behind the phone, the planned hall draws itself
+    setCam('town', true);
     focusIn($('#p-phone'));
   }
-  function introFoot() {
-    $('#ph-foot').innerHTML =
-      '<button class="btn primary" type="button" id="ph-next" data-autofocus>Next <span aria-hidden="true">→</span></button>' +
-      '<button class="btn ghost small" type="button" id="ph-skip">Skip intro</button>';
-    $('#ph-next').addEventListener('click', introNext);
-    $('#ph-skip').addEventListener('click', skipIntro);
-  }
-  /** Before the first message: a new-message notice and one button. Browsers only start sound after a tap or key, and this is it. */
-  function showLock() {
-    G.locked = true;
-    const n = document.createElement('p');
-    n.className = 'ph-new';
-    n.id = 'ph-new';
-    n.innerHTML = '<i aria-hidden="true"></i>1 new message';
-    $('#ph-thread').appendChild(n);
-    $('#ph-foot').innerHTML =
-      '<button class="btn primary" type="button" id="ph-open" data-autofocus>Open <span aria-hidden="true">→</span></button>' +
-      '<button class="btn ghost small" type="button" id="ph-skip">Skip intro</button>';
-    $('#ph-open').addEventListener('click', openLock);
-    $('#ph-skip').addEventListener('click', skipIntro);
-  }
-  function openLock() {
-    if (G.mode !== 'intro' || !G.locked) return;
-    G.locked = false;
-    if (Snd) Snd.unlock();
-    const n = $('#ph-new');
-    if (n) n.remove();
-    introFoot();
-    grab($('#ph-next'));
-    introNext();
-  }
-  function beat(b, instant) {
-    G.introBeat = b;
-    const B = BEATS[b];
-    if (B.cam === 'hall') G.hallT = instant ? -99 : G.t;
-    if (B.cam === 'street') G.chatty = chattyResidents();
-    setCam(B.cam);
-    const t = B.text();
-    phSay(esc(t), instant, instant ? null : () => sayLine('editor', t));
-  }
-  function introNext() {
+  function endIntro() {
     if (G.mode !== 'intro') return;
-    if (G.locked) { openLock(); return; }
-    if (phFlush()) return;                  // still typing: show that message first
-    const b = G.introBeat + 1;
-    if (b >= BEATS.length) { endIntro(); return; }
-    beat(b, false);
-  }
-  function endIntro() { G.story = -1; nextStory(); }
-  function skipIntro() {
-    if (G.mode !== 'intro') return;
-    phClear();
-    G.introSkipped = true;
     G.story = -1;
     nextStory();
   }
@@ -1008,7 +944,7 @@
   /** The brief is the next message in the thread: one line from the editor and two questions to reply with. */
   function showBrief() {
     const st = story(), slot = st.slot;
-    const carryOn = G.mode === 'intro' && G.story === 0 && !G.introSkipped && !$('#p-phone').hidden;
+    const carryOn = G.mode === 'intro' && G.story === 0 && !$('#p-phone').hidden;
     G.mode = 'brief';
     hideAllPanels('p-phone');
     setHud(false);
@@ -1760,13 +1696,9 @@
     return st;
   }
   const DEBUG = {
-    start: () => showIntro(-1),
-    beat1: () => showIntro(0),
-    beat2: () => showIntro(1),
-    beat3: () => showIntro(2),
-    beat4: () => showIntro(3),
-    help: () => { showIntro(0); openHelp(); },
-    brief: () => { showIntro(BEATS.length - 1); endIntro(); },
+    start: () => showIntro(),
+    help: () => { showIntro(); openHelp(); },
+    brief: () => { showIntro(); endIntro(); },
     brief2: () => { G.taught = TAUGHT_ALL(); G.story = 0; nextStory(); },
     'first-walk': () => { G.story = -1; nextStory(); chooseAngle(story().offered[0], true); },
     play: () => { debugPlay(5); },

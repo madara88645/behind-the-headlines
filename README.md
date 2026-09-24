@@ -14,9 +14,7 @@ The idea running through all of them: **data ≠ opinion ≠ assumption.**
 ## Run it
 Open `index.html` in any modern browser - double-click works, no install or server needed. Each game can also be opened directly: `bubble-sort.html`, `5km.html`, `rigged.html`, `vox-pop.html`. Fonts come from Google Fonts; offline, the games fall back to system fonts.
 
-**Vox Pop has sound.** Quiet background music starts with the first click or key press (the phone's *Open* button). The *Sound* button in the top bar, or the M key, turns it on or off, and the choice is remembered on that device. Music: "Etirwer" by Kistol, CC0 1.0 (public domain) - https://opengameart.org/content/etirwer. Everything is embedded in `games/vox-pop/music.js` and played by `games/vox-pop/audio.js`, so it works offline from a double-clicked file.
-
-**Two Vox Pop versions to choose from:** `vox-pop.html` (music only) and `vox-pop-voiced.html`, where the editor's messages and each resident's answer are also spoken (the text stays on screen). The voices are computer-generated ahead of time with Kokoro-82M by hexgrad (Apache-2.0) and stored in `games/vox-pop/voices.js`. If a spoken line's wording changes, regenerate them with `tools/make_vox_pop_voices.py --lines tools/vox_pop_voice_lines.json --out games/vox-pop/voices.js` (its docstring lists the Python packages and models); a line without a clip just stays silent.
+**Vox Pop sound is on hold** (team decision, 24 Sep). It is built but not loaded: `games/vox-pop/audio.js` (the engine), `music.js` ("Etirwer" by Kistol, CC0 1.0 - https://opengameart.org/content/etirwer) and `voices.js` (character voices generated with Kokoro-82M by hexgrad, Apache-2.0, via `tools/make_vox_pop_voices.py`). To try it again, add `<script src="games/vox-pop/music.js"></script>` and `<script src="games/vox-pop/audio.js"></script>` (plus `voices.js` for the voices) before the game's other scripts in `vox-pop.html`; the game then shows a *Sound* button. Two answer lines were reworded since the voices were made, so run the generator again before using them.
 
 Optional local server (for testing on a phone on the same Wi-Fi):
 ```bash
