@@ -294,7 +294,7 @@
       updatePlayer(dt);
       if (!G.relaxed) {
         G.clock += dt / SEC_PER_MIN;
-        if (!G.warned && STORY_MIN - G.clock <= 20) { G.warned = true; toast('Twenty game minutes left.'); announce('Twenty game minutes left.'); }
+        if (!G.warned && STORY_MIN - G.clock <= 20) { G.warned = true; toast('On air in 20 min.'); announce('On air in 20 minutes.'); }
         if (G.clock >= STORY_MIN) { G.clock = STORY_MIN; openFile(true); }
       }
       const tg = findTarget();
@@ -586,8 +586,8 @@
       $('#clock-left').textContent = 'file when ready';
     } else {
       const left = STORY_MIN - G.clock;
-      $('#onair-light').textContent = 'Time left';
-      $('#clock-time').textContent = Math.max(0, Math.ceil(left)) + ' game min';
+      $('#onair-light').textContent = 'On air in';
+      $('#clock-time').textContent = Math.max(0, Math.ceil(left)) + ' min';
       $('#clock-left').textContent = '';
       $('#clock').classList.toggle('hurry', left <= 20);
       $('#clock').style.setProperty('--left', clamp(left / STORY_MIN, 0, 1));
@@ -668,7 +668,7 @@
           '<span class="a-choose">Choose this story <span aria-hidden="true">→</span></span>' +
           '</button>';
       }).join('') + '</div>' +
-      '<p class="deadline">' + (G.relaxed ? 'No deadline. File when ready.' : 'You have ' + STORY_MIN + ' game minutes. Walking, interviews and reading use time.') + '</p>';
+      '<p class="deadline">' + (G.relaxed ? 'No deadline. File when ready.' : (G.story === 0 ? 'Time moves faster here. ' : '') + 'Your deadline is ' + hhmm(slot.start + STORY_MIN) + '.') + '</p>';
     el.hidden = false;
     $$('.angle', el).forEach((b) => b.addEventListener('click', () => chooseAngle(b.dataset.q)));
     focusIn(el);
@@ -730,7 +730,7 @@
       '<p class="line them answer" data-step="2">“<span class="typed" data-full="' + esc(answerLine) + '"></span>”</p>' +
       '</div>' +
       '<div class="recorded" data-step="3">' + CHIP.opinion + ' <b>' + (opt ? esc(opt.short || opt.label) : 'Declined to answer') + '</b></div>' +
-      '<div class="row"><button class="btn primary" type="button" id="talk-next" data-autofocus>Thanks! <kbd>E</kbd></button><span class="cost">' + (G.relaxed ? 'No deadline' : 'Used ' + COST_TALK + ' game minutes') + '</span></div>';
+      '<div class="row"><button class="btn primary" type="button" id="talk-next" data-autofocus>Thanks! <kbd>E</kbd></button><span class="cost">' + (G.relaxed ? 'No deadline' : COST_TALK + ' min spent') + '</span></div>';
     el.hidden = false;
     drawPortrait($('.portrait', el), res.look);
     $('#talk-next').addEventListener('click', advanceTalk);
@@ -818,7 +818,7 @@
       '<h2 id="fact-h" tabindex="-1">What\'s measured</h2>' +
       (ev.chart === 'cso' ? csoChart() : '') +
       facts.map((f) => factCard(f, rel.has(f.id))).join('') +
-      '<p class="fact-note">' + (first ? 'Added to the <b>Data</b> page of your notebook.' + (G.relaxed ? '' : ' Used ' + COST_FACT + ' game minutes.') : 'You\'ve read this already - no time used.') + '</p>' +
+      '<p class="fact-note">' + (first ? 'Added to the <b>Data</b> page of your notebook.' + (G.relaxed ? '' : ' ' + COST_FACT + ' min spent.') : 'You\'ve read this already - no time used.') + '</p>' +
       '<div class="row"><button class="btn primary" type="button" id="fact-close" data-autofocus>Back to reporting <kbd>E</kbd></button></div>';
     el.hidden = false;
     $('#fact-close').addEventListener('click', closeFact);
