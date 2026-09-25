@@ -1229,6 +1229,7 @@
   function openNotebook() {
     if (G.mode !== 'play') return;
     G.mode = 'notebook';
+    $('#nb-pulse').classList.remove('go');          // the new-fact dot means "unread"
     keys.clear();
     const st = story();
     const el = $('#p-notebook');
@@ -1578,6 +1579,7 @@
     G = newState((Date.now() ^ (Math.random() * 1e9)) >>> 0);   // keeps relaxed mode and the taught labels
     hideAllPanels();
     $('#onair-banner').hidden = true;
+    $('#nb-pulse').classList.remove('go');
     snapCamera();
     G.story = -1;
     nextStory();

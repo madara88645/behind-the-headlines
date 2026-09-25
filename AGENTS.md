@@ -49,7 +49,7 @@ docs/BUILD_RULES.md     the build checklist (quality floor details)
 docs/media/             screenshots and demo videos for the README and the home page
 tools/extract_survey.py rebuilds data/survey_stats.* from the .xlsx (aggregates only)
 tools/qa_shot.sh        headless-Chrome screenshot + console errors (macOS Chrome path)
-LICENSE                 MIT licence for the code
+LICENSE                 MIT licence for the code and docs
 ```
 
 ---
@@ -179,7 +179,7 @@ Quality floor:
 ## 7. Check your work before a pull request
 For Vox Pop, `<slug>` is `vox-pop`; its debug screen names are listed at the top of `games/vox-pop/game.js`.
 
-1. `node --check games/<slug>/*.js` passes.
+1. `for f in games/<slug>/*.js; do node --check "$f" || exit 1; done` passes (`node --check` only checks the first file it is given).
 2. `tools/qa_shot.sh <slug>.html /tmp/shot.png 1280 800 "#screen=<name>"` for every debug screen: look at the PNG and make sure no console errors are printed. It needs Google Chrome on macOS.
 3. `grep -n '\.\./' <slug>.html` prints nothing.
 4. **Double-click `<slug>.html` in Finder and play it to the end in Safari, then in Chrome.** Check that the first button works, that every number you show matches `data/survey_digest.txt`, and that Play again resets everything.

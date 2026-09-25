@@ -30,11 +30,11 @@ These apply to Vox Pop and to any game added to `games/` later. They exist so th
 
 ## Debug screens (for automated screenshots)
 - Support a URL hash `#screen=<name>` that jumps straight to a representative state of each major screen with plausible sample player answers already filled in (e.g. `#screen=start`, `#screen=round`, `#screen=reveal`, `#screen=finale`, `#screen=end` - name them after your own screens). Normal play (no hash) must be unaffected.
-- Check your work with `tools/qa_shot.sh <slug>.html /path/out.png 1280 800 "#screen=<name>"` and again at `390 844` (phone). It saves a screenshot and prints console errors. Open the PNG with the Read tool and look at it critically.
+- Check your work with `tools/qa_shot.sh <slug>.html /path/out.png 1280 800 "#screen=<name>"` (optionally also at a narrow width such as `420 800`). It saves a screenshot and prints console errors. Open the PNG with the Read tool and look at it critically.
 
 ## Quality floor
 - English only, plain and friendly, sentence case. No lorem ipsum, no TODOs, no placeholder text.
-- Responsive from 360 px phone width to a 1440 px laptop, no horizontal scroll. Test mentally at both.
+- Laptop first (1280×800 and larger). Narrow windows down to 360 px must not scroll sideways; phones are not a priority.
 - Keyboard playable: every control is a real `<button>`/`<input>`, visible focus ring, Enter/Space work.
 - Respect `prefers-reduced-motion` (turn big animations into fades).
 - Colour contrast AA for text. Don't rely on colour alone for right/wrong - add an icon or word.

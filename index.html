@@ -81,7 +81,8 @@
   .skip { position: absolute; left: 12px; top: -80px; z-index: 100; background: var(--ink); color: #fff; padding: 10px 14px; border-radius: 10px; font-weight: 700; text-decoration: none; }
   .skip:focus { top: 12px; }
   :focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
-  .band-ink :focus-visible, .clip-bar :focus-visible { outline-color: var(--coat); }
+  .band-ink :focus-visible, .clip-bar :focus-visible, .site-foot :focus-visible { outline-color: var(--coat); }
+  #main:focus { outline: none; }
   .wrap { max-width: 1200px; margin: 0 auto; padding: 0 var(--gutter); }
 
   kbd {
@@ -188,9 +189,9 @@
     box-shadow: 0 10px 20px -12px rgba(36, 28, 23, .6);
   }
   .bubble::after { content: ''; position: absolute; width: 14px; height: 14px; bottom: -7px; transform: rotate(45deg); }
-  .b-you { top: 64px; left: -26px; background: #fff; color: var(--ink); border: 2px solid var(--ink); }
+  .b-you { top: -20px; right: 132px; background: #fff; color: var(--ink); border: 2px solid var(--ink); }
   .b-you::after { left: 22px; background: #fff; border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
-  .b-all { bottom: 88px; right: -22px; background: var(--ink); color: var(--coat); }
+  .b-all { top: 44%; right: -22px; background: var(--ink); color: var(--coat); }
   .b-all::after { right: 26px; background: var(--ink); }
   .neq-g { font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; font-weight: 800; }
   @media (prefers-reduced-motion: no-preference) {
@@ -334,7 +335,6 @@
   /* ------------------------------------------------ narrower windows */
   @media (max-width: 1100px) {
     .site-nav ul { gap: 18px; }
-    .b-you { left: -10px; }
     .b-all { right: -8px; }
   }
   @media (max-width: 980px) {
@@ -359,8 +359,7 @@
     .hero h1 { margin-bottom: 16px; }
     .band { padding: 56px 0; }
     .sec-lede, .about-intro { font-size: 17px; }
-    .b-you { top: 56px; left: 12px; font-size: 13px; padding: 8px 11px; }
-    .b-all { bottom: 76px; right: 12px; font-size: 13px; padding: 8px 11px; }
+    .bubble { display: none; }
     .clip-frame { border-radius: 22px; padding: 0 6px 6px; }
     .clip-screen { border-radius: 16px; }
     .clip-station { font-size: 11px; }
@@ -397,7 +396,7 @@
     </div>
   </header>
 
-  <main id="main">
+  <main id="main" tabindex="-1">
   <section class="hero" aria-labelledby="hero-h">
     <div class="wrap hero-in">
       <div class="hero-copy">
@@ -409,7 +408,7 @@
           <a class="btn primary big" href="vox-pop.html">Play now <span class="arr" aria-hidden="true">→</span></a>
           <a class="btn big" href="#how">How it plays <span class="arr" aria-hidden="true">↓</span></a>
         </div>
-        <p class="runs">Runs in your browser · no install · about 5 minutes</p>
+        <p class="runs">Runs in your browser · <span class="nw">no install</span> · <span class="nw">about 5 minutes</span></p>
       </div>
 
       <figure class="clip" id="clip">
@@ -450,9 +449,9 @@
             </video>
           </div>
         </div>
-        <figcaption>A silent clip from the game: walk the town, interview residents, file your headline, meet the <span class="n-all">200</span>.</figcaption>
         <span class="bubble b-you" aria-hidden="true">6 people said…</span>
         <span class="bubble b-all" aria-hidden="true"><span class="neq-g">≠</span> <span class="n-all">200</span> in the survey</span>
+        <figcaption>A silent clip from the game: walk the town, interview residents, file your headline, meet the <span class="n-all">200</span>.</figcaption>
       </figure>
     </div>
   </section>
@@ -526,7 +525,7 @@
           <p class="def">What people say they think or feel. Real, but not proof.</p>
           <div class="stat">
             <p class="num" id="o-num">–</p>
-            <p class="claim">of people who answered support sustainable data centres in Ireland. Yet <b id="o-near">–</b> would find one built within 5 km of their home acceptable.</p>
+            <p class="claim">of people who answered support sustainable data centres in Ireland. Yet <b id="o-near">–</b> would find one built within 5&nbsp;km of their home acceptable.</p>
             <p class="src"><span class="nw">Survey q96 (n = <span id="o-n1">–</span>)</span> and <span class="nw">q77 (n = <span id="o-n2">–</span>)</span></p>
           </div>
         </li>

@@ -6,14 +6,14 @@
 
 You are a local-radio reporter in Ballinacloud, a made-up Irish town next to a data-centre campus. Interview a handful of residents, guess what the whole town thinks, then meet the real survey of 200 people in Ireland (Maynooth University survey) and see how far a small sample can drift. The thread running through it all: **DATA ≠ OPINION ≠ ASSUMPTION**.
 
-**[Play in your browser](https://madara88645.github.io/behind-the-headlines/vox-pop.html)** · [Home page](https://madara88645.github.io/behind-the-headlines/) · [Watch a full play-through](docs/media/vox-pop-demo.mp4)
+**[Play in your browser](https://madara88645.github.io/behind-the-headlines/vox-pop.html)** · [Home page](https://madara88645.github.io/behind-the-headlines/) · [Watch story 1 played through (90 s)](docs/media/vox-pop-demo.mp4)
 
 ## Play
 
 - **Online:** open the home page at <https://madara88645.github.io/behind-the-headlines/>, or go straight to the game at <https://madara88645.github.io/behind-the-headlines/vox-pop.html>.
 - **Offline:** on GitHub, click **Code → Download ZIP**, unzip it and double-click `index.html`. It runs from `file://` in Chrome and Safari: no install, no server, no account.
 - A full run is three short stories, about five minutes. Fonts come from Google Fonts; offline, the game falls back to your system fonts.
-- Want to watch first? Here is a [full play-through video (MP4)](docs/media/vox-pop-demo.mp4).
+- Want to watch first? Here is a [90-second video of the first story (MP4)](docs/media/vox-pop-demo.mp4).
 
 ## How it plays
 
@@ -34,7 +34,7 @@ The reporter's phone explains it in three steps:
   </tr>
   <tr>
     <td width="50%" valign="top"><img width="380" src="docs/media/screenshot-onair.png" alt="On air: the player's headline next to the survey result while 200 figures fill the town"><br><sub><b>On air.</b> Meet the 200: one figure per survey respondent.</sub></td>
-    <td width="50%" valign="top"><img width="380" src="docs/media/screenshot-report.png" alt="The story report: headline, vox pop and survey side by side, with 100 simulated vox pops"><br><sub><b>Report.</b> Your headline vs your vox pop vs the survey.</sub></td>
+    <td width="50%" valign="top"><img width="380" src="docs/media/screenshot-report.png" alt="The story report: headline, vox pop and survey side by side, with stars for accuracy and sections to explore"><br><sub><b>Report.</b> Your headline vs your vox pop vs the survey.</sub></td>
   </tr>
 </table>
 
@@ -76,7 +76,7 @@ A vox pop is a tiny sample. After each story, **100 parallel vox pops** show wha
 **The survey:** *Social Acceptance of Sustainable Data Centres in Ireland*, a Maynooth University survey of 200 people in Ireland with 104 questions, supplied for the hackathon. The game always says "in this survey", never "Ireland thinks".
 
 - **Aggregated only.** `tools/extract_survey.py` reads the original spreadsheet and writes only answer totals and two-way cross-tabs. No individual response is in this repo: the timestamp and any identifying or free-text columns are dropped.
-- **Small groups are flagged.** Cross-tab cells with fewer than 3 people are hidden, and the game says "too few people to show" instead of 0. Groups under 30 people get a "small group (n = X)" note.
+- **Small groups are flagged.** Cross-tab cells with only 1 or 2 people are hidden (a true 0 stays 0), and the game says "too few people to show" for them. Groups under 30 people get a "small group (n = X)" note.
 - **Patterns, not causes.** Wherever the game shows a cross-tab, it says so.
 - **Percentages are of the people who answered** that question, and the game shows that n.
 - **The residents are made up.** Their answers are drawn at random from the survey's answer shares for people from the same kind of area (the q4 cross-tab). Answers to different questions are drawn separately, because the survey file does not link one person's answers.
@@ -143,7 +143,7 @@ tools/
   extract_survey.py     rebuilds data/survey_stats.* from the spreadsheet
   qa_shot.sh            headless-Chrome screenshot and console-error check (macOS)
 AGENTS.md, CLAUDE.md    guide for AI coding assistants
-LICENSE                 MIT for the code, and what it does not cover
+LICENSE                 MIT for the code and docs, and what it does not cover
 .nojekyll               lets GitHub Pages serve the files as they are
 ```
 
@@ -195,4 +195,4 @@ The game's end screen lists the exact sources you were shown in your run.
 
 ## License
 
-The code is released under the [MIT License](LICENSE). The survey data in `data/` (Maynooth University) and the third-party facts and news claims in `data/facts.js` are not covered by it; they belong to their owners. The fonts are used under their own licences.
+The code and documentation are released under the [MIT License](LICENSE). The survey data in `data/` (Maynooth University) and the third-party facts and news claims in `data/facts.js` are not covered by it; they belong to their owners. The fonts are used under their own licences.
