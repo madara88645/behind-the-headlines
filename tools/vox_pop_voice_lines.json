@@ -1,0 +1,611 @@
+[
+ {
+  "speaker": "editor",
+  "text": "Morning! You're our street reporter today."
+ },
+ {
+  "speaker": "editor",
+  "text": "The town's data centre wants another hall."
+ },
+ {
+  "speaker": "editor",
+  "text": "Ask a few people, then guess what the whole town thinks."
+ },
+ {
+  "speaker": "editor",
+  "text": "Later, we'll check your guess against the real survey of 200 people."
+ },
+ {
+  "speaker": "editor",
+  "text": "First up: the new hall. What will you ask?"
+ },
+ {
+  "speaker": "editor",
+  "text": "Lunchtime story: life online. What will you ask?"
+ },
+ {
+  "speaker": "editor",
+  "text": "Top story at six: where is the town heading? What will you ask?"
+ },
+ {
+  "speaker": "f1",
+  "text": "A bit more negative."
+ },
+ {
+  "speaker": "f1",
+  "text": "A bit more positive."
+ },
+ {
+  "speaker": "f1",
+  "text": "Completely acceptable."
+ },
+ {
+  "speaker": "f1",
+  "text": "Completely unacceptable."
+ },
+ {
+  "speaker": "f1",
+  "text": "Every day, pretty much."
+ },
+ {
+  "speaker": "f1",
+  "text": "I didn't have a view two years ago."
+ },
+ {
+  "speaker": "f1",
+  "text": "I'd agree with that."
+ },
+ {
+  "speaker": "f1",
+  "text": "I'd disagree, yeah."
+ },
+ {
+  "speaker": "f1",
+  "text": "It's stayed the same."
+ },
+ {
+  "speaker": "f1",
+  "text": "Much more negative."
+ },
+ {
+  "speaker": "f1",
+  "text": "Much more positive."
+ },
+ {
+  "speaker": "f1",
+  "text": "Neither agree nor disagree, really."
+ },
+ {
+  "speaker": "f1",
+  "text": "Neither acceptable nor unacceptable, to be honest."
+ },
+ {
+  "speaker": "f1",
+  "text": "Never."
+ },
+ {
+  "speaker": "f1",
+  "text": "Often."
+ },
+ {
+  "speaker": "f1",
+  "text": "Rarely."
+ },
+ {
+  "speaker": "f1",
+  "text": "Sometimes."
+ },
+ {
+  "speaker": "f1",
+  "text": "Somewhat acceptable."
+ },
+ {
+  "speaker": "f1",
+  "text": "Somewhat unacceptable."
+ },
+ {
+  "speaker": "f1",
+  "text": "Strongly agree."
+ },
+ {
+  "speaker": "f1",
+  "text": "Strongly disagree."
+ },
+ {
+  "speaker": "f1",
+  "text": "I'd rather not say, sorry."
+ },
+ {
+  "speaker": "f1",
+  "text": "I'll pass on that one, if it's all the same."
+ },
+ {
+  "speaker": "f1",
+  "text": "Ah no, I'd rather keep that to myself."
+ },
+ {
+  "speaker": "f2",
+  "text": "A bit more negative."
+ },
+ {
+  "speaker": "f2",
+  "text": "A bit more positive."
+ },
+ {
+  "speaker": "f2",
+  "text": "Completely acceptable."
+ },
+ {
+  "speaker": "f2",
+  "text": "Completely unacceptable."
+ },
+ {
+  "speaker": "f2",
+  "text": "Every day, pretty much."
+ },
+ {
+  "speaker": "f2",
+  "text": "I didn't have a view two years ago."
+ },
+ {
+  "speaker": "f2",
+  "text": "I'd agree with that."
+ },
+ {
+  "speaker": "f2",
+  "text": "I'd disagree, yeah."
+ },
+ {
+  "speaker": "f2",
+  "text": "It's stayed the same."
+ },
+ {
+  "speaker": "f2",
+  "text": "Much more negative."
+ },
+ {
+  "speaker": "f2",
+  "text": "Much more positive."
+ },
+ {
+  "speaker": "f2",
+  "text": "Neither agree nor disagree, really."
+ },
+ {
+  "speaker": "f2",
+  "text": "Neither acceptable nor unacceptable, to be honest."
+ },
+ {
+  "speaker": "f2",
+  "text": "Never."
+ },
+ {
+  "speaker": "f2",
+  "text": "Often."
+ },
+ {
+  "speaker": "f2",
+  "text": "Rarely."
+ },
+ {
+  "speaker": "f2",
+  "text": "Sometimes."
+ },
+ {
+  "speaker": "f2",
+  "text": "Somewhat acceptable."
+ },
+ {
+  "speaker": "f2",
+  "text": "Somewhat unacceptable."
+ },
+ {
+  "speaker": "f2",
+  "text": "Strongly agree."
+ },
+ {
+  "speaker": "f2",
+  "text": "Strongly disagree."
+ },
+ {
+  "speaker": "f2",
+  "text": "I'd rather not say, sorry."
+ },
+ {
+  "speaker": "f2",
+  "text": "I'll pass on that one, if it's all the same."
+ },
+ {
+  "speaker": "f2",
+  "text": "Ah no, I'd rather keep that to myself."
+ },
+ {
+  "speaker": "f3",
+  "text": "A bit more negative."
+ },
+ {
+  "speaker": "f3",
+  "text": "A bit more positive."
+ },
+ {
+  "speaker": "f3",
+  "text": "Completely acceptable."
+ },
+ {
+  "speaker": "f3",
+  "text": "Completely unacceptable."
+ },
+ {
+  "speaker": "f3",
+  "text": "Every day, pretty much."
+ },
+ {
+  "speaker": "f3",
+  "text": "I didn't have a view two years ago."
+ },
+ {
+  "speaker": "f3",
+  "text": "I'd agree with that."
+ },
+ {
+  "speaker": "f3",
+  "text": "I'd disagree, yeah."
+ },
+ {
+  "speaker": "f3",
+  "text": "It's stayed the same."
+ },
+ {
+  "speaker": "f3",
+  "text": "Much more negative."
+ },
+ {
+  "speaker": "f3",
+  "text": "Much more positive."
+ },
+ {
+  "speaker": "f3",
+  "text": "Neither agree nor disagree, really."
+ },
+ {
+  "speaker": "f3",
+  "text": "Neither acceptable nor unacceptable, to be honest."
+ },
+ {
+  "speaker": "f3",
+  "text": "Never."
+ },
+ {
+  "speaker": "f3",
+  "text": "Often."
+ },
+ {
+  "speaker": "f3",
+  "text": "Rarely."
+ },
+ {
+  "speaker": "f3",
+  "text": "Sometimes."
+ },
+ {
+  "speaker": "f3",
+  "text": "Somewhat acceptable."
+ },
+ {
+  "speaker": "f3",
+  "text": "Somewhat unacceptable."
+ },
+ {
+  "speaker": "f3",
+  "text": "Strongly agree."
+ },
+ {
+  "speaker": "f3",
+  "text": "Strongly disagree."
+ },
+ {
+  "speaker": "f3",
+  "text": "I'd rather not say, sorry."
+ },
+ {
+  "speaker": "f3",
+  "text": "I'll pass on that one, if it's all the same."
+ },
+ {
+  "speaker": "f3",
+  "text": "Ah no, I'd rather keep that to myself."
+ },
+ {
+  "speaker": "m1",
+  "text": "A bit more negative."
+ },
+ {
+  "speaker": "m1",
+  "text": "A bit more positive."
+ },
+ {
+  "speaker": "m1",
+  "text": "Completely acceptable."
+ },
+ {
+  "speaker": "m1",
+  "text": "Completely unacceptable."
+ },
+ {
+  "speaker": "m1",
+  "text": "Every day, pretty much."
+ },
+ {
+  "speaker": "m1",
+  "text": "I didn't have a view two years ago."
+ },
+ {
+  "speaker": "m1",
+  "text": "I'd agree with that."
+ },
+ {
+  "speaker": "m1",
+  "text": "I'd disagree, yeah."
+ },
+ {
+  "speaker": "m1",
+  "text": "It's stayed the same."
+ },
+ {
+  "speaker": "m1",
+  "text": "Much more negative."
+ },
+ {
+  "speaker": "m1",
+  "text": "Much more positive."
+ },
+ {
+  "speaker": "m1",
+  "text": "Neither agree nor disagree, really."
+ },
+ {
+  "speaker": "m1",
+  "text": "Neither acceptable nor unacceptable, to be honest."
+ },
+ {
+  "speaker": "m1",
+  "text": "Never."
+ },
+ {
+  "speaker": "m1",
+  "text": "Often."
+ },
+ {
+  "speaker": "m1",
+  "text": "Rarely."
+ },
+ {
+  "speaker": "m1",
+  "text": "Sometimes."
+ },
+ {
+  "speaker": "m1",
+  "text": "Somewhat acceptable."
+ },
+ {
+  "speaker": "m1",
+  "text": "Somewhat unacceptable."
+ },
+ {
+  "speaker": "m1",
+  "text": "Strongly agree."
+ },
+ {
+  "speaker": "m1",
+  "text": "Strongly disagree."
+ },
+ {
+  "speaker": "m1",
+  "text": "I'd rather not say, sorry."
+ },
+ {
+  "speaker": "m1",
+  "text": "I'll pass on that one, if it's all the same."
+ },
+ {
+  "speaker": "m1",
+  "text": "Ah no, I'd rather keep that to myself."
+ },
+ {
+  "speaker": "m2",
+  "text": "A bit more negative."
+ },
+ {
+  "speaker": "m2",
+  "text": "A bit more positive."
+ },
+ {
+  "speaker": "m2",
+  "text": "Completely acceptable."
+ },
+ {
+  "speaker": "m2",
+  "text": "Completely unacceptable."
+ },
+ {
+  "speaker": "m2",
+  "text": "Every day, pretty much."
+ },
+ {
+  "speaker": "m2",
+  "text": "I didn't have a view two years ago."
+ },
+ {
+  "speaker": "m2",
+  "text": "I'd agree with that."
+ },
+ {
+  "speaker": "m2",
+  "text": "I'd disagree, yeah."
+ },
+ {
+  "speaker": "m2",
+  "text": "It's stayed the same."
+ },
+ {
+  "speaker": "m2",
+  "text": "Much more negative."
+ },
+ {
+  "speaker": "m2",
+  "text": "Much more positive."
+ },
+ {
+  "speaker": "m2",
+  "text": "Neither agree nor disagree, really."
+ },
+ {
+  "speaker": "m2",
+  "text": "Neither acceptable nor unacceptable, to be honest."
+ },
+ {
+  "speaker": "m2",
+  "text": "Never."
+ },
+ {
+  "speaker": "m2",
+  "text": "Often."
+ },
+ {
+  "speaker": "m2",
+  "text": "Rarely."
+ },
+ {
+  "speaker": "m2",
+  "text": "Sometimes."
+ },
+ {
+  "speaker": "m2",
+  "text": "Somewhat acceptable."
+ },
+ {
+  "speaker": "m2",
+  "text": "Somewhat unacceptable."
+ },
+ {
+  "speaker": "m2",
+  "text": "Strongly agree."
+ },
+ {
+  "speaker": "m2",
+  "text": "Strongly disagree."
+ },
+ {
+  "speaker": "m2",
+  "text": "I'd rather not say, sorry."
+ },
+ {
+  "speaker": "m2",
+  "text": "I'll pass on that one, if it's all the same."
+ },
+ {
+  "speaker": "m2",
+  "text": "Ah no, I'd rather keep that to myself."
+ },
+ {
+  "speaker": "m3",
+  "text": "A bit more negative."
+ },
+ {
+  "speaker": "m3",
+  "text": "A bit more positive."
+ },
+ {
+  "speaker": "m3",
+  "text": "Completely acceptable."
+ },
+ {
+  "speaker": "m3",
+  "text": "Completely unacceptable."
+ },
+ {
+  "speaker": "m3",
+  "text": "Every day, pretty much."
+ },
+ {
+  "speaker": "m3",
+  "text": "I didn't have a view two years ago."
+ },
+ {
+  "speaker": "m3",
+  "text": "I'd agree with that."
+ },
+ {
+  "speaker": "m3",
+  "text": "I'd disagree, yeah."
+ },
+ {
+  "speaker": "m3",
+  "text": "It's stayed the same."
+ },
+ {
+  "speaker": "m3",
+  "text": "Much more negative."
+ },
+ {
+  "speaker": "m3",
+  "text": "Much more positive."
+ },
+ {
+  "speaker": "m3",
+  "text": "Neither agree nor disagree, really."
+ },
+ {
+  "speaker": "m3",
+  "text": "Neither acceptable nor unacceptable, to be honest."
+ },
+ {
+  "speaker": "m3",
+  "text": "Never."
+ },
+ {
+  "speaker": "m3",
+  "text": "Often."
+ },
+ {
+  "speaker": "m3",
+  "text": "Rarely."
+ },
+ {
+  "speaker": "m3",
+  "text": "Sometimes."
+ },
+ {
+  "speaker": "m3",
+  "text": "Somewhat acceptable."
+ },
+ {
+  "speaker": "m3",
+  "text": "Somewhat unacceptable."
+ },
+ {
+  "speaker": "m3",
+  "text": "Strongly agree."
+ },
+ {
+  "speaker": "m3",
+  "text": "Strongly disagree."
+ },
+ {
+  "speaker": "m3",
+  "text": "I'd rather not say, sorry."
+ },
+ {
+  "speaker": "m3",
+  "text": "I'll pass on that one, if it's all the same."
+ },
+ {
+  "speaker": "m3",
+  "text": "Ah no, I'd rather keep that to myself."
+ },
+ {
+  "speaker": "sheep",
+  "text": "Baa",
+  "say": "Baaaa!"
+ }
+]

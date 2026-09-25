@@ -5,8 +5,13 @@
  * Survey numbers only come from window.Survey (via sim.js); facts only from window.DC_FACTS.
  * The residents are made up - see sim.js for how their answers are drawn from the survey.
  *
+ * The opening is the reporter's phone: how to play in three steps (ask, guess, compare), then
+ * each story's brief arrives in the same thread as a message from Maura, the editor.
+ *
  * Debug screens: add #screen=<name> to the URL:
- *   start, brief, play, talk, fact, notebook, file, crowd, report, end, help, evening (story 3 at dusk)
+ *   start (how to play, on the phone)
+ *   brief (story 1 brief, after the intro), brief2 (story 2 brief), first-walk (walking, before the first interview)
+ *   play, talk, fact, notebook, file, crowd, report, end, help, evening (story 3 at dusk)
  */
 (function () {
   'use strict';
@@ -14,6 +19,8 @@
   const S = window.Survey, F = window.DC_FACTS || { facts: [] };
   const VP = window.VP || {};
   const Wd = VP.World, Art = VP.Art, Sim = VP.Sim, People = VP.People;
+  const Snd = VP.Audio || null;            // music and voices (audio.js); optional
+  const sayLine = (who, text) => { if (Snd && who && text) Snd.say(who, text); };
   if (!S || !Wd || !Art || !Sim || !People) return;
 
   /* ============================================================ helpers */
@@ -66,11 +73,19 @@
       seed,
       ansRng: Sim.rng(seed),
       aiRng: Sim.rng(seed ^ 0x9E3779B9),
-      mode: 'start',
+      mode: 'boot',
+      debug: false,
       relaxed: G ? G.relaxed : false,
+      // what the player has already been shown: the full HUD and each label's one-line explanation
+      taught: G ? G.taught : { hud: false, opinion: false, data: false, assume: false, next: false },
+      cam: 'town',             // camera spot during the intro and the briefs
+      camShift: { sx: 0, sy: 0 },
+      hallT: 0,                // when the planned hall started drawing itself
+      glideUntil: 0,
       residents: People.makeResidents(Sim.rng(seed + 11), RESIDENTS),
       sheep: People.makeSheep(Sim.rng(seed + 29), SHEEP),
-      player: { x: Wd.spawn.x, y: Wd.spawn.y, dir: 'se', phase: 0, moving: false, path: null, goal: null },
+      player: { x: Wd.spawn.x, y: Wd.spawn.y, dir: 'se', phase: 0, moving: false, moved: false, path: null, goal: null },
+      guide: null,             // the resident the first-walk arrow points at
       story: -1,
       stories: [],
       facts: new Map(),        // fact id -> evidence point id where it was read
@@ -83,7 +98,6 @@
       talk: null,
       target: null,
       warned: false,
-      hintUntil: 0,
     };
   }
   const story = () => (G && G.story >= 0 ? G.stories[G.story] : null);
@@ -106,10 +120,13 @@
 
   /* ============================================================ static drawables */
   const statics = [];
+  const hulls = [];              // outlines on screen of buildings (roof included) and tall props: [footprint, polygon]
   (function buildStatics() {
     Wd.buildings.forEach((b) => {
       const extra = b.style === 'spire' ? 80 : b.style === 'church' ? 40 : b.style === 'dc' ? 20 : 30;
       const w0 = Wd.iso(b.x0, b.y1), e0 = Wd.iso(b.x1, b.y0), n0 = Wd.iso(b.x0, b.y0), s0 = Wd.iso(b.x1, b.y1);
+      const up = b.h + extra * 0.6;
+      hulls.push([b, [w0, { x: w0.x, y: w0.y - up }, { x: n0.x, y: n0.y - up }, { x: e0.x, y: e0.y - up }, e0, s0]]);
       statics.push({ x0: b.x0, y0: b.y0, x1: b.x1, y1: b.y1, bx0: w0.x - 6, bx1: e0.x + 6, by0: n0.y - b.h - extra, by1: s0.y + 8, draw: (env) => Art.drawBuilding(ctx, b, env) });
     });
     Wd.props.forEach((p) => {
@@ -117,6 +134,10 @@
       const c = Wd.iso((f.x0 + f.x1) / 2, (f.y0 + f.y1) / 2);
       const w0 = Wd.iso(f.x0, f.y1), e0 = Wd.iso(f.x1, f.y0), n0 = Wd.iso(f.x0, f.y0), s0 = Wd.iso(f.x1, f.y1);
       const half = f.w || 0;
+      if (f.h >= 48 && p.kind !== 'goal' && p.kind !== 'lamp') {
+        const r = Math.max(half, 16);
+        hulls.push([f, [{ x: c.x - r, y: c.y + 4 }, { x: c.x - r, y: c.y - f.h }, { x: c.x + r, y: c.y - f.h }, { x: c.x + r, y: c.y + 4 }]]);
+      }
       statics.push({ x0: f.x0, y0: f.y0, x1: f.x1, y1: f.y1, bx0: Math.min(w0.x, c.x - half) - 16, bx1: Math.max(e0.x, c.x + half) + 16, by0: n0.y - f.h - 12, by1: s0.y + 6, draw: (env) => Art.drawProp(ctx, p, env) });
     });
   })();
@@ -160,8 +181,10 @@
     const k = e.key.toLowerCase();
     const ae = document.activeElement;
     const onWorld = ae === cv || ae === document.body || !ae;
+    if (k === 'm' && Snd) { toggleSound(); e.preventDefault(); return; }
     if (k === 'escape') {
       if (!$('#p-help').hidden) { closeHelp(); e.preventDefault(); return; }
+      if (G.mode === 'intro') { endIntro(); e.preventDefault(); return; }
       if (G.mode === 'talk') { endTalk(); e.preventDefault(); return; }
       if (G.mode === 'fact') { closeFact(); e.preventDefault(); return; }
       if (G.mode === 'notebook') { closeNotebook(); e.preventDefault(); return; }
@@ -169,6 +192,25 @@
       return;
     }
     if (!$('#p-help').hidden) return;
+    if (G.mode === 'intro') {
+      // Enter / Space anywhere starts (the focused Start button handles its own keys)
+      const onControl = ae && /^(BUTTON|A|INPUT|SUMMARY|SELECT|TEXTAREA|LABEL)$/.test(ae.tagName);
+      if ((k === 'enter' || k === ' ') && !onControl) { endIntro(); e.preventDefault(); }
+      return;
+    }
+    if (G.mode === 'brief') {
+      const wrap = $('#replies'), btns = wrap ? $$('.reply', wrap) : [];
+      const i = btns.indexOf(ae), step = { arrowdown: 1, arrowright: 1, arrowup: -1, arrowleft: -1 }[k] || 0;
+      if (step && btns.length && (ae === wrap || i >= 0)) {
+        btns[ae === wrap ? (step > 0 ? 0 : btns.length - 1) : clamp(i + step, 0, btns.length - 1)].focus();
+        e.preventDefault(); return;
+      }
+      if (k === 'enter' || k === ' ') {
+        if (wrap && ae === wrap) { nudgeReplies(wrap); e.preventDefault(); }
+        else if (ae === $('#ph-thread') || onWorld) { phFlush(); e.preventDefault(); }   // still typing: show the message now
+      }
+      return;
+    }
     if (G.mode === 'play') {
       if (MOVE[k]) { keys.add(MOVE[k]); G.player.path = null; G.player.goal = null; e.preventDefault(); return; }
       if (k === 'e' || ((k === 'enter' || k === ' ') && onWorld)) { interact(); e.preventDefault(); return; }
@@ -241,7 +283,7 @@
     keys.clear();
     if (tg.kind === 'res') { if (interviewed(tg.obj)) { toast(tg.obj.name + ' has already answered this story\'s question.'); return; } startTalk(tg.obj); }
     else if (tg.kind === 'ev') openFact(tg.obj);
-    else { toast('Baa. (Sheep weren\'t in the survey.)'); G.fx.push({ kind: 'bubble', x: tg.obj.x, y: tg.obj.y, t0: G.t, text: 'Baa' }); }
+    else { toast('Baa. (Sheep weren\'t in the survey.)'); sayLine('sheep', 'Baa'); G.fx.push({ kind: 'bubble', x: tg.obj.x, y: tg.obj.y, t0: G.t, text: 'Baa' }); }
   }
 
   /* ============================================================ update */
@@ -275,6 +317,7 @@
       if (inRange(pl.goal)) { const g = pl.goal; pl.goal = null; interactWith(g); }
       else pl.goal = null;
     }
+    if (pl.moving) pl.moved = true;
     if (pl.moving && !reduced() && Math.random() < dt * 9) G.fx.push({ kind: 'dust', x: pl.x + (Math.random() - 0.5) * 0.2, y: pl.y + (Math.random() - 0.5) * 0.2, t0: G.t });
   }
   function tryMove(e, vx, vy) {
@@ -294,7 +337,7 @@
       updatePlayer(dt);
       if (!G.relaxed) {
         G.clock += dt / SEC_PER_MIN;
-        if (!G.warned && STORY_MIN - G.clock <= 20) { G.warned = true; toast('Twenty minutes to the deadline.'); announce('Twenty minutes to the deadline.'); }
+        if (!G.warned && STORY_MIN - G.clock <= 20) { G.warned = true; toast('On air in 20 min.'); announce('On air in 20 minutes.'); }
         if (G.clock >= STORY_MIN) { G.clock = STORY_MIN; openFile(true); }
       }
       const tg = findTarget();
@@ -310,10 +353,10 @@
     }
     // camera
     const pl = G.player, ps = Wd.iso(pl.x, pl.y);
-    if (G.mode === 'start') {
-      view.tz = baseZoom * 0.92;
-      view.tx = MAP_C.x + Math.sin(G.t * 0.07) * 380 - 120;
-      view.ty = MAP_C.y + Math.cos(G.t * 0.05) * 140 - 40;
+    const intro = G.mode === 'intro' || G.mode === 'brief';
+    if (intro) {
+      const c = camTarget();
+      view.tz = c.z; view.tx = c.x; view.ty = c.y;
     } else if (G.mode === 'crowd' || G.mode === 'report' || G.mode === 'end') {
       const side = G.mode === 'report' && vw > 900;
       const z = fitZoom(side);
@@ -324,11 +367,14 @@
       view.tz = baseZoom;
       view.tx = ps.x; view.ty = ps.y - 20 + (G.mode === 'talk' ? vh * 0.2 / baseZoom : 0);
     }
-    const k = reduced() && G.mode !== 'play' ? 1 : 1 - Math.exp(-dt * (G.mode === 'crowd' ? 2.2 : 5));
-    view.x += (view.tx - view.x) * k; view.y += (view.ty - view.y) * k; view.zoom += (view.tz - view.zoom) * k;
+    // the intro glides calmly between places; with reduced motion it cuts instead
+    const rate = G.mode === 'crowd' ? 2.2 : intro ? 1.5 : G.t < G.glideUntil ? 2.4 : 5;
+    const k = reduced() && G.mode !== 'play' ? 1 : 1 - Math.exp(-dt * rate);
+    view.x += (view.tx - view.x) * k; view.y += (view.ty - view.y) * k;
+    if (intro && view.zoom > 0 && view.tz > 0) view.zoom = Math.exp(Math.log(view.zoom) + (Math.log(view.tz) - Math.log(view.zoom)) * k);
+    else view.zoom += (view.tz - view.zoom) * k;
     G.fx = G.fx.filter((f) => G.t - f.t0 < (f.kind === 'bubble' ? 1.6 : f.kind === 'ping' ? 0.7 : 0.6));
     if (G.crowd) updateCrowd();
-    if (G.hintUntil && G.t > G.hintUntil) { G.hintUntil = 0; $('#controls-hint').hidden = true; }
   }
   const sameTarget = (a, b) => (!a && !b) || (a && b && a.kind === b.kind && a.obj === b.obj);
 
@@ -380,7 +426,7 @@
     const hideRes = G.crowd ? clamp(1 - (G.t - G.crowd.t0) / 0.6, 0, 1) : 1;
     if (hideRes > 0) G.residents.forEach((p) => items.push(personItem(p, env, hideRes)));
     G.sheep.forEach((s) => items.push(sheepItem(s, env)));
-    if (G.mode !== 'start') items.push(playerItem(env));
+    items.push(playerItem(env));
     if (G.crowd) G.crowd.figs.forEach((f) => { if (f.k > 0) items.push(f.item); });
     const sorted = depthSort(items.filter(vis));
     for (let i = 0; i < sorted.length; i++) sorted[i].draw(env);
@@ -394,9 +440,11 @@
       else if (f.kind === 'pop') { const kk = clamp(k / 0.35, 0, 1); Art.badge(ctx, s.x, s.y - 58 - kk * 6, f.cat, 1 + (1 - kk) * 0.8); }
     });
 
-    if (G.mode !== 'start' && G.mode !== 'end' && !G.crowd) overlays(env);
+    const early = G.mode === 'intro' || G.mode === 'boot';
+    if (!early && G.mode !== 'end' && !G.crowd) overlays(env);
+    if (G.mode === 'intro' || G.mode === 'brief') introOverlays(env);
     lighting(env, z, ox, oy);
-    if (G.mode !== 'start' && G.mode !== 'crowd' && G.mode !== 'report' && G.mode !== 'end') drawMinimap();
+    if (!early && G.mode !== 'brief' && G.mode !== 'crowd' && G.mode !== 'report' && G.mode !== 'end') drawMinimap();
   }
 
   function waterGlints(env) {
@@ -461,8 +509,98 @@
     }
     // the resident you're talking to
     if (G.mode === 'talk' && G.talk) { const p = G.talk.res, s = Wd.iso(p.x, p.y); Art.nameTag(ctx, s.x, s.y - 64, '…'); }
+    // before the very first interview: "that's you" until you move, and an arrow over someone to talk to
+    if (G.mode === 'play' && !G.taught.next && st && st.qid) {
+      if (!G.player.moved) youRing(env, !G.target);
+      if (!(G.target && G.target.kind === 'res')) {
+        const p = guidePick();
+        if (p) { const s = Wd.iso(p.x, p.y); feetRing(s.x, s.y, 12, 6, 2); guideArrow(s.x, s.y - 58, env); }
+      }
+    }
+  }
+  /** Is this resident (mostly) hidden behind a building or a tree from where the camera looks? */
+  function hiddenBehind(p) {
+    const s = Wd.iso(p.x, p.y);
+    return hulls.some(([b, h]) => (p.x + 0.2 <= b.x0 || p.y + 0.2 <= b.y0) && (inHull(h, s.x, s.y - 4) || inHull(h, s.x, s.y - 26)));
+  }
+  function inHull(h, x, y) {
+    let sign = 0;
+    for (let i = 0; i < h.length; i++) {
+      const a = h[i], b = h[(i + 1) % h.length];
+      const c = (b.x - a.x) * (y - a.y) - (b.y - a.y) * (x - a.x);
+      if (c) { if (sign && Math.sign(c) !== sign) return false; sign = Math.sign(c); }
+    }
+    return true;
+  }
+  /** The first-walk arrow points at a nearby resident you can see (re-checked twice a second, so it doesn't flicker). */
+  function guidePick() {
+    const pl = G.player, gd = G.guide;
+    const cands = G.residents.filter((p) => !p.talking && !interviewed(p))
+      .map((p) => ({ p, d: Math.hypot(p.x - pl.x, p.y - pl.y) })).sort((a, b) => a.d - b.d);
+    if (!cands.length) return null;
+    const cur = gd ? cands.find((c) => c.p.id === gd.id) : null;
+    if (cur && G.t < gd.until) return cur.p;
+    const open = cands.filter((c) => c.d <= cands[0].d + 4 && !hiddenBehind(c.p));
+    let pick = open.length ? open[0] : cands[0];
+    if (cur && open.includes(cur) && cur.d <= pick.d + 1.5) pick = cur;
+    G.guide = { id: pick.p.id, until: G.t + 0.5 };
+    return pick.p;
+  }
+  function feetRing(x, y, rx, ry, lw) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(36,28,23,.5)'; ctx.lineWidth = lw + 2; ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeStyle = '#FFC933'; ctx.lineWidth = lw; ctx.stroke();
+    ctx.restore();
+  }
+  /** "That's you": a ring at the reporter's feet, drawn over the bus stop so it can't hide. */
+  function youRing(env, tag) {
+    const s = Wd.iso(G.player.x, G.player.y), k = env.reduced ? 0.5 : (Math.sin(G.t * 3) + 1) / 2;
+    feetRing(s.x, s.y, 17 + k * 3, 8.5 + k * 1.5, 3);
+    if (tag) Art.nameTag(ctx, s.x, s.y - 60, 'You', 'the reporter');
+  }
+  function guideArrow(x, y, env) {
+    const b = env.reduced ? 0 : Math.abs(Math.sin(G.t * 3.2)) * -7;
+    ctx.save();
+    ctx.translate(x, y + b);
+    ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(-10, -15); ctx.lineTo(10, -15); ctx.lineTo(0, 0); ctx.closePath();
+    ctx.fillStyle = '#FFC933'; ctx.strokeStyle = '#241C17'; ctx.lineWidth = 2.5; ctx.fill(); ctx.stroke();
+    ctx.restore();
   }
 
+  /* ============================================================ intro overlays (drawn over the town) */
+  // The planned new hall: a dashed outline between the campus fence and Main Street (decoration only).
+  const NEW_HALL = { x0: 18.3, y0: 8.3, x1: 21.7, y1: 10.8, h: 70 };
+  function introOverlays(env) {
+    if (G.mode === 'intro' || (G.mode === 'brief' && G.story === 0)) ghostHall(env, true);
+  }
+  function ghostHall(env, label) {
+    const g = env.reduced ? 1 : clamp((G.t - G.hallT) / 1.1, 0, 1);
+    const h = NEW_HALL.h * (1 - Math.pow(1 - g, 3));
+    const n = Wd.iso(NEW_HALL.x0, NEW_HALL.y0), e = Wd.iso(NEW_HALL.x1, NEW_HALL.y0), s = Wd.iso(NEW_HALL.x1, NEW_HALL.y1), w = Wd.iso(NEW_HALL.x0, NEW_HALL.y1);
+    const up = (p) => ({ x: p.x, y: p.y - h });
+    const face = (pts, fill) => { ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y))); ctx.closePath(); ctx.fillStyle = fill; ctx.fill(); };
+    ctx.save();
+    face([n, e, s, w], 'rgba(255,201,51,.22)');
+    face([w, s, up(s), up(w)], 'rgba(255,201,51,.16)');
+    face([s, e, up(e), up(s)], 'rgba(255,201,51,.10)');
+    face([up(n), up(e), up(s), up(w)], 'rgba(255,255,255,.28)');
+    const edges = () => {
+      ctx.beginPath();
+      [n, e, s, w].forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y))); ctx.closePath();
+      [n, e, s, w].map(up).forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y))); ctx.closePath();
+      [w, s, e].forEach((p) => { ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y - h); });
+      ctx.stroke();
+    };
+    const lw = Math.max(2.2, 1.8 / view.zoom);
+    ctx.setLineDash([7, 5]);
+    ctx.lineDashOffset = env.reduced ? 0 : -G.t * 16;
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = 'rgba(36,28,23,.6)'; ctx.lineWidth = lw + 2.4; edges();
+    ctx.strokeStyle = '#FFC933'; ctx.lineWidth = lw; edges();
+    ctx.restore();
+    if (label && g >= 1) Art.nameTag(ctx, (w.x + e.x) / 2, n.y - h - 8, 'New data hall?', 'planning application');
+  }
   function lighting(env, z, ox, oy) {
     const e = env.evening;
     if (e <= 0.02) return;
@@ -542,12 +680,21 @@
 
   /* ============================================================ UI helpers */
   function show(id, on) { const el = $(id); if (el) el.hidden = !on; }
-  function hideAllPanels() { $$('.panel').forEach((p) => { if (p.id !== 'p-help') p.hidden = true; }); }
+  function hideAllPanels(keep) { document.body.classList.remove('interviewing'); $$('.panel').forEach((p) => { if (p.id !== 'p-help' && p.id !== keep) p.hidden = true; }); }
   function focusIn(el) {
     const f = el.querySelector('[data-autofocus]') || el.querySelector('h1[tabindex],h2[tabindex]') || el.querySelector('button, [href], input');
-    if (f) setTimeout(() => f.focus({ preventScroll: true }), 30);
+    if (f) grab(f);
   }
-  function focusWorld() { setTimeout(() => cv.focus({ preventScroll: true }), 30); }
+  function focusWorld() { grab(cv); }
+  /** Move focus soon - unless "How this works" is open over the game: then focus goes there when it closes. */
+  function grab(el) {
+    setTimeout(() => {
+      if (!document.body.contains(el)) return;
+      const help = $('#p-help');
+      if (!help.hidden && !help.contains(el)) { helpReturn = el; return; }
+      el.focus({ preventScroll: true });
+    }, 30);
+  }
   let toastT = null;
   function toast(msg) {
     const t = $('#toast');
@@ -558,14 +705,45 @@
   }
   let annT = null;
   function announce(msg) { clearTimeout(annT); annT = setTimeout(() => { $('#announcer').textContent = msg; }, 60); }
+  /**
+   * The HUD arrives a piece at a time on the first story: story, clock and "File story" first;
+   * the tally once you have an answer; notebook and minimap after your first interview or data point.
+   */
   function setHud(on) {
-    show('#story-chip', on); show('#clock', on); show('#tally', on); show('#actions', on); show('#minimap-wrap', on && vw > 700);
-    if (!on) { $('#controls-hint').hidden = true; G.hintUntil = 0; }
+    show('#story-chip', on); show('#clock', on); show('#actions', on);
+    show('#tally', on && G.taught.opinion);
+    show('#minimap-wrap', on && G.taught.hud && vw > 700);
+    show('#btn-notebook', G.taught.hud);
+    if (!on) coach(null);
+  }
+  /** After an interview or a data point: show everything the player has met so far (safe to call again). */
+  function revealHud() {
+    G.taught.hud = true;
+    setHud(true);
   }
   /** While a panel is open during reporting, the walk-around buttons step aside. */
   function playHud(on) {
+    document.body.classList.toggle('interviewing', !on && G.mode === 'talk');
     show('#actions', on);
-    if (!on) { $('#controls-hint').hidden = true; G.hintUntil = 0; }
+    if (!on) $('#coach').hidden = true;
+    else if (G.mode === 'play' && !G.taught.next) coach(COACH.first);
+  }
+  /** A short note from your editor at the top of the screen while you walk. */
+  const COACH = {
+    first: 'Find someone to interview: walk with <kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd> or click, then press <kbd>E</kbd>.',
+    next: 'Nice! Ask a few more people, then press <kbd>F</kbd> to file your story.',
+  };
+  let coachT = null;
+  function coach(html, secs) {
+    const c = $('#coach');
+    clearTimeout(coachT);
+    if (!html) { c.hidden = true; c.dataset.msg = ''; return; }
+    const same = !c.hidden && c.dataset.msg === html;
+    c.dataset.msg = html;
+    $('#coach-text').innerHTML = html;
+    c.hidden = false;
+    if (!same) { c.classList.remove('in'); void c.offsetWidth; c.classList.add('in'); }
+    if (secs) coachT = setTimeout(() => { c.hidden = true; c.dataset.msg = ''; }, secs * 1000);
   }
   function showTalkButton() {
     const b = $('#btn-talk'), tg = G.target;
@@ -583,11 +761,13 @@
       $('#onair-light').textContent = 'No deadline';
       $('#clock-time').textContent = hhmm(slot.start + G.clock);
       $('#clock-left').textContent = 'file when ready';
+      $('#clock').classList.remove('hurry');
+      $('#clock').style.setProperty('--left', 1);
     } else {
       const left = STORY_MIN - G.clock;
-      $('#onair-light').textContent = 'Deadline ' + hhmm(slot.start + STORY_MIN);
-      $('#clock-time').textContent = hhmm(slot.start + G.clock);
-      $('#clock-left').textContent = Math.ceil(left) + ' min left';
+      $('#onair-light').textContent = 'On air in';
+      $('#clock-time').textContent = Math.max(0, Math.ceil(left)) + ' min';
+      $('#clock-left').textContent = '';
       $('#clock').classList.toggle('hurry', left <= 20);
       $('#clock').style.setProperty('--left', clamp(left / STORY_MIN, 0, 1));
     }
@@ -627,12 +807,124 @@
       '<p class="t-where">' + Sim.DISTRICTS.map((d) => esc(d.short) + ' <b>' + t.by[d.key].asked + '</b>').join(' · ') + '</p>';
   }
 
-  /* ============================================================ flow: start & brief */
-  function startGame() {
-    G.relaxed = !!$('#relaxed').checked;
+  /* ============================================================ the phone: messages from your editor */
+  // The phone opens on how to play (three steps); each story's brief then arrives in the same thread.
+  const EDITOR = { skin: '#E4B08E', hair: '#B9B1A8', hairStyle: 'bun', top: '#9B3D8F', bottom: '#2E3440' };
+  // one line per story brief (falls back to the long editor note in sim.js)
+  const BRIEF_LINE = {
+    1: 'First up: the data centre wants a new hall. What will you ask?',
+    2: 'Lunchtime story: life online. What will you ask?',
+    3: 'Top story at six: where is the town heading? What will you ask?',
+  };
+
+  const PH = { timers: [], pending: null };
+  function phClear() { PH.timers.forEach(clearTimeout); PH.timers = []; PH.pending = null; }
+  function phOpen(minutes) {
+    phClear();
+    $('#ph-thread').innerHTML = '';
+    $('#ph-foot').innerHTML = '';
+    $('#ph-time').textContent = hhmm(minutes);
+    $('#p-phone').hidden = false;
+  }
+  function phScroll() { const t = $('#ph-thread'); t.scrollTop = t.scrollHeight; }
+  function phAdd(html, cls) {
+    const m = document.createElement('div');
+    m.className = 'msg' + (cls ? ' ' + cls : '');
+    m.innerHTML = html;
+    $('#ph-thread').appendChild(m);
+    phScroll();
+    return m;
+  }
+  /** The editor says something: a typing indicator first, then the message (instant with reduced motion). */
+  function phSay(html, instant, done) {
+    phFlush();
+    if (instant || G.debug || reduced()) { phAdd(html, 'ed'); if (done) done(); return; }
+    const m = phAdd('<i></i><i></i><i></i>', 'ed typing');
+    m.setAttribute('aria-hidden', 'true');
+    PH.pending = { m, html, done };
+    PH.timers.push(setTimeout(phFlush, clamp(360 + html.length * 9, 620, 1050)));
+  }
+  /** Show the message that is being typed right now. Returns false if nothing was being typed. */
+  function phFlush() {
+    const p = PH.pending;
+    if (!p) return false;
+    PH.pending = null;
+    p.m.remove();
+    phAdd(p.html, 'ed in');
+    if (p.done) p.done();
+    return true;
+  }
+
+  /* ============================================================ camera during the intro and briefs */
+  /** Where the free part of the screen is centred, relative to the viewport centre (the phone covers the rest). */
+  function phoneShift() {
+    const el = $('#p-phone');
+    if (!el || el.hidden) return { sx: 0, sy: 0 };
+    const l = el.offsetLeft, w = el.offsetWidth, t = el.offsetTop;
+    if (w < vw * 0.6) return { sx: (l + w) / 2, sy: 0 };
+    return { sx: 0, sy: (60 + t) / 2 - vh / 2 };
+  }
+  function townZoom() {
+    const sh = G.camShift;
+    const availW = sh.sx ? vw - 2 * sh.sx - 30 : vw - 24;
+    const availH = sh.sy ? vh + 2 * sh.sy - 70 : vh - 90;
+    return clamp(Math.min(availW / 1680, availH / 1020), 0.2, 1);
+  }
+  function camSpot() {
+    return { x: MAP_C.x, y: MAP_C.y - 80, z: townZoom() };
+  }
+  function camTarget() {
+    const c = camSpot(G.cam), sh = G.camShift;
+    return { x: c.x - sh.sx / c.z, y: c.y - sh.sy / c.z, z: c.z };
+  }
+  function setCam(name, snap) {
+    G.cam = name;
+    G.camShift = phoneShift();
+    if (snap) { const c = camTarget(); view.x = c.x; view.y = c.y; view.zoom = c.z; }
+  }
+
+  /* ============================================================ flow: intro - how to play in three steps */
+  const ICO = {
+    ask: '<svg viewBox="0 0 32 32" width="30" height="30"><rect x="13.2" y="16" width="5.6" height="12" rx="2.2" fill="#241C17"/><circle cx="16" cy="11" r="7.2" fill="#9B3D8F"/><path d="M10.6 9.4h10.8M9.8 11.8h12.4M10.6 14.2h10.8" stroke="#fff" stroke-opacity=".35" stroke-width="1"/></svg>',
+    guess: '<svg viewBox="0 0 32 32" width="30" height="30"><circle cx="16" cy="16" r="13" fill="#FFC933" stroke="#241C17" stroke-width="2"/><circle cx="11.6" cy="11.8" r="2.6" fill="none" stroke="#241C17" stroke-width="2.2"/><circle cx="20.4" cy="20.2" r="2.6" fill="none" stroke="#241C17" stroke-width="2.2"/><path d="M21 10.5L11 21.5" stroke="#241C17" stroke-width="2.4" stroke-linecap="round"/></svg>',
+    compare: '<svg viewBox="0 0 32 32" width="30" height="30"><path d="M4 27.5h24" stroke="#241C17" stroke-width="2" stroke-linecap="round"/><rect x="7" y="9" width="7.5" height="17.5" rx="1.6" fill="#FFC933" stroke="#241C17" stroke-width="2"/><rect x="17.5" y="15" width="7.5" height="11.5" rx="1.6" fill="#9B3D8F" stroke="#241C17" stroke-width="2"/></svg>',
+  };
+  const GUIDE = [
+    { ico: 'ask', k: 'Ask', t: 'Interview people around town.' },
+    { ico: 'guess', k: 'Guess', t: 'What does the whole town think?' },
+    { ico: 'compare', k: 'Compare', t: 'Check your guess against a real survey.' },
+  ];
+  function showIntro() {
+    G.mode = 'intro';
+    hideAllPanels();
+    setHud(false);
+    $('#onair-banner').hidden = true;
+    phOpen(Sim.SLOTS[0].start);
+    // the top of the conversation: the game's name, then how to play (it scrolls up when the brief arrives)
+    const hello = document.createElement('div');
+    hello.className = 'ph-hello';
+    hello.innerHTML = '<svg viewBox="0 0 24 24" width="52" height="52" aria-hidden="true"><rect x="9.2" y="12" width="5.6" height="10.5" rx="2" fill="#241C17"/><circle cx="12" cy="8" r="6.6" fill="#9B3D8F"/><path d="M7.4 6.4h9.2M6.6 8.6h10.8M7.4 10.8h9.2" stroke="#fff" stroke-opacity=".35" stroke-width=".9"/><circle cx="9.8" cy="5.6" r="1.7" fill="#fff" opacity=".55"/></svg>' +
+      '<p class="ph-title">Vox Pop</p>';
+    $('#ph-thread').appendChild(hello);
+    const guide = document.createElement('div');
+    guide.className = 'ph-guide';
+    guide.innerHTML = '<p class="g-h" id="guide-h">How to play</p>' +
+      '<ol class="g-steps" aria-labelledby="guide-h">' + GUIDE.map((g, i) =>
+        '<li style="--i:' + i + '"><span class="g-ico" aria-hidden="true">' + ICO[g.ico] + '</span><span class="g-txt"><b>' + (i + 1) + ' · ' + g.k + '</b><span>' + g.t + '</span></span></li>').join('') + '</ol>';
+    $('#ph-thread').appendChild(guide);
+    $('#ph-foot').innerHTML = '<button class="btn primary" type="button" id="ph-start" data-autofocus>Start reporting <span aria-hidden="true">→</span></button>';
+    $('#ph-start').addEventListener('click', endIntro);
+    G.hallT = G.debug || reduced() ? -99 : G.t;   // behind the phone, the planned hall draws itself
+    setCam('town', true);
+    focusIn($('#p-phone'));
+  }
+  function endIntro() {
+    if (G.mode !== 'intro') return;
     G.story = -1;
     nextStory();
   }
+
+  /* ============================================================ flow: stories & briefs */
   function nextStory() {
     G.story++;
     if (G.story >= Sim.SLOTS.length) return showEnd();
@@ -649,49 +941,113 @@
     showBrief();
   }
 
+  /** The brief is the next message in the thread: one line from the editor and two questions to reply with. */
   function showBrief() {
+    const st = story(), slot = st.slot;
+    const carryOn = G.mode === 'intro' && G.story === 0 && !$('#p-phone').hidden;
     G.mode = 'brief';
-    hideAllPanels();
+    hideAllPanels('p-phone');
     setHud(false);
     $('#onair-banner').hidden = true;
-    const st = story(), slot = st.slot;
-    const el = $('#p-brief');
-    el.innerHTML =
-      '<p class="kicker">Story ' + slot.n + ' of ' + Sim.SLOTS.length + ' · ' + esc(slot.bulletin) + ' · ' + hhmm(slot.start) + '</p>' +
-      '<h2 id="brief-h" tabindex="-1">' + esc(slot.name) + '</h2>' +
-      '<blockquote class="editor"><span class="who">Your editor</span>“' + esc(slot.editor) + '”</blockquote>' +
-      '<p class="pick">Pick the question you\'ll ask people:</p>' +
-      '<div class="angles">' + st.offered.map((id) => {
-        const places = placesFor(id);
-        return '<button type="button" class="angle" data-q="' + id + '">' +
-          '<span class="a-title">' + esc(Sim.Q[id].title) + '</span>' +
-          '<span class="a-q"><b>You\'ll ask:</b> ' + esc(Sim.askText(id)) + '</span>' +
-          '<span class="a-m">' + CHIP.assume + ' Your headline: the % who answer ' + esc(Sim.measureText(id)) + '</span>' +
-          (places.length ? '<span class="a-d">' + CHIP.data + ' Useful data at ' + esc(joinList(places)) + '</span>' : '') +
-          '<span class="a-id mono">Survey question q' + esc(id.slice(1)) + '</span>' +
-          '</button>';
-      }).join('') + '</div>' +
-      '<p class="deadline mono">' + (G.relaxed ? 'Relaxed mode: no deadline. File when you are ready.' : 'Deadline ' + hhmm(slot.start + STORY_MIN) + '. Walking uses the clock; each interview takes ' + COST_TALK + ' minutes and reading data takes ' + COST_FACT + '.') + '</p>';
-    el.hidden = false;
-    $$('.angle', el).forEach((b) => b.addEventListener('click', () => chooseAngle(b.dataset.q)));
-    focusIn(el);
+    if (carryOn) { phClear(); $('#ph-time').textContent = hhmm(slot.start); } else phOpen(slot.start);
+    $('#ph-foot').innerHTML =
+      '<p class="ph-dl mono" id="ph-dl"></p>' +
+      '<label class="switch"><input type="checkbox" id="relaxed"' + (G.relaxed ? ' checked' : '') + '><span class="sw" aria-hidden="true"></span>No deadline</label>';
+    $('#relaxed').addEventListener('change', (e) => setRelaxed(e.target.checked));
+    armFoot();
+    syncDeadline();
+    setCam('town', !carryOn);
+    $('#ph-thread').focus({ preventScroll: true });
+    phAdd('Story ' + slot.n + '/' + Sim.SLOTS.length, 'day');
+    const line = BRIEF_LINE[slot.n] || slot.editor;
+    phSay(esc(line), false, () => { sayLine('editor', line); showReplies(st); });
+  }
+  /** The footer's buttons change under the pointer: ignore the second click of a double-click. */
+  let armT = null;
+  function armFoot() {
+    const f = $('#ph-foot');
+    f.classList.add('arming');
+    clearTimeout(armT);
+    armT = setTimeout(() => f.classList.remove('arming'), 450);
+  }
+  function showReplies(st) {
+    if (G.mode !== 'brief' || story() !== st || st.qid) return;
+    const th = $('#ph-thread');
+    const wrap = document.createElement('div');
+    wrap.className = 'replies in';
+    wrap.id = 'replies';
+    wrap.tabIndex = -1;
+    wrap.setAttribute('role', 'group');
+    wrap.setAttribute('aria-label', 'Pick the question you\'ll ask people. Use the arrow keys or Tab, then Enter.');
+    wrap.innerHTML = st.offered.map((id) =>
+      '<button type="button" class="reply" data-q="' + id + '"><span class="r-title">' + esc(Sim.Q[id].title) + '</span><span class="r-q">' + esc(Sim.askText(id)) + '</span></button>').join('') +
+      '<p class="r-hint" hidden>Choose with <kbd>↑</kbd><kbd>↓</kbd> or <kbd>Tab</kbd>, then <kbd>Enter</kbd>.</p>';
+    th.appendChild(wrap);
+    const det = document.createElement('details');
+    det.className = 'ph-details';
+    det.innerHTML = '<summary>Details</summary>' + st.offered.map(detailsFor).join('') +
+      '<p class="d-n mono">With a deadline, walking, interviews (' + COST_TALK + ' min) and reading data (' + COST_FACT + ' min) use the clock.</p>';
+    th.appendChild(det);
+    det.addEventListener('toggle', () => { if (det.open) th.scrollTop = th.scrollHeight; });
+    $$('.reply', wrap).forEach((b) => b.addEventListener('click', () => chooseAngle(b.dataset.q)));
+    phScroll();
+    // Focus lands on the pair of questions, not on the first one: Enter/Space kept moving the intro on,
+    // so a player still pressing them must not pick a question by accident. Arrows or Tab step in.
+    grab(wrap);
+  }
+  /** Enter/Space on the pair of questions (not on one of them): show how to pick. */
+  function nudgeReplies(wrap) {
+    const h = $('.r-hint', wrap);
+    if (h) h.hidden = false;
+    wrap.classList.remove('nudge'); void wrap.offsetWidth; wrap.classList.add('nudge');
+    phScroll();
+    announce('Pick one of the two questions with the arrow keys or Tab, then press Enter.');
+  }
+  function detailsFor(id) {
+    const places = placesFor(id);
+    return '<div class="d-q"><p class="d-t"><b>' + esc(Sim.Q[id].title) + '</b> <span class="mono">survey q' + esc(id.slice(1)) + '</span></p>' +
+      '<p class="d-l">' + CHIP.assume + '<span>Your guess: the % who answer ' + esc(Sim.measureText(id)) + '.</span></p>' +
+      (places.length ? '<p class="d-l">' + CHIP.data + '<span>Useful measured facts, with sources: ' + esc(joinList(places)) + '.</span></p>' : '') + '</div>';
   }
   function placesFor(id) {
     const want = new Set(Sim.Q[id].facts);
     return Wd.evidence.filter((ev) => ev.facts.some((f) => want.has(f))).map((ev) => 'the ' + ev.name.toLowerCase());
   }
-  function chooseAngle(id) {
+  function syncDeadline() {
+    const st = story(), el = $('#ph-dl');
+    if (el && st) el.textContent = G.relaxed ? 'File when you\'re ready' : 'On air at ' + hhmm(st.slot.start + STORY_MIN);
+  }
+  function setRelaxed(on) {
+    G.relaxed = !!on;
+    ['#relaxed', '#help-relaxed'].forEach((s) => { const c = $(s); if (c) c.checked = G.relaxed; });
+    syncDeadline();
+    if (story() && story().qid) updateClock();
+  }
+  /** The player replies with a question; a moment later they are out on the street. */
+  function chooseAngle(id, instant) {
     const st = story();
+    if (!st || st.qid || G.mode !== 'brief') return;
     st.qid = id;
-    $('#p-brief').hidden = true;
+    $$('#ph-thread .replies, #ph-thread .ph-details').forEach((el) => el.remove());
+    phAdd(esc(Sim.Q[id].title), 'me in');
+    if (instant || G.debug) startReporting();
+    else PH.timers.push(setTimeout(startReporting, reduced() ? 250 : 700));
+  }
+  function startReporting() {
+    const st = story();
+    if (!st || !st.qid || G.mode !== 'brief') return;
+    phClear();
+    $('#p-phone').hidden = true;
     G.mode = 'play';
+    if (G.story > 0) G.taught.hud = true;
     setHud(true);
-    $('#story-chip').innerHTML = '<span class="mono">Story ' + st.slot.n + '/' + Sim.SLOTS.length + '</span> <b>' + esc(Sim.Q[id].title) + '</b>';
+    $('#story-chip').innerHTML = '<span class="mono">Story ' + st.slot.n + '/' + Sim.SLOTS.length + '</span> <b>' + esc(Sim.Q[st.qid].title) + '</b>';
     renderTally();
     updateClock();
     G.target = null; showTalkButton();
-    if (G.story === 0 && !G.hintUntil) { $('#controls-hint').hidden = false; G.hintUntil = G.t + 14; }
-    announce('Story ' + st.slot.n + '. ' + Sim.Q[id].title + ' Walk around and interview residents.');
+    if (!G.taught.next) coach(COACH.first);
+    if (reduced() || G.debug) snapCamera(); else G.glideUntil = G.t + 1.8;
+    announce('Story ' + st.slot.n + '. ' + Sim.Q[st.qid].title + ' Walk around and interview residents.');
     focusWorld();
   }
 
@@ -722,41 +1078,27 @@
     const st = story(), T = G.talk, res = T.res;
     const q = S.q(st.qid);
     const opt = T.idx >= 0 ? q.options[T.idx] : null;
-    const yes = T.idx >= 0 && Sim.isYes(st.qid, T.idx);
     const answerLine = opt ? Sim.spoken(st.qid, opt) : res.decline;
+    const teach = !G.taught.opinion;         // first answer of the game: say what OPINION means
+    G.taught.opinion = true;
     const el = $('#p-talk');
     el.innerHTML =
       '<div class="rec-top"><span class="rec"><i aria-hidden="true"></i>Rec</span><span class="wave" aria-hidden="true">' + '<b></b>'.repeat(14) + '</span><span class="mono rec-t">' + hhmm(st.slot.start + G.clock) + '</span></div>' +
       '<div class="who"><canvas class="portrait" width="96" height="96" aria-hidden="true"></canvas>' +
       '<div><h2 id="talk-name">' + esc(res.name) + '</h2><p class="meta">' + esc(Sim.D[res.district].name) + ' · ' + esc(res.doing) + '</p><p class="made">Made-up resident · answer drawn from the survey</p></div></div>' +
       '<div class="lines">' +
-      '<p class="line them" data-step="0">“' + esc(res.greet) + '”</p>' +
       '<p class="line you" data-step="1"><b>You:</b> ' + esc(Sim.askText(st.qid)) + '</p>' +
       '<p class="line them answer" data-step="2">“<span class="typed" data-full="' + esc(answerLine) + '"></span>”</p>' +
       '</div>' +
-      '<div class="recorded" data-step="3">' + CHIP.opinion + ' ' + (opt ? 'Recorded: <b>' + esc(opt.short || opt.label) + '</b>' + (yes ? ' <span class="counts yes">● counts toward your headline</span>' : ' <span class="counts no">○ doesn\'t count toward your headline</span>') : 'Recorded: <b>no answer</b> <span class="counts none">◌ declined</span>') + '</div>' +
-      '<p class="bye" data-step="3">“' + esc(res.bye) + '”</p>' +
-      '<div class="row"><button class="btn primary" type="button" id="talk-next" data-autofocus>Skip <kbd>E</kbd></button><span class="mono cost">−' + COST_TALK + ' min</span></div>';
+      '<div class="recorded" data-step="3">' + CHIP.opinion + ' <b>' + (opt ? esc(opt.short || opt.label) : 'Declined to answer') + '</b></div>' +
+      (teach ? '<p class="jit" data-step="3"><span>An <b>opinion</b> is what someone says they think: real, but not proof about data centres.</span></p>' : '') +
+      '<div class="row"><button class="btn primary" type="button" id="talk-next" data-autofocus>Thanks! <kbd>E</kbd></button><span class="cost">' + (G.relaxed ? 'No deadline' : COST_TALK + ' min spent') + '</span></div>';
     el.hidden = false;
     drawPortrait($('.portrait', el), res.look);
+    sayLine(res.voice, answerLine);
     $('#talk-next').addEventListener('click', advanceTalk);
     clearTalkTimers();
-    const steps = $$('[data-step]', el);
-    steps.forEach((s) => s.classList.add('pending'));
-    const reveal = (n) => steps.forEach((s) => { if (+s.dataset.step <= n) s.classList.remove('pending'); });
-    const typed = $('.typed', el);
-    if (reduced()) { typed.textContent = answerLine; reveal(3); finishTalkUI(); }
-    else {
-      reveal(0);
-      talkTimers.push(setTimeout(() => reveal(1), 450));
-      talkTimers.push(setTimeout(() => {
-        reveal(2);
-        el.classList.add('speaking');
-        let i = 0;
-        const tick = () => { i++; typed.textContent = answerLine.slice(0, i); if (i < answerLine.length) talkTimers.push(setTimeout(tick, 32)); else { el.classList.remove('speaking'); talkTimers.push(setTimeout(() => { reveal(3); finishTalkUI(); }, 180)); } };
-        tick();
-      }, 1100));
-    }
+    finishTalkUI();
     focusIn(el);
     announce(res.name + ' says: ' + answerLine + (opt ? ' Recorded as ' + (opt.short || opt.label) + '.' : ' No answer recorded.'));
   }
@@ -786,6 +1128,8 @@
     G.talk = null;
     G.mode = 'play';
     playHud(true);
+    revealHud();
+    if (!G.taught.next) { G.taught.next = true; coach(COACH.next, 8); }
     const cat = T.idx < 0 ? 'none' : Sim.isYes(st.qid, T.idx) ? 'yes' : 'no';
     G.fx.push({ kind: 'pop', x: T.res.x, y: T.res.y, t0: G.t, cat });
     flyToTally(T.res, T.idx, cat);
@@ -833,13 +1177,16 @@
     const rel = new Set(st && st.qid ? Sim.Q[st.qid].facts : []);
     const facts = ev.facts.map(Sim.fact).filter(Boolean);
     facts.forEach((f) => G.shown.add(f.id));
+    const teach = !G.taught.data;            // first data point of the game: say what DATA means
+    G.taught.data = true;
     const el = $('#p-fact');
     el.innerHTML =
       '<p class="kicker">' + CHIP.data + ' <span>' + esc(ev.name) + '</span></p>' +
       '<h2 id="fact-h" tabindex="-1">What\'s measured</h2>' +
+      (teach ? '<p class="jit"><span><b>Data</b> is measured, with a source you can check.</span></p>' : '') +
       (ev.chart === 'cso' ? csoChart() : '') +
       facts.map((f) => factCard(f, rel.has(f.id))).join('') +
-      '<p class="fact-note">' + (first ? 'Added to the <b>Data</b> page of your notebook.' + (G.relaxed ? '' : ' Reading took ' + COST_FACT + ' minutes.') : 'You\'ve read this already - no time used.') + '</p>' +
+      '<p class="fact-note">' + (first ? 'Added to the <b>Data</b> page of your notebook.' + (G.relaxed ? '' : ' ' + COST_FACT + ' min spent.') : 'You\'ve read this already - no time used.') + '</p>' +
       '<div class="row"><button class="btn primary" type="button" id="fact-close" data-autofocus>Back to reporting <kbd>E</kbd></button></div>';
     el.hidden = false;
     $('#fact-close').addEventListener('click', closeFact);
@@ -876,6 +1223,7 @@
     $('#p-fact').hidden = true;
     G.mode = 'play';
     playHud(true);
+    revealHud();
     G.target = null; showTalkButton();
     focusWorld();
     if (!G.relaxed && G.clock >= STORY_MIN) { G.clock = STORY_MIN; openFile(true); }
@@ -918,7 +1266,7 @@
       const cat = iv.idx < 0 ? 'none' : Sim.isYes(st.qid, iv.idx) ? 'yes' : 'no';
       return '<li class="' + cat + '"><span class="mk" aria-hidden="true"></span><b>' + esc(p.name) + '</b> <span class="mono">' + esc(Sim.D[iv.d].short) + '</span> - ' + (o ? esc(o.short || o.label) : 'no answer') + '</li>';
     });
-    return '<p class="nb-q">“' + esc(Sim.askText(st.qid)) + '”</p>' +
+    return '<p class="nb-q">“' + esc(Sim.askText(st.qid)) + '”</p><p class="small muted">Survey question ' + esc(st.qid) + '</p>' +
       (lines.length ? '<ol class="nb-list hand">' + lines.join('') + '</ol>' : '<p class="muted">No interviews yet.</p>') +
       (t.k ? '<p class="nb-sum">' + t.yes + ' of ' + t.k + ' answered ' + esc(Sim.measureText(st.qid)) + ' = <b>' + pc(t.pct) + '</b></p>' : '');
   }
@@ -940,19 +1288,26 @@
     const t = tallyOf(st);
     const start = t.k ? r0(t.pct) : 50;
     const held = Sim.Q[st.qid].facts.filter((f) => G.facts.has(f)).map(Sim.fact).filter(Boolean);
+    // labels met here for the first time get a one-line explanation (ASSUMPTION always arrives here first)
+    const tOp = !G.taught.opinion, tAs = !G.taught.assume, tDa = !G.taught.data;
+    G.taught.opinion = G.taught.assume = G.taught.data = true;
+    const jit = (on, html) => (on ? '<p class="jit"><span>' + html + '</span></p>' : '');
     const el = $('#p-file');
     el.innerHTML =
       '<p class="kicker">' + (forced ? '<span class="deadline-hit">Deadline!</span> Time to file what you have.' : 'Story ' + st.slot.n + ' · ' + esc(st.slot.bulletin)) + '</p>' +
       '<h2 id="file-h" tabindex="-1">File your story</h2>' +
-      '<div class="f-block">' + CHIP.opinion + '<p><b>Your vox pop:</b> ' +
+      '<div class="f-block">' + CHIP.opinion + '<div><p><b>Your vox pop:</b> ' +
       (t.k ? t.yes + ' of the ' + t.k + ' people who answered said ' + esc(Sim.measureText(st.qid)) + ' (' + pc(t.pct) + ').' : 'you haven\'t got any answers yet, so your headline will be pure assumption.') +
       (t.decl ? ' ' + t.decl + ' declined.' : '') +
-      '<br><span class="mono small">Asked in: ' + Sim.DISTRICTS.map((d) => esc(d.inText) + ' ' + t.by[d.key].asked).join(' · ') + '</span></p></div>' +
+      '<br><span class="mono small">Asked in: ' + Sim.DISTRICTS.map((d) => esc(d.inText) + ' ' + t.by[d.key].asked).join(' · ') + '</span></p>' +
+      jit(tOp, 'An <b>opinion</b> is what someone says they think: real, but not proof about data centres.') + '</div></div>' +
       '<div class="f-block">' + CHIP.assume + '<div class="f-slider"><label for="est"><b>Your headline number.</b> What share of ' + TOWN + ' would answer ' + esc(Sim.measureText(st.qid)) + '?</label>' +
       '<div class="est-row"><input type="range" id="est" min="0" max="100" step="1" value="' + start + '" aria-describedby="est-help"><output id="est-out" for="est">' + start + '%</output></div>' +
-      '<p id="est-help" class="mono small">Start from your vox pop, then adjust if you think it\'s off. Arrow keys move 1 point.</p></div></div>' +
+      '<p id="est-help" class="mono small">Adjust your guess. Arrow keys move 1 point.</p>' +
+      jit(tAs, 'An <b>assumption</b> is your own guess: here, what the whole town thinks, based on the few people you asked.') + '</div></div>' +
       '<div class="script"><span class="onair-pill"><i aria-hidden="true"></i>On air at ' + hhmm(st.slot.start + STORY_MIN) + '</span><p class="script-h" id="script-h"></p></div>' +
-      '<div class="f-block">' + CHIP.data + '<p>' + (held.length ? '<b>Facts you can cite:</b> ' + held.map((f) => esc(f.source)).join(', ') + '. Your story counts as sourced.' : '<b>No sourced facts for this story.</b> Useful ones were at ' + esc(joinList(placesFor(st.qid))) + '.') + '</p></div>' +
+      '<div class="f-block">' + CHIP.data + '<div><p>' + (held.length ? '<b>Facts you can cite:</b> ' + held.map((f) => esc(f.source)).join(', ') + '. Your story counts as sourced.' : '<b>No sourced facts for this story.</b> Useful ones were at ' + esc(joinList(placesFor(st.qid))) + '.') + '</p>' +
+      jit(tDa, '<b>Data</b> is measured, with a source you can check.') + '</div></div>' +
       '<div class="row">' + (forced ? '' : '<button class="btn ghost" type="button" id="file-back">Keep reporting</button>') + '<button class="btn primary big" type="button" id="file-go" data-autofocus>Go on air <span aria-hidden="true">→</span></button></div>';
     el.hidden = false;
     const inp = $('#est'), out = $('#est-out'), h = $('#script-h');
@@ -1025,40 +1380,41 @@
       f.item = { x0: f.x - 0.12, y0: f.y - 0.12, x1: f.x + 0.12, y1: f.y + 0.12, bx0: s.x - 14, bx1: s.x + 14, by0: s.y - 50, by1: s.y + 6, draw: () => Art.crowdFig(ctx, s.x, s.y, cat, f.k * clamp(0.5 / view.zoom, 1, 1.8)) };
     });
     G.crowd = { st, figs: order, t0: G.t, shown: 0, done: false, total: order.length };
-    const q = S.q(st.qid);
     const hidden = order.filter((f) => f.cat === 'hidden').length;
+    const gap = Math.abs(st.estimate - st.survey.pct);
+    const difference = gap < 0.05 ? 'Your guess matched the survey result.' :
+      'Your guess was ' + (gap < 1 ? 'less than 1 percentage point' : 'about ' + r0(gap) + ' percentage ' + (r0(gap) === 1 ? 'point' : 'points')) +
+      (st.estimate > st.survey.pct ? ' higher.' : ' lower.');
     const b = $('#onair-banner');
     b.innerHTML =
       '<span class="onair-pill"><i aria-hidden="true"></i>On air</span>' +
-      '<p class="ob-head">“' + esc(Sim.Q[st.qid].headline(st.estimate)) + '”</p>' +
-      '<p class="ob-crowd"><b>Meet the ' + S.n + '.</b> The real survey, one figure per person: <b><span id="ob-yes">0</span> of ' + st.survey.n + '</b> who answered said ' + esc(Sim.measureText(st.qid)) + ' · <b id="ob-pct">…</b></p>' +
+      '<h2 class="ob-head">' + esc(Sim.Q[st.qid].title) + '</h2>' +
+      '<div class="ob-compare"><div>' + CHIP.assume + '<span>Your headline</span><b>' + st.estimate + '%</b></div>' +
+      '<div>' + CHIP.opinion + '<span>Survey result</span><b>' + pc(st.survey.pct) + '</b></div></div>' +
+      '<p class="ob-gap">' + difference + '</p>' +
+      '<p class="ob-crowd">Based on <b>' + st.survey.n + ' answers</b> in this survey.</p>' +
       '<ul class="ob-legend">' +
-      '<li><span class="fig yes" aria-hidden="true"></span>Counts toward your headline <b class="mono">' + st.survey.yes + '</b></li>' +
-      '<li><span class="fig no" aria-hidden="true"></span>Another answer <b class="mono">' + (st.survey.n - st.survey.yes) + '</b></li>' +
+      '<li><span class="fig yes" aria-hidden="true"></span><span>' + esc(Sim.measureText(st.qid)) + '</span> <b class="mono">' + st.survey.yes + '</b></li>' +
+      '<li><span class="fig no" aria-hidden="true"></span>Other answers <b class="mono">' + (st.survey.n - st.survey.yes) + '</b></li>' +
       '<li><span class="fig none" aria-hidden="true"></span>Didn\'t answer' + (hidden ? ' or too few people to show' : '') + ' <b class="mono">' + (S.n - st.survey.n) + '</b></li></ul>' +
-      '<p class="ob-note">One figure per survey answer, placed by the area people said they live in (q4). Counts only - no figure is a real person.</p>' +
+      '<p class="ob-note">Figures represent survey counts, not identifiable people.</p>' +
+      '<details class="how"><summary>Headline and crowd details</summary><p>Your headline: “' + esc(Sim.Q[st.qid].headline(st.estimate)) + '”</p><p>' + S.n + ' people in Ireland (Maynooth University survey). Figures are grouped by their reported area type (q4). Percentages exclude those who did not answer this question.</p></details>' +
       '<div class="row"><button class="btn primary" type="button" id="btn-report" hidden>See the report <span aria-hidden="true">→</span></button></div>';
     b.hidden = false;
     $('#btn-report').addEventListener('click', showReport);
     announce('On air: ' + Sim.Q[st.qid].headline(st.estimate) + '. The survey: ' + st.survey.yes + ' of ' + st.survey.n + ', ' + pc(st.survey.pct) + '.');
-    void q;
   }
   function updateCrowd() {
     const c = G.crowd;
-    let shownYes = 0, all = true;
+    let all = true;
     for (let i = 0; i < c.figs.length; i++) {
       const f = c.figs[i];
       const k = (G.t - c.t0 - f.delay) / 0.28;
       if (k <= 0) { f.k = 0; all = false; continue; }
       f.k = reduced() ? 1 : k >= 1 ? 1 : k < 0.7 ? (k / 0.7) * 1.2 : 1.2 - ((k - 0.7) / 0.3) * 0.2;
-      if (f.cat === 'yes') shownYes++;
     }
-    const y = $('#ob-yes');
-    if (y && G.mode === 'crowd') y.textContent = shownYes;
     if (all && !c.done) {
       c.done = true;
-      const p = $('#ob-pct'); if (p) p.textContent = pc(c.st.survey.pct);
-      if (y) y.textContent = c.st.survey.yes;
       const b = $('#btn-report');
       if (b && G.mode === 'crowd') { b.hidden = false; b.focus({ preventScroll: true }); }
     }
@@ -1083,7 +1439,8 @@
     el.innerHTML =
       '<p class="kicker">Story ' + st.slot.n + ' report · ' + esc(Sim.Q[st.qid].title) + '</p>' +
       '<h2 id="report-h" tabindex="-1">' + verdict + ' <span class="stars" aria-label="' + st.stars + ' of 3 stars">' + '★'.repeat(st.stars) + '<span class="off">' + '★'.repeat(3 - st.stars) + '</span></span>' + (st.sourced ? ' <span class="sourced">✓ Sourced</span>' : '') + '</h2>' +
-      '<p class="q-full mono">q' + esc(st.qid.slice(1)) + ' · ' + esc(Sim.surveyWording(st.qid)) + '</p>' +
+      '<p class="q-full">Share answering ' + esc(Sim.measureText(st.qid)) + '</p>' +
+      '<details class="how"><summary>Original survey question</summary><p>q' + esc(st.qid.slice(1)) + ' · ' + esc(Sim.surveyWording(st.qid)) + '</p></details>' +
       '<div class="three">' +
       '<div class="n assume">' + CHIP.assume + '<b>' + st.estimate + '%</b><span>Your headline</span></div>' +
       '<div class="n opinion small">' + CHIP.opinion + '<b>' + (t.k ? pc(t.pct) : '–') + '</b><span>Your vox pop · ' + t.k + ' ' + (t.k === 1 ? 'person' : 'people') + '</span></div>' +
@@ -1091,18 +1448,18 @@
       '</div>' +
       '<p class="miss">Your headline missed the survey by <b>' + r0(st.miss) + ' points</b>. ' + esc(luck) + '</p>' +
       '<p class="map-key small"><span>On the map, the survey\'s ' + S.n + ' people:</span> <span><i class="fig yes" aria-hidden="true"></i> ' + sv.yes + ' said ' + esc(Sim.measureText(st.qid)) + '</span> <span><i class="fig no" aria-hidden="true"></i> ' + (sv.n - sv.yes) + ' another answer</span> <span><i class="fig none" aria-hidden="true"></i> ' + (S.n - sv.n) + ' didn\'t answer</span></p>' +
-      '<section class="rep-sec"><h3>100 parallel vox pops <span class="tag-sim">simulation</span></h3>' +
+      '<details class="rep-sec explore"><summary>Could another sample change the result? <span class="tag-sim">simulation</span></summary>' +
       '<p>' + (t.k ? 'If 100 reporters each asked ' + st.simK + ' random residents, this is what they would have got. Yours is marked.' : 'You didn\'t get any answers. If 100 reporters each asked 5 random residents, this is what they would have got.') + '</p>' +
       voxChart(st) +
       '<p class="small">' + within10 + ' of 100 landed within 10 points of the survey; results ran from ' + r0(mn) + '% to ' + r0(mx) + '%. Asking 30 people each, 90 of 100 would land between about ' + r0(st.range30[0]) + '% and ' + r0(st.range30[1]) + '%.</p>' +
       '<details class="how"><summary>How this is calculated</summary><p>Each simulated reporter picks residents at random, in the same mix of districts as the survey (q4), and each resident\'s answer is drawn the same way as in the game - from the q4 cross-tab row for their district. People who would decline are left out, so every reporter gets ' + st.simK + ' answers. It shows sampling luck, not a prediction.</p></details>' +
-      '</section>' +
-      '<section class="rep-sec"><h3>Where you asked</h3>' + whereTable(st) +
-      '<p class="small muted">Survey figures are the q4 cross-tab: people who described their own area as urban, suburban or rural. A pattern, not a cause.</p></section>' +
+      '</details>' +
+      '<details class="rep-sec explore"><summary>Compare districts</summary>' + whereTable(st) +
+      '<p class="small muted">Survey figures are the q4 cross-tab: people who described their own area as urban, suburban or rural. A pattern, not a cause.</p></details>' +
       (extras.length ? extras.map(extraBlock).join('') : '') +
-      '<section class="rep-sec"><h3>' + CHIP.data + ' What\'s measured</h3>' +
+      '<details class="rep-sec explore"><summary>' + CHIP.data + ' Read the evidence and sources</summary>' +
       rel.map((f) => { const where = G.facts.has(f.id); const ev = Wd.evidence.find((e) => e.facts.includes(f.id)); return '<div class="rep-fact ' + (where ? 'got' : 'missed') + '"><p class="rf-tag">' + (where ? '✓ In your notebook' : '✗ Missed - it was at ' + esc(ev ? ev.place : 'a data point')) + '</p>' + factCard(f, false) + '</div>'; }).join('') +
-      '<p class="small muted">A fact doesn\'t settle how people feel - but a story with both is a better story.</p></section>' +
+      '<p class="small muted">Facts explain impacts; the survey records views.</p></details>' +
       '<div class="row sticky"><button class="btn primary big" type="button" id="rep-next">' + (last ? 'See your day <span aria-hidden="true">→</span>' : 'Next story <span aria-hidden="true">→</span>') + '</button></div>';
     el.hidden = false;
     el.scrollTop = 0;
@@ -1157,10 +1514,10 @@
     const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
     const g = (v) => esc(v.label) + ' (' + pc(v.pct) + ', n = ' + v.n + ')';
     const line = Math.abs(a.pct - b.pct) < 3 ? 'About the same among ' + g(a) + ' and ' + g(b) + '.' : (a.pct > b.pct ? 'Higher' : 'Lower') + ' among ' + g(a) + ' than among ' + g(b) + '.';
-    return '<section class="rep-sec"><h3>' + CHIP.opinion + ' A pattern in the survey</h3>' +
+    return '<details class="rep-sec explore"><summary>' + CHIP.opinion + ' Explore a survey pattern</summary>' +
       '<p>' + (x.ofText ? 'Share who ' + esc(x.ofText) : 'Share answering ' + esc(Sim.measureText(x.of)) + ' (q' + esc(x.of.slice(1)) + ')') + ', split by survey q' + esc(x.by.slice(1)) + ':</p>' +
       '<div class="xbars">' + x.groups.map((v) => '<div class="xb"><span class="xl">' + esc(cap(v.label)) + ' <span class="mono small">n = ' + v.n + '</span>' + (v.small ? ' <span class="small-n">small group (n = ' + v.n + ')</span>' : '') + '</span><span class="xt"><i style="width:' + v.pct + '%"></i></span><b>' + pc(v.pct) + '</b></div>').join('') + '</div>' +
-      '<p class="small muted">' + line + ' That\'s a pattern among these respondents, not proof that one causes the other.</p></section>';
+      '<p class="small muted">' + line + ' That\'s a pattern among these respondents, not proof that one causes the other.</p></details>';
   }
 
   /* ============================================================ end */
@@ -1196,22 +1553,22 @@
       '<div class="table-wrap"><table class="stories"><thead><tr><th scope="col">Story</th><th scope="col">Asked</th><th scope="col">' + CHIP.assume + ' Your headline</th><th scope="col">' + CHIP.opinion + ' Your vox pop</th><th scope="col">' + CHIP.opinion + ' Survey</th><th scope="col">Miss</th><th scope="col">' + CHIP.data + ' Sourced</th></tr></thead><tbody>' +
       done.map((s) => '<tr><th scope="row">' + esc(Sim.Q[s.qid].title) + ' <span class="mono small">q' + esc(s.qid.slice(1)) + '</span></th><td>' + s.interviews.length + '</td><td>' + s.estimate + '%</td><td>' + (s.tally.k ? pc(s.tally.pct) : '–') + '</td><td>' + pc(s.survey.pct) + ' <span class="mono small nline">n = ' + s.survey.n + '</span></td><td class="nw">' + r0(s.miss) + ' pts</td><td>' + (s.sourced ? '✓ yes' : '✗ no') + '</td></tr>').join('') +
       '</tbody></table></div>' +
-      '<section class="lesson"><h3>What your day shows</h3>' +
+      '<section class="lesson"><h3>A few voices are not the whole town</h3>' +
       (worst && best && worst !== best ? '<p>Your biggest miss was <b>' + r0(worst.miss) + ' points</b> on story ' + worst.slot.n + ', from ' + worst.tally.k + (worst.tally.k === 1 ? ' answer' : ' answers') + '. Your closest was <b>' + r0(best.miss) + ' points</b> on story ' + best.slot.n + ', from ' + best.tally.k + '.</p>' : '') +
-      (tm ? '<p>In the simulation for your first story, a vox pop of 5 people typically missed the survey by <b>' + r0(tm.k5) + ' points</b>; with 30 people, by <b>' + r0(tm.k30) + '</b>. Asking more people doesn\'t make you right - it makes you less likely to be wrong by luck.</p>' : '') +
-      '<p>And a survey of ' + S.n + ' is itself a sample: it tells you what these ' + S.n + ' people in Ireland said, not what everyone thinks.</p></section>' +
+      (tm ? '<details class="how"><summary>What happens with more interviews?</summary><p>In the simulation for your first story, a vox pop of 5 people typically missed the survey by <b>' + r0(tm.k5) + ' points</b>; with 30 people, by <b>' + r0(tm.k30) + '</b>. Asking more people doesn\'t make you right - it makes you less likely to be wrong by luck.</p></details>' : '') +
+      '<p>This survey represents ' + S.n + ' people in Ireland (Maynooth University survey), not everyone.</p></section>' +
       '<section class="recap"><h3>Data ≠ opinion ≠ assumption</h3><ul>' +
-      '<li>' + CHIP.assume + '<span>Your headlines (' + done.map((s) => s.estimate + '%').join(', ') + ') were guesses about a town you had only partly heard from.</span></li>' +
-      '<li>' + CHIP.opinion + '<span>Your ' + asked + ' interviews and the survey\'s ' + S.n + ' answers are both what people said - real, and data about people, but not proof about data centres themselves.</span></li>' +
-      '<li>' + CHIP.data + '<span>You read ' + G.facts.size + ' measured facts with sources. They don\'t tell you what people think - and people\'s views don\'t change what\'s measured.</span></li>' +
+      '<li>' + CHIP.assume + '<span>Your headlines were guesses.</span></li>' +
+      '<li>' + CHIP.opinion + '<span>Interviews were simulated views. Survey answers are real views, not proof about data centres.</span></li>' +
+      '<li>' + CHIP.data + '<span>You read ' + G.facts.size + ' sourced facts. Facts and feelings answer different questions.</span></li>' +
       '</ul></section>' +
-      '<section class="device"><h3>Reporters on this device</h3><p>' + (runs.length ? runs.length + ' finished ' + (runs.length === 1 ? 'day' : 'days') + ' played in this browser. Average headline miss: <b>' + r0(devAvg) + ' points</b>. (Stored only on this device - not a live poll.)' : (storageOk() ? 'No finished days saved on this device yet.' : 'Nothing saved - this browser blocks storage.')) + '</p>' + (avgMiss ? '<p class="small muted">Your average miss today: ' + r0(avgMiss) + ' points.</p>' : '') + '</section>' +
+      '<details class="device explore"><summary>Reporters on this device</summary><p>' + (runs.length ? runs.length + ' finished ' + (runs.length === 1 ? 'day' : 'days') + ' played in this browser. Average headline miss: <b>' + r0(devAvg) + ' points</b>. (Stored only on this device - not a live poll.)' : (storageOk() ? 'No finished days saved on this device yet.' : 'Nothing saved - this browser blocks storage.')) + '</p>' + (avgMiss ? '<p class="small muted">Your average miss today: ' + r0(avgMiss) + ' points.</p>' : '') + '</details>' +
+      '<div class="row"><button class="btn primary big" type="button" id="end-again" data-autofocus>Play again</button><button class="btn ghost" type="button" id="end-how">How this works</button><a class="btn ghost" href="index.html">All games</a></div>' +
       '<section class="sources"><h3>Sources</h3><ul>' +
       '<li>Survey: <i>' + esc(S.meta.title) + '</i> - ' + esc(S.meta.source) + '. ' + S.n + ' respondents. Questions used: ' + Array.from(new Set(['q4'].concat(done.map((s) => s.qid)).concat(done.flatMap((s) => (Sim.Q[s.qid].extras || []).flatMap((e) => [e.by, e.of || s.qid]))))).map((x) => 'q' + x.slice(1)).join(', ') + '.</li>' +
       (G.visited.has('hall') ? '<li><a href="' + esc(F.csoSeries.url) + '" target="_blank" rel="noopener">' + esc(F.csoSeries.source) + '</a></li>' : '') +
       shownFacts.map((f) => '<li><a href="' + esc(f.url) + '" target="_blank" rel="noopener">' + esc(f.source) + '</a> (' + esc(f.year) + ', ' + esc(f.confidence) + ' confidence) - ' + esc(f.text) + '</li>').join('') +
       '</ul></section>' +
-      '<div class="row"><button class="btn primary big" type="button" id="end-again" data-autofocus>Play again</button><button class="btn ghost" type="button" id="end-how">How this works</button><a class="btn ghost" href="index.html">All games</a></div>' +
       '</div>';
     el.hidden = false;
     el.scrollTop = 0;
@@ -1220,10 +1577,9 @@
     focusIn(el);
   }
 
+  /** Straight back to story 1's brief - no intro - keeping relaxed mode and what the player has learned. */
   function playAgain() {
-    const relaxed = G.relaxed;
-    G = newState((Date.now() ^ (Math.random() * 1e9)) >>> 0);
-    G.relaxed = relaxed;
+    G = newState((Date.now() ^ (Math.random() * 1e9)) >>> 0);   // keeps relaxed mode and the taught labels
     hideAllPanels();
     $('#onair-banner').hidden = true;
     snapCamera();
@@ -1240,6 +1596,9 @@
     const per = Sim.residentsPerDistrict(RESIDENTS);
     el.innerHTML =
       '<h2 id="help-h" tabindex="-1">How this works</h2>' +
+      '<p class="help-mode"><label class="check"><input type="checkbox" id="help-relaxed"' + (G.relaxed ? ' checked' : '') + '> Relaxed mode (no deadline)</label> <span class="muted small">The clock stops, so you can take your time.</span></p>' +
+      '<h3>Controls</h3>' +
+      '<p>Walk with the arrow keys or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>, or click where you want to go. <kbd>E</kbd> interview someone or read a data point · <kbd>N</kbd> notebook · <kbd>F</kbd> file your story' + (Snd ? ' · <kbd>M</kbd> sound on or off' : '') + '.</p>' +
       '<h3>What\'s real and what\'s made up</h3>' +
       '<p><b>Real:</b> the survey - ' + S.n + ' people in Ireland (Maynooth University, <i>' + esc(S.meta.title) + '</i>) - and every fact on a teal marker, each with its source. <b>Made up:</b> the town of ' + TOWN + ' and everyone in it.</p>' +
       '<h3>How a resident answers</h3>' +
@@ -1252,12 +1611,21 @@
       '<p>A simulation: 100 imaginary reporters each ask the same number of random residents as you did (answers drawn exactly as above). It shows how much a small sample moves by luck. It is not a prediction.</p>' +
       '<h3>Scoring</h3>' +
       '<p>Your miss is the gap between your headline number and the survey. ★★★ within 5 points, ★★ within 12, ★ within 20, plus one for citing a relevant fact. With small samples luck plays a big part - that is the point of the game.</p>' +
+      (Snd ? '<h3>Sound</h3><p>' + soundCredits() + '</p>' : '') +
       '<h3>Labels</h3>' +
       '<ul class="legend small"><li>' + CHIP.data + '<span>Measured, with a source.</span></li><li>' + CHIP.opinion + '<span>What people say - your interviews and the survey.</span></li><li>' + CHIP.assume + '<span>Your guess - the headline number.</span></li></ul>' +
       '<div class="row"><button class="btn primary" type="button" id="help-close" data-autofocus>Close</button></div>';
     el.hidden = false;
     $('#help-close').addEventListener('click', closeHelp);
+    $('#help-relaxed').addEventListener('change', (e) => setRelaxed(e.target.checked));
     focusIn(el);
+  }
+  /** Where the music and (on the voiced version) the voices come from. */
+  function soundCredits() {
+    const m = window.VP_MUSIC, v = window.VP_VOICES;
+    const music = m && m.credit ? esc(m.credit) : (Snd && Snd.musicCredit ? esc(Snd.musicCredit) : 'Music made for this game.');
+    const voices = Snd.hasVoices() ? ' The residents\' and the editor\'s voices are computer-generated (text to speech)' + (v && v.credit ? ': ' + esc(v.credit) : '') + '.' : '';
+    return music + voices + ' Turn sound on or off with the Sound button or <kbd>M</kbd>.';
   }
   function closeHelp() {
     $('#p-help').hidden = true;
@@ -1266,30 +1634,44 @@
   }
 
   /* ============================================================ wiring */
-  $('#btn-start').addEventListener('click', startGame);
+  // Browsers only start sound after a tap or a key press: the first one anywhere starts the music.
+  if (Snd) ['pointerdown', 'click', 'keydown'].forEach((t) => document.addEventListener(t, () => Snd.unlock(), true));
+  const sndBtn = $('#btn-sound');
+  function syncSound() {
+    if (!Snd || !sndBtn) return;
+    sndBtn.hidden = false;
+    sndBtn.setAttribute('aria-pressed', Snd.isMuted() ? 'false' : 'true');
+  }
+  function toggleSound() {
+    Snd.unlock();
+    Snd.toggleMuted();
+    syncSound();
+    announce(Snd.isMuted() ? 'Sound off.' : 'Sound on.');
+  }
+  if (Snd && sndBtn) { sndBtn.addEventListener('click', toggleSound); if (Snd.onChange) Snd.onChange(syncSound); syncSound(); }
   $('#btn-help').addEventListener('click', openHelp);
   $('#btn-talk').addEventListener('click', () => { interact(); });
   $('#btn-notebook').addEventListener('click', openNotebook);
   $('#btn-file').addEventListener('click', () => openFile(false));
-  $('#start-n').textContent = S.n;
-  window.addEventListener('resize', () => { resize(); if (G && G.mode !== 'start') show('#minimap-wrap', G.mode === 'play' && vw > 700); });
+  $('#ph-cap').innerHTML = 'Built on a survey of <b>' + S.n + '</b> people in Ireland (Maynooth University). Residents are made up; their answers are drawn from how real respondents answered.';
+  drawPortrait($('#ph-av'), EDITOR);
+  drawPortrait($('#coach-av'), EDITOR);
+  window.addEventListener('resize', () => {
+    resize();
+    if (!G) return;
+    if (G.mode === 'play') show('#minimap-wrap', G.taught.hud && vw > 700);
+    if (G.mode === 'intro' || G.mode === 'brief') G.camShift = phoneShift();
+  });
 
   function snapCamera() { const s = Wd.iso(G.player.x, G.player.y); view.x = s.x; view.y = s.y - 20; view.zoom = baseZoom; }
 
-  function showStart() {
-    G.mode = 'start';
-    hideAllPanels();
-    setHud(false);
-    view.x = MAP_C.x - 120; view.y = MAP_C.y - 40; view.zoom = baseZoom * 0.92;
-    $('#p-start').hidden = false;
-    focusIn($('#p-start'));
-  }
-
   /* ============================================================ debug screens (#screen=name) */
+  const TAUGHT_ALL = () => ({ hud: true, opinion: true, data: true, assume: true, next: true });
   function debugPlay(n, storyIndex) {
+    G.taught = TAUGHT_ALL();
     G.story = (storyIndex || 0) - 1;
     nextStory();
-    chooseAngle(story().offered[0]);
+    chooseAngle(story().offered[0], true);
     const st = story();
     // interview the n residents closest to the bus stop, plus one on the farms
     const byDist = G.residents.slice().sort((a, b) => Math.hypot(a.x - Wd.spawn.x, a.y - Wd.spawn.y) - Math.hypot(b.x - Wd.spawn.x, b.y - Wd.spawn.y));
@@ -1314,9 +1696,11 @@
     return st;
   }
   const DEBUG = {
-    start: () => showStart(),
-    help: () => { showStart(); openHelp(); },
-    brief: () => { G.story = -1; nextStory(); },
+    start: () => showIntro(),
+    help: () => { showIntro(); openHelp(); },
+    brief: () => { showIntro(); endIntro(); },
+    brief2: () => { G.taught = TAUGHT_ALL(); G.story = 0; nextStory(); },
+    'first-walk': () => { G.story = -1; nextStory(); chooseAngle(story().offered[0], true); },
     play: () => { debugPlay(5); },
     evening: () => { debugPlay(4, 2); G.clock = 100; },
     talk: () => { const p = debugPlay(4); if (p) { startTalk(p); if (!reduced()) { clearTalkTimers(); finishTalkUI(); } } },
@@ -1343,13 +1727,17 @@
   function boot() {
     const m = /(?:^#|&)screen=([\w-]+)/.exec(window.location.hash || '');
     const name = m && DEBUG[m[1]] ? m[1] : null;
+    phClear();
+    clearTalkTimers();
+    G = null;
     G = newState(name ? 7 : (Date.now() ^ (Math.random() * 1e9)) >>> 0);
+    G.debug = !!name;
     hideAllPanels();
     $('#p-help').hidden = true;
     $('#onair-banner').hidden = true;
-    $('#controls-hint').hidden = true;
-    showStart();
-    if (name) { $('#p-start').hidden = true; DEBUG[name](); }
+    setHud(false);
+    if (name) DEBUG[name]();
+    else showIntro();
   }
   resize();
   boot();

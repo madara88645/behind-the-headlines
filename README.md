@@ -14,6 +14,8 @@ The idea running through all of them: **data ≠ opinion ≠ assumption.**
 ## Run it
 Open `index.html` in any modern browser - double-click works, no install or server needed. Each game can also be opened directly: `bubble-sort.html`, `5km.html`, `rigged.html`, `vox-pop.html`. Fonts come from Google Fonts; offline, the games fall back to system fonts.
 
+**Vox Pop sound is on hold** (team decision, 24 Sep). It is built but not loaded: `games/vox-pop/audio.js` (the engine), `music.js` ("Etirwer" by Kistol, CC0 1.0 - https://opengameart.org/content/etirwer) and `voices.js` (character voices generated with Kokoro-82M by hexgrad, Apache-2.0, via `tools/make_vox_pop_voices.py`). To try it again, add `<script src="games/vox-pop/music.js"></script>` and `<script src="games/vox-pop/audio.js"></script>` (plus `voices.js` for the voices) before the game's other scripts in `vox-pop.html`; the game then shows a *Sound* button. Two answer lines were reworded since the voices were made, so run the generator again before using them.
+
 Optional local server (for testing on a phone on the same Wi-Fi):
 ```bash
 python3 -m http.server 8765 --directory .
