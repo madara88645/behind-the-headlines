@@ -115,12 +115,6 @@ kbd {
 @media (prefers-reduced-motion: no-preference) { .clock.hurry { animation: hurry 1s ease-in-out infinite; } }
 @keyframes hurry { 50% { box-shadow: 0 0 0 3px rgba(224, 71, 76, .35), var(--shadow); } }
 #btn-help { margin-left: auto; }
-/* one switch for music and voices */
-#btn-sound { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; }
-#btn-sound:not([hidden]) + #btn-help { margin-left: 0; }
-#btn-sound .snd-off, #btn-sound[aria-pressed="false"] .snd-on { display: none; }
-#btn-sound[aria-pressed="false"] .snd-off { display: inline; }
-#btn-sound[aria-pressed="false"] { text-decoration: line-through; text-decoration-thickness: 2px; }
 
 .tally {
   position: fixed; left: 12px; bottom: 12px; z-index: 10;
