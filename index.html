@@ -3,339 +3,794 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Behind the Headlines</title>
-<meta name="description" content="Four browser games built on a Maynooth University survey of 200 people in Ireland about data centres.">
+<title>Vox Pop · Behind the Headlines</title>
+<meta name="description" content="Vox Pop is a browser game about data centres. Interview the residents of a made-up Irish town, guess what the whole town thinks, then check your guess against a real survey of 200 people in Ireland (Maynooth University survey).">
+<meta name="theme-color" content="#CFE4E4">
+<meta name="color-scheme" content="light">
+<link rel="canonical" href="https://madara88645.github.io/behind-the-headlines/">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%23CFE4E4'/%3E%3Crect x='9' y='12' width='6' height='10' rx='2' fill='%23241C17'/%3E%3Ccircle cx='12' cy='8' r='6.5' fill='%239B3D8F'/%3E%3Ccircle cx='10' cy='6' r='1.8' fill='%23fff' opacity='.5'/%3E%3C/svg%3E">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Behind the Headlines">
+<meta property="og:title" content="Vox Pop · Behind the Headlines">
+<meta property="og:description" content="Ask the street. Guess the town. Meet the 200. A browser game about data centres, built on a survey of 200 people in Ireland (Maynooth University survey).">
+<meta property="og:url" content="https://madara88645.github.io/behind-the-headlines/">
+<meta property="og:image" content="https://madara88645.github.io/behind-the-headlines/docs/media/social-preview.png">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="640">
+<meta property="og:image:alt" content="Vox Pop: a reporting game set in a made-up Irish town next to a data-centre campus.">
+<meta property="og:locale" content="en_GB">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Vox Pop · Behind the Headlines">
+<meta name="twitter:description" content="Ask the street. Guess the town. Meet the 200. A browser game about data centres, built on a survey of 200 people in Ireland (Maynooth University survey).">
+<meta name="twitter:image" content="https://madara88645.github.io/behind-the-headlines/docs/media/social-preview.png">
+<meta name="twitter:image:alt" content="Vox Pop: a reporting game set in a made-up Irish town next to a data-centre campus.">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Figtree:wght@400;500;600;700;800&family=Kalam:wght@400;700&family=Unbounded:wght@500;700;900&display=swap" rel="stylesheet">
 <style>
+  /* Vox Pop home page - the game's own kit: Atlantic sea-glass, peat ink, the reporter's raincoat
+     yellow, heather (OPINION) and teal (DATA). Light only. */
   :root {
-    --page: #F3F4F6;
-    --ink: #111318;
-    --muted: #555B66;
-    --rule: #D9DCE2;
-    --neq: #E4572E;
-    --data: #1F5BFF;
-    --opinion: #D6246E;
-    --assume: #C27100;
-    --card: #FFFFFF;
-    --display: 'Schibsted Grotesk', system-ui, sans-serif;
-    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+    color-scheme: light;
+    --sea: #CFE4E4;
+    --sea-deep: #9CC7CB;
+    --sea-pale: #E4F0EF;
+    --ink: #241C17;
+    --ink-2: #3D342E;       /* secondary text */
+    --ink-soft: #5B524B;    /* labels, captions */
+    --panel: #FFFFFF;
+    --line: #E2DCD3;
+    --wash: #F4F8F7;
+    --coat: #FFC933;
+    --coat-hover: #FFD65C;
+    --coat-pale: #FFFBEB;
+    --coat-deep: #8A6300;
+    --onair: #E0474C;
+    --data: #00727C;
+    --data-pale: #EEF7F7;
+    --opinion: #9B3D8F;
+    --opinion-pale: #FAF1F8;
+    --night-text: #F4EEE8;  /* text on peat ink */
+    --night-soft: #C9BEB4;
+    --display: 'Unbounded', 'Arial Black', system-ui, sans-serif;
+    --body: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --mono: 'DM Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+    --hand: 'Kalam', 'Bradley Hand', 'Segoe Print', 'Comic Sans MS', cursive;
+    --shadow: 0 1px 0 rgba(36, 28, 23, .06), 0 14px 34px -18px rgba(36, 28, 23, .55);
+    --gutter: 32px;
   }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --page: #101217; --ink: #F2F3F5; --muted: #A6ACB8; --rule: #2A2E37;
-      --data: #7FA2FF; --opinion: #FF6FA8; --assume: #FFB547; --card: #171A21;
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+  body {
+    margin: 0; background: var(--sea); color: var(--ink);
+    font: 400 17px/1.55 var(--body);
+    -webkit-font-smoothing: antialiased;
+  }
+  img, video, svg { display: block; max-width: 100%; }
+  a { color: var(--data); text-decoration-thickness: 1.5px; text-underline-offset: .18em; }
+  a:hover { text-decoration-thickness: 2.5px; }
+  b, strong { font-weight: 700; }
+  cite { font-style: italic; }
+  .mono { font-family: var(--mono); }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .skip { position: absolute; left: 12px; top: -80px; z-index: 100; background: var(--ink); color: #fff; padding: 10px 14px; border-radius: 10px; font-weight: 700; text-decoration: none; }
+  .skip:focus { top: 12px; }
+  :focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+  .band-ink :focus-visible, .clip-bar :focus-visible, .site-foot :focus-visible { outline-color: var(--coat); }
+  #main:focus { outline: none; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 var(--gutter); }
+
+  kbd {
+    display: inline-block; min-width: 1.6em; padding: 0 5px; margin: 0 1px;
+    font: 500 12px/1.5 var(--mono); text-align: center; color: var(--ink);
+    background: #fff; border: 1.5px solid currentColor; border-bottom-width: 3px; border-radius: 5px;
+  }
+
+  /* ------------------------------------------------ the game's buttons and label chips */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    font: 700 16px/1.1 var(--body); color: var(--ink); text-decoration: none; white-space: nowrap;
+    padding: 11px 18px; border-radius: 12px; border: 2px solid var(--ink); background: #fff;
+    box-shadow: 0 3px 0 var(--ink); cursor: pointer;
+    transition: transform .08s ease, box-shadow .08s ease, background .15s ease;
+  }
+  .btn:hover { background: var(--wash); }
+  .btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+  .btn.primary { background: var(--coat); }
+  .btn.primary:hover { background: var(--coat-hover); }
+  .btn.big { font-size: 18px; padding: 15px 24px; border-radius: 14px; box-shadow: 0 4px 0 var(--ink); }
+  .btn.big:active { box-shadow: 0 1px 0 var(--ink); }
+  .btn.small { font-size: 15px; padding: 8px 14px; box-shadow: 0 2px 0 var(--ink); }
+  .btn .arr { font-family: system-ui, sans-serif; font-weight: 700; }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px; flex: none; align-self: flex-start;
+    padding: 3px 10px 3px 8px; border-radius: 999px;
+    font: 800 12px/1.5 var(--body); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap;
+  }
+  .chip.data { background: var(--data); color: #fff; }
+  .chip.opinion { background: var(--opinion); color: #fff; }
+  .chip.assume { background: var(--coat); color: var(--ink); }
+  .ico { display: inline-block; width: 10px; height: 10px; flex: none; position: relative; }
+  .ico-bars { background:
+    linear-gradient(currentColor, currentColor) 0 100% / 2px 45% no-repeat,
+    linear-gradient(currentColor, currentColor) 4px 100% / 2px 75% no-repeat,
+    linear-gradient(currentColor, currentColor) 8px 100% / 2px 100% no-repeat; }
+  .ico-talk { border: 2px solid currentColor; border-radius: 50% 50% 50% 12%; height: 9px; }
+  .ico-pencil::before { content: ''; position: absolute; left: 4px; top: -1px; width: 3px; height: 11px; background: currentColor; transform: rotate(40deg); border-radius: 1px; }
+
+  .eyebrow { margin: 0 0 10px; font: 500 13px/1.4 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); }
+  h2 { font: 700 clamp(28px, 3.4vw, 40px)/1.12 var(--display); letter-spacing: -.025em; margin: 0 0 14px; text-wrap: balance; }
+  .sec-head { max-width: 720px; }
+  .sec-lede { margin: 0; font-size: 19px; color: var(--ink-2); }
+  .band { padding: 96px 0; }
+  .band-white { background: var(--panel); }
+  .band-sea { background: var(--sea); }
+  .band-pale { background: var(--sea-pale); }
+  .band-ink { background: var(--ink); color: var(--night-text); }
+
+  /* ------------------------------------------------ header + hero (the town's sky) */
+  .site-head { padding: 20px 0 0; }
+  .head-in { display: flex; align-items: center; justify-content: space-between; gap: 14px 24px; }
+  .brand { display: inline-flex; align-items: center; gap: 12px; color: var(--ink); text-decoration: none; min-width: 0; }
+  .brand-mark { flex: none; width: 44px; height: 44px; border-radius: 50%; background: #fff; box-shadow: var(--shadow); display: grid; place-items: center; }
+  .brand-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .brand-word { font: 900 19px/1 var(--display); letter-spacing: -.02em; }
+  .brand-kicker { font: 500 12px/1.3 var(--mono); color: var(--ink-soft); }
+  .site-nav { display: flex; align-items: center; gap: 28px; }
+  .site-nav ul { display: flex; gap: 24px; list-style: none; margin: 0; padding: 0; }
+  .site-nav ul a { color: var(--ink); font-weight: 600; font-size: 15px; text-decoration: none; }
+  .site-nav ul a:hover { text-decoration: underline; }
+
+  .hero { padding: 56px 0 104px; background: linear-gradient(180deg, var(--sea) 0%, var(--sea) 35%, #B4D6D9 100%); }
+  .hero-in { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 56px; align-items: center; }
+  .hero h1 { font: 900 clamp(54px, 6.4vw, 88px)/.95 var(--display); letter-spacing: -.045em; margin: 0 0 22px; }
+  .tagline { margin: 0 0 22px; font: 700 clamp(20px, 2vw, 26px)/1.3 var(--display); letter-spacing: -.02em; }
+  .tagline > span { display: block; }
+  .tagline .pay { display: inline; padding: 0 .12em; margin-left: -.12em; background: linear-gradient(180deg, transparent 58%, var(--coat) 58%, var(--coat) 92%, transparent 92%); }
+  .lede { margin: 0 0 30px; font-size: 18px; line-height: 1.6; color: var(--ink-2); max-width: 36em; }
+  .cta { display: flex; flex-wrap: wrap; gap: 14px 16px; align-items: center; }
+  .runs { margin: 22px 0 0; font: 500 14px/1.5 var(--mono); color: var(--ink-2); }
+
+  /* the clip: a broadcast monitor in the same peat bezel as the game's phone */
+  .clip { position: relative; margin: 0; }
+  .clip-frame {
+    padding: 0 9px 9px; border-radius: 28px;
+    background: linear-gradient(150deg, #43372F, var(--ink) 45%);
+    box-shadow: inset 0 0 0 2px #5B4E45, 0 34px 60px -30px rgba(36, 28, 23, .75), 0 8px 18px -10px rgba(36, 28, 23, .45);
+  }
+  .clip-bar { display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 6px 4px 6px 12px; color: var(--night-text); }
+  .clip-light { flex: none; width: 10px; height: 10px; border-radius: 50%; background: #8C837C; }
+  .is-playing .clip-light { background: var(--onair); box-shadow: 0 0 0 3px rgba(224, 71, 76, .28); }
+  @media (prefers-reduced-motion: no-preference) { .is-playing .clip-light { animation: blink 1.4s steps(2) infinite; } }
+  @keyframes blink { 50% { opacity: .35; } }
+  .clip-station { font: 500 12px/1.2 var(--mono); text-transform: uppercase; letter-spacing: .08em; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .clip-toggle {
+    margin-left: auto; display: inline-flex; align-items: center; gap: 7px; flex: none;
+    font: 700 13px/1 var(--body); color: var(--night-text); background: transparent; cursor: pointer;
+    border: 1.5px solid rgba(244, 238, 232, .45); border-radius: 999px; padding: 7px 12px 7px 10px;
+  }
+  .clip-toggle:hover { background: rgba(244, 238, 232, .12); }
+  .clip-toggle svg { width: 12px; height: 12px; }
+  .clip-toggle .i-play, .is-playing .clip-toggle .i-pause { display: block; }
+  .clip-toggle .i-pause, .is-playing .clip-toggle .i-play { display: none; }
+  .clip-screen { position: relative; aspect-ratio: 16 / 10; border-radius: 19px; overflow: hidden; background: linear-gradient(180deg, #DDEEEE, #A9CFD2); }
+  .clip-art { position: absolute; inset: 6% 4% 2%; width: 92%; height: 92%; }
+  .clip-screen video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: transparent; }
+  .clip figcaption { margin: 16px 4px 0; font: 500 13px/1.5 var(--mono); color: var(--ink-2); }
+  .bubble {
+    position: absolute; z-index: 2; display: inline-flex; align-items: center; gap: 6px;
+    font: 700 15px/1 var(--body); padding: 10px 14px; border-radius: 16px; white-space: nowrap;
+    box-shadow: 0 10px 20px -12px rgba(36, 28, 23, .6);
+  }
+  .bubble::after { content: ''; position: absolute; width: 14px; height: 14px; bottom: -7px; transform: rotate(45deg); }
+  .b-you { top: -20px; right: 132px; background: #fff; color: var(--ink); border: 2px solid var(--ink); }
+  .b-you::after { left: 22px; background: #fff; border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+  .b-all { top: 44%; right: -22px; background: var(--ink); color: var(--coat); }
+  .b-all::after { right: 26px; background: var(--ink); }
+  .neq-g { font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; font-weight: 800; }
+  @media (prefers-reduced-motion: no-preference) {
+    .bubble { animation: bob 3.4s ease-in-out infinite; }
+    .b-all { animation-delay: -1.7s; }
+    @keyframes bob { 50% { transform: translateY(-5px); } }
+  }
+
+  /* ------------------------------------------------ how it plays */
+  .steps { list-style: none; margin: 48px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+  .step { display: flex; flex-direction: column; background: var(--wash); border-radius: 24px; padding: 26px 24px 24px; }
+  .step-head { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+  .step-ico { flex: none; width: 60px; height: 60px; border-radius: 18px; background: #fff; display: grid; place-items: center; box-shadow: 0 1px 0 rgba(36, 28, 23, .12); }
+  .step-ico svg { width: 38px; height: 38px; }
+  .step h3 { margin: 0; font: 700 26px/1.1 var(--display); letter-spacing: -.02em; }
+  .step-line { margin: 0 0 8px; font: 700 19px/1.35 var(--body); }
+  .step-more { margin: 0 0 14px; font-size: 16px; color: var(--ink-2); }
+  .keys { margin: 0 0 20px; font: 400 13px/1.9 var(--mono); color: var(--ink-soft); }
+  .step .shot { margin-top: auto; }
+  .play-row { margin-top: 44px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 20px; }
+  .play-row p { margin: 0; color: var(--ink-2); }
+
+  /* screenshots (shared by the steps and the gallery) */
+  .shot {
+    display: block; position: relative; aspect-ratio: 16 / 10; border-radius: 14px; overflow: hidden;
+    background: var(--sea-pale) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='9' y='12' width='6' height='10' rx='2' fill='%23241C17' opacity='.16'/%3E%3Ccircle cx='12' cy='8' r='6.5' fill='%239B3D8F' opacity='.2'/%3E%3C/svg%3E") center / 44px no-repeat;
+    box-shadow: 0 0 0 1.5px rgba(36, 28, 23, .14), 0 16px 30px -20px rgba(36, 28, 23, .6);
+  }
+  .shot img { width: 100%; height: 100%; object-fit: cover; }
+  .shot.missing img { visibility: hidden; }
+  a.shot { transition: transform .2s ease, box-shadow .2s ease; }
+  a.shot:hover { box-shadow: 0 0 0 2px var(--ink), 0 22px 36px -22px rgba(36, 28, 23, .7); }
+  @media (prefers-reduced-motion: no-preference) { a.shot:hover { transform: translateY(-3px); } }
+
+  /* ------------------------------------------------ the idea: data ≠ opinion ≠ assumption */
+  .trio { list-style: none; margin: 52px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 72px; }
+  .term { position: relative; display: flex; flex-direction: column; gap: 12px; border: 2px solid; border-radius: 22px; padding: 22px 22px 20px; box-shadow: var(--shadow); }
+  .term + .term::before {
+    content: ''; position: absolute; left: -56px; top: 50%; width: 40px; height: 40px; margin-top: -20px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg stroke='%23241C17' stroke-width='5' stroke-linecap='round'%3E%3Cpath d='M7 15h26M7 25h26M26 5L14 35'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
+  }
+  .t-data { background: var(--data-pale); border-color: var(--data); }
+  .t-opinion { background: var(--opinion-pale); border-color: var(--opinion); }
+  .t-assume { background: var(--coat-pale); border-color: var(--coat); }
+  .def { margin: 0; font-size: 16px; color: var(--ink-2); }
+  .stat { flex: 1; padding-top: 14px; border-top: 1.5px dashed rgba(36, 28, 23, .22); display: flex; flex-direction: column; gap: 8px; }
+  .stat .src { margin-top: auto; padding-top: 2px; }
+  /* side by side, the three cards share rows so the big numbers line up */
+  @media (min-width: 981px) {
+    @supports (grid-template-rows: subgrid) {
+      .trio { grid-template-rows: auto auto 1fr; row-gap: 0; }
+      .term { display: grid; grid-row: span 3; grid-template-rows: subgrid; row-gap: 12px; }
+      .term > .chip { justify-self: start; }
     }
   }
-  * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
-  body {
-    margin: 0; background: var(--page); color: var(--ink);
-    font: 400 17px/1.55 var(--display);
+  .num { margin: 0; font: 900 clamp(44px, 4.4vw, 58px)/1 var(--display); letter-spacing: -.03em; }
+  .t-data .num { color: var(--data); }
+  .t-opinion .num { color: var(--opinion); }
+  .claim { margin: 0; font-size: 16px; line-height: 1.5; }
+  .verdict { margin: 0; font-size: 15px; line-height: 1.5; padding: 8px 10px; background: rgba(255, 255, 255, .75); border-radius: 10px; }
+  .src { margin: 0; font: 400 13px/1.5 var(--mono); color: var(--ink-soft); }
+  .nw { white-space: nowrap; }
+  /* the CSO trend behind the DATA number: earlier years recede, the latest year carries the accent */
+  .spark { margin: 6px 0 0; }
+  .spark svg { width: 100%; height: auto; overflow: visible; }
+  .spark text { font: 500 11px var(--mono); fill: var(--ink-soft); }
+  .spark .bar { fill: #3E8C93; transition: fill .15s ease; }
+  .spark .bar.now { fill: var(--data); }
+  .spark .col:hover .bar { fill: var(--ink); }
+  .spark .hit { fill: transparent; }
+  .spark .base { stroke: rgba(36, 28, 23, .35); stroke-width: 1; }
+  .note {
+    margin: 64px 0 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 20px 44px; align-items: center;
+    background: #fff; border-radius: 24px; padding: 30px 36px; box-shadow: var(--shadow);
   }
-  a { color: inherit; }
-  :focus-visible { outline: 3px solid var(--neq); outline-offset: 3px; border-radius: 6px; }
-  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
-
-  header.top { padding: 28px 0 0; display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; }
-  .kicker { font: 500 13px/1.3 var(--mono); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
-
-  /* Hero: the thesis as an equation that refuses to balance */
-  .hero { padding: 56px 0 40px; }
-  .hero h1 { font-weight: 900; font-size: clamp(40px, 7.4vw, 92px); line-height: .95; letter-spacing: -.03em; margin: 0 0 18px; }
-  .hero p.lede { font-size: clamp(18px, 2vw, 21px); max-width: 44ch; color: var(--muted); margin: 0; }
-
-  .equation { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: stretch; gap: 0; margin: 48px 0 12px; }
-  .term { background: var(--card); border: 1px solid var(--rule); border-radius: 18px; padding: 22px 22px 20px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-  .term .word { font: 900 clamp(26px, 3.4vw, 40px)/1 var(--display); letter-spacing: -.02em; }
-  .term.data .word { color: var(--data); }
-  .term.opinion .word { color: var(--opinion); }
-  .term.assume .word { color: var(--assume); }
-  .term .def { font-size: 15px; color: var(--muted); margin: 0; }
-  .term .stat { margin-top: auto; padding-top: 14px; border-top: 1px dashed var(--rule); }
-  .term .num { font: 900 44px/1 var(--display); letter-spacing: -.02em; }
-  .term .claim { font-size: 15px; margin: 6px 0 4px; }
-  .term .src { font: 400 12px/1.4 var(--mono); color: var(--muted); }
-  .neq { align-self: center; font: 900 clamp(36px, 5vw, 64px)/1 var(--display); color: var(--neq); padding: 0 12px; }
-  .neq span { display: inline-block; transform-origin: center; }
-  @media (prefers-reduced-motion: no-preference) {
-    .neq span { animation: wobble 5s ease-in-out infinite; }
-    .neq:nth-of-type(2) span { animation-delay: -2.5s; }
-    @keyframes wobble { 0%, 86%, 100% { transform: rotate(0); } 90% { transform: rotate(-12deg); } 94% { transform: rotate(9deg); } }
+  .note-label { margin: 0 0 4px; font: 500 12px/1.4 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); display: flex; align-items: center; gap: 8px; }
+  .hand {
+    margin: 0; font: 700 clamp(28px, 3vw, 36px)/48px var(--hand); color: var(--ink);
+    background: repeating-linear-gradient(180deg, transparent 0 47px, #C9DDF0 47px 48px);
   }
-  .footnote { font: 400 13px/1.5 var(--mono); color: var(--muted); margin: 0 0 8px; }
+  .note p.why { margin: 0; font-size: 17px; color: var(--ink-2); }
+  .footnote { margin: 22px 0 0; font: 400 13px/1.6 var(--mono); color: var(--ink-2); }
+  .footnote code { font: inherit; background: rgba(255, 255, 255, .7); padding: 1px 6px; border-radius: 6px; }
 
-  /* Games */
-  section.games { padding: 56px 0 24px; }
-  h2 { font: 900 clamp(26px, 3.2vw, 36px)/1.1 var(--display); letter-spacing: -.02em; margin: 0 0 8px; }
-  .games .intro { color: var(--muted); margin: 0 0 28px; max-width: 60ch; }
-  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-  .game { position: relative; display: flex; flex-direction: column; border-radius: 22px; overflow: hidden; text-decoration: none; color: #111; min-height: 460px; box-shadow: 0 1px 0 rgba(0,0,0,.04), 0 10px 30px -18px rgba(17,19,24,.35); transition: transform .25s ease, box-shadow .25s ease; }
-  .game:hover { transform: translateY(-4px); box-shadow: 0 1px 0 rgba(0,0,0,.04), 0 22px 40px -22px rgba(17,19,24,.5); }
-  .game .art { height: 210px; position: relative; overflow: hidden; }
-  .game .body { padding: 22px 22px 24px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
-  .game .title { font: 900 30px/1 var(--display); letter-spacing: -.02em; margin: 0; }
-  .game .tag { font-weight: 500; margin: 0; }
-  .game .what { font-size: 15px; margin: 0; opacity: .82; }
-  .game .meta { margin-top: auto; display: flex; justify-content: space-between; align-items: center; font: 500 12px/1.3 var(--mono); text-transform: uppercase; letter-spacing: .05em; }
-  .game .play { display: inline-flex; align-items: center; gap: 8px; font: 700 15px/1 var(--display); text-transform: none; letter-spacing: 0; padding: 10px 16px; border-radius: 999px; }
+  /* ------------------------------------------------ gallery */
+  .gallery { list-style: none; margin: 44px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+  .gallery figure { margin: 0; }
+  .gallery figcaption { margin-top: 16px; font-size: 16px; color: var(--ink-2); }
+  .gallery figcaption b { display: block; color: var(--ink); font: 700 17px/1.3 var(--display); letter-spacing: -.01em; margin-bottom: 4px; }
 
-  /* Bubble Sort tile */
-  .g1 { background: #EEF0FF; }
-  .g1 .art { background: #E3E6FF; }
-  .bub { position: absolute; border-radius: 50%; border: 2px solid; background:
-      radial-gradient(circle at 32% 28%, rgba(255,255,255,.95) 0 7%, transparent 8%),
-      radial-gradient(circle at 50% 50%, rgba(255,255,255,.15), rgba(255,255,255,.55) 70%, rgba(255,255,255,.2)); }
-  .bub.b1 { width: 118px; height: 118px; left: 12%; top: 58px; border-color: #1F5BFF; box-shadow: inset 0 0 30px rgba(31,91,255,.25); }
-  .bub.b2 { width: 92px; height: 92px; left: 44%; top: 96px; border-color: #D6246E; box-shadow: inset 0 0 26px rgba(214,36,110,.25); }
-  .bub.b3 { width: 104px; height: 104px; left: 68%; top: 34px; border-color: #F2A007; box-shadow: inset 0 0 26px rgba(242,160,7,.3); }
-  @media (prefers-reduced-motion: no-preference) {
-    .bub { animation: floaty 6s ease-in-out infinite; }
-    .bub.b2 { animation-delay: -2s; } .bub.b3 { animation-delay: -4s; }
-    @keyframes floaty { 50% { transform: translateY(-10px) scale(1.03, .98); } }
+  /* ------------------------------------------------ about the data */
+  .about { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 56px; align-items: start; }
+  .about-intro { margin: 0; font-size: 19px; color: var(--ink-2); }
+  .about-intro b { color: var(--ink); }
+  .honest { list-style: none; margin: 30px 0 0; padding: 0; display: grid; gap: 20px; }
+  .honest li { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 16px; align-items: start; }
+  .honest .hi { width: 44px; height: 44px; border-radius: 14px; background: #fff; display: grid; place-items: center; box-shadow: 0 1px 0 rgba(36, 28, 23, .12); }
+  .honest p { margin: 0; color: var(--ink-2); font-size: 16px; }
+  .honest p b { color: var(--ink); font-size: 17px; }
+  .sources-card { background: #fff; border-radius: 24px; padding: 28px 30px 26px; box-shadow: var(--shadow); }
+  .sources-card h3 { margin: 0 0 14px; font: 700 20px/1.2 var(--display); letter-spacing: -.01em; }
+  .sources-card ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 0; }
+  .sources-card li { padding: 10px 0; border-top: 1px solid var(--line); font-size: 16px; line-height: 1.4; }
+  .sources-card li:first-child { border-top: 0; padding-top: 0; }
+  .sources-card li span { display: block; font: 400 12px/1.5 var(--mono); color: var(--ink-soft); margin-top: 2px; }
+  .sources-card .more { margin: 18px 0 0; padding: 12px 14px; background: var(--wash); border-radius: 12px; font-size: 15px; color: var(--ink-2); }
+
+  /* ------------------------------------------------ team + footer (peat ink) */
+  .team { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 56px; align-items: center; }
+  .band-ink .eyebrow { color: var(--night-soft); }
+  .band-ink a:not(.btn) { color: var(--coat); }
+  .made { margin: 0 0 16px; font-size: 21px; line-height: 1.5; }
+  .brief { margin: 0 0 30px; color: var(--night-soft); font-size: 17px; }
+  .brief q { color: var(--night-text); font-weight: 600; }
+  .band-ink .btn.primary { border-color: var(--coat); box-shadow: 0 3px 0 var(--night-text); }
+  .band-ink .btn.primary:active { box-shadow: 0 1px 0 var(--night-text); }
+  .btn.on-ink { background: transparent; color: var(--night-text); border-color: var(--night-text); box-shadow: 0 3px 0 var(--night-text); }
+  .btn.on-ink:hover { background: rgba(244, 238, 232, .1); }
+  .btn.on-ink:active { box-shadow: 0 1px 0 var(--night-text); }
+  .licence { margin: 28px 0 0; font: 400 14px/1.6 var(--mono); color: var(--night-soft); }
+  .stack { margin: 8px 0 0; font-size: 15px; color: var(--night-soft); }
+  /* a press pass, like the one on the game's end screen */
+  .pass { justify-self: center; width: min(360px, 100%); background: #fff; color: var(--ink); border-radius: 22px; overflow: hidden; box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .8); transform: rotate(2deg); }
+  .pass-top { position: relative; background: var(--coat); padding: 34px 24px 18px; border-bottom: 3px solid var(--ink); }
+  .pass-top::before { content: ''; position: absolute; left: 50%; top: 12px; width: 56px; height: 10px; margin-left: -28px; border-radius: 6px; background: var(--ink); opacity: .85; }
+  .pass-top p { margin: 0; }
+  .pass-kind { font: 900 34px/1 var(--display); letter-spacing: .02em; }
+  .pass-station { margin-top: 6px !important; font: 500 12px/1.3 var(--mono); text-transform: uppercase; letter-spacing: .08em; }
+  .pass dl { margin: 0; padding: 18px 24px 22px; display: grid; gap: 12px; }
+  .pass dt { font: 500 11px/1.3 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); }
+  .pass dd { margin: 2px 0 0; font-weight: 700; line-height: 1.35; }
+  .pass-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 24px; background: var(--wash); border-top: 1px solid var(--line); font: 500 11px/1.3 var(--mono); color: var(--ink-soft); text-transform: uppercase; letter-spacing: .08em; }
+
+  .site-foot { background: var(--ink); color: var(--night-soft); border-top: 1px solid rgba(244, 238, 232, .14); padding: 26px 0 34px; font-size: 14px; }
+  .foot-in { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 28px; }
+  .foot-in p { margin: 0; }
+  .foot-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--night-text); font-weight: 700; }
+  .foot-brand svg { width: 22px; height: 22px; background: var(--sea); border-radius: 7px; padding: 2px; }
+  .site-foot a { color: var(--coat); }
+
+  /* ------------------------------------------------ narrower windows */
+  @media (max-width: 1100px) {
+    .site-nav ul { gap: 18px; }
+    .b-all { right: -8px; }
   }
-  .g1 .play { background: #1F5BFF; color: #fff; }
-
-  /* 5 KM tile */
-  .g2 { background: #DDE8CF; }
-  .g2 .art { background: #CFE0BD; }
-  .g2 .notice { position: absolute; left: 50%; top: 26px; width: 170px; transform: translateX(-50%) rotate(-3deg); background: #FFD400; color: #151A14; padding: 12px 14px 14px; border-radius: 3px; box-shadow: 0 8px 18px -8px rgba(0,0,0,.45); font-family: var(--display); }
-  .g2 .notice b { display: block; font: 900 20px/1 var(--display); letter-spacing: .06em; border-bottom: 2px solid #151A14; padding-bottom: 6px; margin-bottom: 8px; }
-  .g2 .notice small { display: block; font: 500 11px/1.35 var(--mono); }
-  .g2 .post { position: absolute; left: 50%; top: 150px; width: 10px; height: 80px; margin-left: -5px; background: #6B4F2A; }
-  .g2 .meter { position: absolute; right: 16px; bottom: 12px; font: 900 34px/1 var(--display); color: #E4572E; letter-spacing: -.02em; }
-  .g2 .meter s { color: #3E6B3A; text-decoration-thickness: 3px; font-size: 22px; margin-right: 6px; }
-  .g2 .play { background: #151A14; color: #FFD400; }
-
-  /* Rigged tile */
-  .g3 { background: #E6F0EA; }
-  .g3 .art { background-color: #E6F0EA; background-image: repeating-linear-gradient(0deg, #C9DDD1 0 1px, transparent 1px 24px), repeating-linear-gradient(90deg, #C9DDD1 0 1px, transparent 1px 24px); }
-  .g3 .sheet { position: absolute; left: 22px; right: 22px; top: 26px; bottom: 22px; background: #FBFDFC; border: 1px solid #C9DDD1; border-radius: 6px; padding: 12px 14px; font: 500 11px/1.6 var(--mono); color: #14213D; }
-  .g3 .sheet i { display: block; font-style: normal; border-bottom: 1px solid #C9DDD1; }
-  .g3 .stamp { position: absolute; right: 30px; bottom: 34px; transform: rotate(-11deg); border: 4px solid #D62828; color: #D62828; font: 900 30px/1 var(--display); letter-spacing: .12em; padding: 6px 12px 4px; border-radius: 6px; mix-blend-mode: multiply; }
-  .g3 .play { background: #14213D; color: #fff; }
-
-  /* Vox Pop tile - a full-width row under the first three */
-  .g4 { background: #CFE4E4; grid-column: 1 / -1; flex-direction: row; min-height: 0; }
-  .g4 .art { background: linear-gradient(180deg, #DDEEEE, #A9CFD2); flex: 0 0 44%; height: auto; min-height: 250px; }
-  .g4 .body { justify-content: center; padding: 28px 32px; }
-  .g4 .what { max-width: 46ch; }
-  .g4 .meta { margin-top: 14px; }
-  .g4 .play { white-space: nowrap; }
-  .g4 .art svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .g4 .play { background: #FFC933; color: #241C17; box-shadow: inset 0 0 0 2px #241C17; }
-  @media (prefers-reduced-motion: no-preference) {
-    .g4 .vp-bubble { animation: vpbob 3.2s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
-    .g4 .vp-bubble.b2 { animation-delay: -1.6s; }
-    @keyframes vpbob { 50% { transform: translateY(-5px); } }
+  @media (max-width: 980px) {
+    .hero { padding: 36px 0 80px; }
+    .hero-in { grid-template-columns: minmax(0, 1fr); gap: 48px; }
+    .hero-copy { max-width: 640px; }
+    .site-nav ul { display: none; }
+    .steps, .gallery { grid-template-columns: minmax(0, 1fr); max-width: 640px; }
+    .trio { grid-template-columns: minmax(0, 1fr); gap: 72px; max-width: 560px; }
+    .term + .term::before { left: 50%; top: -56px; margin: 0 0 0 -20px; }
+    .note, .about, .team { grid-template-columns: minmax(0, 1fr); }
+    .band { padding: 72px 0; }
+    .pass { justify-self: start; }
   }
-
-  /* About the data */
-  section.about { padding: 48px 0 24px; display: grid; grid-template-columns: 1.1fr 1fr; gap: 40px; border-top: 1px solid var(--rule); margin-top: 40px; }
-  .about h3 { font: 700 18px/1.3 var(--display); margin: 0 0 8px; }
-  .about p, .about li { color: var(--muted); font-size: 16px; }
-  .about ul { padding-left: 18px; margin: 8px 0 0; }
-  .about code { font: 400 14px var(--mono); background: var(--card); border: 1px solid var(--rule); padding: 1px 6px; border-radius: 6px; }
-  footer { padding: 24px 0 48px; font: 400 13px/1.6 var(--mono); color: var(--muted); }
-
-  @media (max-width: 900px) {
-    .equation { grid-template-columns: 1fr; }
-    .neq { text-align: center; padding: 6px 0; }
-    .neq span { transform: rotate(90deg); }
-    .grid { grid-template-columns: 1fr; }
-    .g4 { flex-direction: column; }
-    .g4 .art { flex: none; height: 210px; min-height: 0; }
-    .g4 .body { padding: 22px 22px 24px; }
-    .game { min-height: 0; }
-    section.about { grid-template-columns: 1fr; gap: 16px; }
-  }
-  @media (max-width: 420px) {
-    .wrap { padding: 0 16px; }
-    .hero { padding-top: 36px; }
+  @media (max-width: 600px) {
+    :root { --gutter: 16px; }
+    body { font-size: 16px; }
+    .brand-mark { width: 38px; height: 38px; }
+    .brand-kicker { font-size: 11px; }
+    .brand-kicker > span { display: block; }
+    .brand-kicker .sep { display: none; }
+    .hero h1 { margin-bottom: 16px; }
+    .band { padding: 56px 0; }
+    .sec-lede, .about-intro { font-size: 17px; }
+    .bubble { display: none; }
+    .clip-frame { border-radius: 22px; padding: 0 6px 6px; }
+    .clip-screen { border-radius: 16px; }
+    .clip-station { font-size: 11px; }
+    .note { padding: 24px 20px; }
+    .hand { font-size: 26px; line-height: 40px; background-image: repeating-linear-gradient(180deg, transparent 0 39px, #C9DDF0 39px 40px); }
+    .step { padding: 22px 18px 18px; }
+    .sources-card { padding: 22px 20px; }
+    .made { font-size: 19px; }
+    .pass { transform: none; }
   }
 </style>
 </head>
-<body>
-<div class="wrap">
-  <header class="top">
-    <span class="kicker">Induction Hack 2026 · Data centres</span>
-    <span class="kicker">Maynooth survey · 200 people in Ireland</span>
+<body id="top">
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-head">
+    <div class="wrap head-in">
+      <a class="brand" href="#top">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24"><rect x="9" y="12" width="6" height="10" rx="2" fill="#241C17"/><circle cx="12" cy="8" r="6.5" fill="#9B3D8F"/><circle cx="10" cy="6" r="1.8" fill="#fff" opacity=".5"/></svg></span>
+        <span class="brand-text">
+          <span class="brand-word">Vox Pop</span>
+          <span class="brand-kicker"><span>Behind the Headlines</span><span class="sep"> · </span><span>BU Induction Hack 2026</span></span>
+        </span>
+      </a>
+      <nav class="site-nav" aria-label="Main">
+        <ul>
+          <li><a href="#how">How it plays</a></li>
+          <li><a href="#idea">The idea</a></li>
+          <li><a href="#data">About the data</a></li>
+          <li><a href="https://github.com/madara88645/behind-the-headlines">Source code</a></li>
+        </ul>
+        <a class="btn primary small" href="vox-pop.html">Play <span class="arr" aria-hidden="true">→</span></a>
+      </nav>
+    </div>
   </header>
 
-  <section class="hero" aria-labelledby="h">
-    <h1 id="h">Behind the headlines</h1>
-    <p class="lede">Everyone has an opinion about data centres. Some of it is measured, some of it is felt, and some of it is simply assumed. Four games to tell them apart.</p>
-
-    <div class="equation" role="list" aria-label="Data is not opinion is not assumption">
-      <div class="term data" role="listitem">
-        <div class="word">Data</div>
-        <p class="def">Measured, with a source you can check.</p>
-        <div class="stat">
-          <div class="num" id="d-num">–</div>
-          <p class="claim">of Ireland's metered electricity went to data centres in <span id="d-year">–</span>.</p>
-          <div class="src">Source: <a id="d-src" href="#">CSO</a></div>
+  <main id="main" tabindex="-1">
+  <section class="hero" aria-labelledby="hero-h">
+    <div class="wrap hero-in">
+      <div class="hero-copy">
+        <p class="eyebrow">A reporting game about data centres</p>
+        <h1 id="hero-h">Vox Pop</h1>
+        <p class="tagline"><span>Ask the street.</span> <span>Guess the town.</span> <span><span class="pay">Meet the <span class="n-all">200</span>.</span></span></p>
+        <p class="lede">You're a local radio reporter in a made-up Irish town next to a data-centre campus. Interview the residents and guess what the whole town thinks - then see your handful of answers next to a real survey of <span class="n-all">200</span> people in Ireland (Maynooth University survey).</p>
+        <div class="cta">
+          <a class="btn primary big" href="vox-pop.html">Play now <span class="arr" aria-hidden="true">→</span></a>
+          <a class="btn big" href="#how">How it plays <span class="arr" aria-hidden="true">↓</span></a>
         </div>
+        <p class="runs">Runs in your browser · <span class="nw">no install</span> · <span class="nw">about 5 minutes</span></p>
       </div>
-      <div class="neq" aria-hidden="true"><span>≠</span></div>
-      <div class="term opinion" role="listitem">
-        <div class="word">Opinion</div>
-        <p class="def">What people say they feel or want. Real, but not proof.</p>
-        <div class="stat">
-          <div class="num" id="o-num">–</div>
-          <p class="claim">of people surveyed support sustainable data centres. <span id="o-num2">–</span> would accept one within 5 km of home.</p>
-          <div class="src">Survey q96, q77 · n = <span class="n-all">200</span></div>
-        </div>
-      </div>
-      <div class="neq" aria-hidden="true"><span>≠</span></div>
-      <div class="term assume" role="listitem">
-        <div class="word">Assumption</div>
-        <p class="def">Taken for granted without checking. Sometimes right.</p>
-        <div class="stat">
-          <div class="num" id="a-num">–</div>
-          <p class="claim">believed "all data centres in Ireland run on fossil fuels". That's false.</p>
-          <div class="src">Survey q18 · checked against <a id="a-src" href="#">SEAI</a></div>
-        </div>
-      </div>
-    </div>
-    <p class="footnote">Every number on this page is calculated live from the survey file and the fact sheet in <code>data/</code>.</p>
-  </section>
 
-  <section class="games" aria-labelledby="g">
-    <h2 id="g">Four ways to play the same survey</h2>
-    <p class="intro">Each game uses a different part of the survey. Each takes about four minutes.</p>
-
-    <div class="grid">
-      <a class="game g1" href="bubble-sort.html">
-        <div class="art" aria-hidden="true"><div class="bub b1"></div><div class="bub b2"></div><div class="bub b3"></div></div>
-        <div class="body">
-          <p class="title">Bubble Sort</p>
-          <p class="tag">Data, opinion or assumption? Bet on yourself.</p>
-          <p class="what">Sort twelve claims into three bubbles. Find out what the survey believed, what's actually true, and whose information bubble you're in.</p>
-          <div class="meta"><span>Belief vs fact</span><span class="play">Play →</span></div>
-        </div>
-      </a>
-
-      <a class="game g2" href="5km.html">
-        <div class="art" aria-hidden="true">
-          <div class="notice"><b>NOTICE</b><small>Proposed sustainable data centre<br>within 5 km of this site</small></div>
-          <div class="post"></div>
-          <div class="meter"><s id="m-from">56%</s><span id="m-to">30%</span></div>
-        </div>
-        <div class="body">
-          <p class="title">5 KM</p>
-          <p class="tag">Ireland says yes. Would your street?</p>
-          <p class="what">Zoom from the whole country to your own road and watch support fall. Then try to win over a town hall of 100 residents.</p>
-          <div class="meta"><span>Near vs far</span><span class="play">Play →</span></div>
-        </div>
-      </a>
-
-      <a class="game g3" href="rigged.html">
-        <div class="art" aria-hidden="true">
-          <div class="sheet"><i>EXPERIMENT 01 · ANCHORING</i><i>PARTICIPANT #0427</i><i>ESTIMATE: ____ %</i></div>
-          <div class="stamp">RIGGED</div>
-        </div>
-        <div class="body">
-          <p class="title">Rigged</p>
-          <p class="tag">Three experiments. All of them fixed.</p>
-          <p class="what">Most people in the survey said biases don't sway them. Step into the lab, get nudged on purpose, then see the receipts.</p>
-          <div class="meta"><span>Bias vs belief</span><span class="play">Play →</span></div>
-        </div>
-      </a>
-
-      <a class="game g4" href="vox-pop.html">
-        <div class="art" aria-hidden="true">
-          <svg viewBox="0 0 300 210" preserveAspectRatio="xMidYMid meet">
-            <polygon points="30,112 150,172 150,192 30,132" fill="#7A5A3E"/>
-            <polygon points="150,172 270,112 270,132 150,192" fill="#5B4230"/>
-            <polygon points="150,52 270,112 150,172 30,112" fill="#86BD5B"/>
-            <polygon points="96,85 108,79 228,139 216,145" fill="#6B7277"/>
-            <polygon points="196,77 236,97 236,77 196,57" fill="#B4BEC8"/>
-            <polygon points="236,97 256,87 256,67 236,77" fill="#94A0AA"/>
-            <polygon points="196,57 216,47 256,67 236,77" fill="#ECEFF2"/>
-            <polygon points="196,68 236,88 236,84 196,64" fill="#1F8A8F"/>
-            <g>
+      <figure class="clip" id="clip">
+        <div class="clip-frame">
+          <div class="clip-bar">
+            <span class="clip-light" aria-hidden="true"></span>
+            <span class="clip-station">Ballinacloud Community Radio</span>
+            <button class="clip-toggle" id="clip-toggle" type="button" aria-label="Play the clip" hidden>
+              <svg class="i-play" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 1.2v9.6L10.6 6z" fill="currentColor"/></svg>
+              <svg class="i-pause" viewBox="0 0 12 12" aria-hidden="true"><rect x="2" y="1.5" width="3" height="9" rx="1" fill="currentColor"/><rect x="7" y="1.5" width="3" height="9" rx="1" fill="currentColor"/></svg>
+              <span id="clip-toggle-text">Play</span>
+            </button>
+          </div>
+          <div class="clip-screen">
+            <!-- the town, drawn in code: shows through if the clip and its poster can't load -->
+            <svg class="clip-art" viewBox="0 0 300 210" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+              <polygon points="30,112 150,172 150,192 30,132" fill="#7A5A3E"/>
+              <polygon points="150,172 270,112 270,132 150,192" fill="#5B4230"/>
+              <polygon points="150,52 270,112 150,172 30,112" fill="#86BD5B"/>
+              <polygon points="96,85 108,79 228,139 216,145" fill="#6B7277"/>
+              <polygon points="196,77 236,97 236,77 196,57" fill="#B4BEC8"/>
+              <polygon points="236,97 256,87 256,67 236,77" fill="#94A0AA"/>
+              <polygon points="196,57 216,47 256,67 236,77" fill="#ECEFF2"/>
+              <polygon points="196,68 236,88 236,84 196,64" fill="#1F8A8F"/>
               <rect x="80" y="104" width="10" height="15" rx="4" fill="#9B3D8F"/><circle cx="85" cy="99" r="5" fill="#C27AB8"/>
               <rect x="112" y="124" width="10" height="15" rx="4" fill="#fff" stroke="#5B524B" stroke-width="1.6"/><circle cx="117" cy="119" r="4.6" fill="#fff" stroke="#5B524B" stroke-width="1.6"/>
               <rect x="176" y="126" width="10" height="15" rx="4" fill="#9B3D8F"/><circle cx="181" cy="121" r="5" fill="#C27AB8"/>
               <rect x="206" y="118" width="10" height="15" rx="4" fill="#fff" stroke="#5B524B" stroke-width="1.6"/><circle cx="211" cy="113" r="4.6" fill="#fff" stroke="#5B524B" stroke-width="1.6"/>
               <rect x="60" y="116" width="10" height="15" rx="4" fill="#fff" stroke="#5B524B" stroke-width="1.6"/><circle cx="65" cy="111" r="4.6" fill="#fff" stroke="#5B524B" stroke-width="1.6"/>
-            </g>
-            <g>
               <rect x="140" y="112" width="16" height="22" rx="6" fill="#FFC933" stroke="#241C17" stroke-width="1.5"/>
               <circle cx="148" cy="104" r="7" fill="#E8B896"/><path d="M141 103 a7 7 0 0 1 14 0 z" fill="#5A3A22"/>
               <rect x="158" y="112" width="3" height="11" fill="#241C17"/><circle cx="159.5" cy="109" r="5" fill="#9B3D8F"/>
-            </g>
-            <g class="vp-bubble"><rect x="158" y="70" width="66" height="26" rx="10" fill="#fff" stroke="#241C17" stroke-width="1.5"/><path d="M170 95 l-4 9 l12 -9 z" fill="#fff" stroke="#241C17" stroke-width="1.5" stroke-linejoin="round"/><rect x="169" y="95" width="10" height="3" fill="#fff"/><text x="191" y="88" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" font-weight="600" fill="#241C17">6 people</text></g>
-            <g class="vp-bubble b2"><rect x="62" y="56" width="58" height="26" rx="10" fill="#241C17"/><path d="M84 81 l2 9 l8 -9 z" fill="#241C17"/><text x="91" y="74" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" font-weight="600" fill="#FFC933">≠ 200</text></g>
-          </svg>
+            </svg>
+            <video id="clip-video" muted loop playsinline preload="none" width="1280" height="800"
+                   poster="docs/media/screenshot-town.png"
+                   aria-label="A silent clip of Vox Pop: the reporter walks around the town, interviews a resident, sets a headline number and goes on air.">
+              <source id="clip-source" src="docs/media/vox-pop-loop.mp4" type="video/mp4">
+            </video>
+          </div>
         </div>
-        <div class="body">
-          <p class="title">Vox Pop</p>
-          <p class="tag">Ask the street. Guess the town. Meet the 200.</p>
-          <p class="what">Walk a made-up Irish town next to a data-centre campus, interview residents and file a headline. Then see your handful of answers next to the real survey.</p>
-          <div class="meta"><span>Sample vs survey</span><span class="play">Play →</span></div>
-        </div>
-      </a>
+        <span class="bubble b-you" aria-hidden="true">6 people said…</span>
+        <span class="bubble b-all" aria-hidden="true"><span class="neq-g">≠</span> <span class="n-all">200</span> in the survey</span>
+        <figcaption>A silent clip from the game: walk the town, interview residents, file your headline, meet the <span class="n-all">200</span>.</figcaption>
+      </figure>
     </div>
   </section>
 
-  <section class="about" aria-labelledby="ab">
-    <div>
-      <h3 id="ab">About the data</h3>
-      <p>The games use the <strong>Social Acceptance of Sustainable Data Centres in Ireland</strong> survey from Maynooth University: <span class="n-all">200</span> people, <span id="n-q">104</span> questions. We only use totals per answer and cross-tabulations - no individual response ever leaves the original file, and groups smaller than 3 people are hidden.</p>
-      <p>A survey tells us what these 200 people said. It isn't the whole of Ireland, and an opinion isn't a fact - so every game keeps survey answers, measured facts and your own guesses visibly apart.</p>
-    </div>
-    <div>
-      <h3>Other sources</h3>
-      <ul id="sources"></ul>
+  <section class="band band-white" id="how" aria-labelledby="how-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">How it plays</p>
+        <h2 id="how-h">Ask. Guess. Compare.</h2>
+        <p class="sec-lede">One day on the job: three stories, from the morning bulletin to the six o'clock news. Each story takes the same three steps.</p>
+      </div>
+      <ol class="steps">
+        <li class="step">
+          <div class="step-head">
+            <span class="step-ico" aria-hidden="true"><svg viewBox="0 0 32 32" width="30" height="30"><rect x="13.2" y="16" width="5.6" height="12" rx="2.2" fill="#241C17"/><circle cx="16" cy="11" r="7.2" fill="#9B3D8F"/><path d="M10.6 9.4h10.8M9.8 11.8h12.4M10.6 14.2h10.8" stroke="#fff" stroke-opacity=".35" stroke-width="1"/></svg></span>
+            <h3>1 · Ask</h3>
+          </div>
+          <p class="step-line">Interview people around town.</p>
+          <p class="step-more">Walk around Ballinacloud and put one survey question to anyone you meet. The residents are made up; their answers are drawn from how real respondents answered.</p>
+          <p class="keys">Arrows or click to walk · <kbd>E</kbd> to talk</p>
+          <div class="shot"><img src="docs/media/screenshot-interview.png" width="1280" height="800" loading="lazy" decoding="async" alt="An interview in Vox Pop: the reporter reads a survey question to a made-up resident and records the answer."></div>
+        </li>
+        <li class="step">
+          <div class="step-head">
+            <span class="step-ico" aria-hidden="true"><svg viewBox="0 0 32 32" width="30" height="30"><circle cx="16" cy="16" r="13" fill="#FFC933" stroke="#241C17" stroke-width="2"/><circle cx="11.6" cy="11.8" r="2.6" fill="none" stroke="#241C17" stroke-width="2.2"/><circle cx="20.4" cy="20.2" r="2.6" fill="none" stroke="#241C17" stroke-width="2.2"/><path d="M21 10.5L11 21.5" stroke="#241C17" stroke-width="2.4" stroke-linecap="round"/></svg></span>
+            <h3>2 · Guess</h3>
+          </div>
+          <p class="step-line">What does the whole town think?</p>
+          <p class="step-more">Before the deadline, file your story: set one headline number for the whole town, based on the few people you asked.</p>
+          <p class="keys"><kbd>F</kbd> to file your story</p>
+          <div class="shot"><img src="docs/media/screenshot-file.png" width="1280" height="800" loading="lazy" decoding="async" alt="Filing a story in Vox Pop: a slider sets the headline number for the whole town, next to the answers collected so far."></div>
+        </li>
+        <li class="step">
+          <div class="step-head">
+            <span class="step-ico" aria-hidden="true"><svg viewBox="0 0 32 32" width="30" height="30"><path d="M4 27.5h24" stroke="#241C17" stroke-width="2" stroke-linecap="round"/><rect x="7" y="9" width="7.5" height="17.5" rx="1.6" fill="#FFC933" stroke="#241C17" stroke-width="2"/><rect x="17.5" y="15" width="7.5" height="11.5" rx="1.6" fill="#9B3D8F" stroke="#241C17" stroke-width="2"/></svg></span>
+            <h3>3 · Compare</h3>
+          </div>
+          <p class="step-line">Check your guess against a real survey.</p>
+          <p class="step-more">Go on air and meet the <span class="n-all">200</span>: the town fills with one figure per survey respondent, next to your headline. Then see how 100 simulated reporters would have done.</p>
+          <p class="keys">Three stories, then your press card</p>
+          <div class="shot"><img src="docs/media/screenshot-onair.png" width="1280" height="800" loading="lazy" decoding="async" alt="Meet the 200 in Vox Pop: the town map fills with one figure per survey respondent, beside the player's headline and the survey result."></div>
+        </li>
+      </ol>
+      <div class="play-row">
+        <a class="btn primary big" href="vox-pop.html">Start reporting <span class="arr" aria-hidden="true">→</span></a>
+        <p>Keyboard or mouse. A <b>No deadline</b> switch stops the clock if you'd like to take your time.</p>
+      </div>
     </div>
   </section>
 
-  <footer>
-    Built for the BU Induction Hack 2026 · Runs offline in any browser · Survey data processed by <code>tools/extract_survey.py</code>
-  </footer>
-</div>
+  <section class="band band-sea" id="idea" aria-labelledby="idea-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">The idea</p>
+        <h2 id="idea-h">Data <span class="neq-g">≠</span> opinion <span class="neq-g">≠</span> assumption</h2>
+        <p class="sec-lede">Everyone has a view on data centres. Some of it is measured, some of it is felt and some of it is simply assumed. The game labels all three, everywhere. Three real examples:</p>
+      </div>
+      <ul class="trio">
+        <li class="term t-data">
+          <span class="chip data"><i aria-hidden="true" class="ico ico-bars"></i>Data</span>
+          <p class="def">Measured, with a source you can check.</p>
+          <div class="stat">
+            <p class="num" id="d-num">–</p>
+            <p class="claim">of Ireland's metered electricity went to data centres in <span id="d-year">–</span>.</p>
+            <figure class="spark" id="d-spark" hidden></figure>
+            <p class="src">Source: <a id="d-src" href="https://www.cso.ie/">Central Statistics Office (CSO)</a></p>
+          </div>
+        </li>
+        <li class="term t-opinion">
+          <span class="chip opinion"><i aria-hidden="true" class="ico ico-talk"></i>Opinion</span>
+          <p class="def">What people say they think or feel. Real, but not proof.</p>
+          <div class="stat">
+            <p class="num" id="o-num">–</p>
+            <p class="claim">of people who answered support sustainable data centres in Ireland. Yet <b id="o-near">–</b> would find one built within 5&nbsp;km of their home acceptable.</p>
+            <p class="src"><span class="nw">Survey q96 (n = <span id="o-n1">–</span>)</span> and <span class="nw">q77 (n = <span id="o-n2">–</span>)</span></p>
+          </div>
+        </li>
+        <li class="term t-assume">
+          <span class="chip assume"><i aria-hidden="true" class="ico ico-pencil"></i>Assumption</span>
+          <p class="def">Taken for granted without checking. In the game, it's your headline guess.</p>
+          <div class="stat">
+            <p class="num" id="a-num">–</p>
+            <p class="claim">of people who answered said "<span id="a-stmt">All data centres in Ireland run on fossil fuels</span>" is true.</p>
+            <p class="verdict" id="a-verdict" hidden><span id="a-mark" aria-hidden="true"></span> Checked: <b id="a-tag"></b>. <span id="a-short"></span></p>
+            <p class="src"><span class="nw">Survey q18 (n = <span id="a-n">–</span>)</span> · <span class="nw">checked against <a id="a-src" href="https://www.seai.ie/">SEAI</a></span></p>
+          </div>
+        </li>
+      </ul>
+      <div class="note">
+        <div>
+          <p class="note-label"><i aria-hidden="true" class="ico ico-pencil"></i>From the reporter's notebook</p>
+          <p class="hand">A few voices are not the whole town.</p>
+        </div>
+        <p class="why">That's what the game is really about. A vox pop - a handful of people asked on one street - can sound like "what people think". In Vox Pop you run one yourself, then see how far it lands from the full survey, and how much depends on where you asked.</p>
+      </div>
+      <p class="footnote">Every number in this section is calculated live from the survey file and the fact sheet in <code>data/</code>.</p>
+    </div>
+  </section>
+
+  <section class="band band-white" id="screens" aria-labelledby="screens-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Screenshots</p>
+        <h2 id="screens-h">Inside the game</h2>
+      </div>
+      <ul class="gallery">
+        <li>
+          <figure>
+            <a class="shot" href="docs/media/screenshot-guide.png"><img src="docs/media/screenshot-guide.png" width="1280" height="800" loading="lazy" decoding="async" alt="The start of Vox Pop: the reporter's phone shows how to play in three steps, Ask, Guess and Compare, over the town."></a>
+            <figcaption><b>Your editor's phone</b>How to play in three steps, then a brief for each story, with two questions to choose from.</figcaption>
+          </figure>
+        </li>
+        <li>
+          <figure>
+            <a class="shot" href="docs/media/screenshot-report.png"><img src="docs/media/screenshot-report.png" width="1280" height="800" loading="lazy" decoding="async" alt="A story report in Vox Pop: the player's headline, their vox pop and the survey result side by side, with stars for accuracy."></a>
+            <figcaption><b>The story report</b>Your headline, your vox pop and the survey side by side, plus 100 simulated reporters and the district results.</figcaption>
+          </figure>
+        </li>
+        <li>
+          <figure>
+            <a class="shot" href="docs/media/screenshot-end.png"><img src="docs/media/screenshot-end.png" width="1280" height="800" loading="lazy" decoding="async" alt="The Vox Pop end screen: a yellow press card with the player's rank and a table of all three stories."></a>
+            <figcaption><b>The end of the day</b>Your press card, all three stories, the lesson from your own run and every source used.</figcaption>
+          </figure>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="band band-pale" id="data" aria-labelledby="data-h">
+    <div class="wrap about">
+      <div>
+        <p class="eyebrow">About the data</p>
+        <h2 id="data-h">A real survey, a made-up town</h2>
+        <p class="about-intro">Vox Pop is built on <cite>Social Acceptance of Sustainable Data Centres in Ireland</cite>, a Maynooth University survey: <b><span class="n-all">200</span> people</b> in Ireland, <b><span id="n-q">–</span> questions</b>, supplied for the BU Induction Hack 2026.</p>
+        <ul class="honest">
+          <li>
+            <span class="hi" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24"><path d="M4 20h16" stroke="#241C17" stroke-width="2" stroke-linecap="round"/><rect x="5.5" y="11" width="3.5" height="7" rx="1" fill="#00727C"/><rect x="10.3" y="7" width="3.5" height="11" rx="1" fill="#00727C"/><rect x="15.1" y="4" width="3.5" height="14" rx="1" fill="#00727C"/></svg></span>
+            <p><b>Totals only.</b> The game uses how many people chose each answer, plus two-way cross-tabs. No individual response is anywhere in the game or in this repo.</p>
+          </li>
+          <li>
+            <span class="hi" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24"><path d="M6 21V4" stroke="#241C17" stroke-width="2" stroke-linecap="round"/><path d="M6 4.5h11.5l-2.6 3.8 2.6 3.8H6z" fill="#FFC933" stroke="#241C17" stroke-width="1.6" stroke-linejoin="round"/></svg></span>
+            <p><b>Small groups are flagged.</b> Any cell with fewer than <span id="min-cell">3</span> people is hidden, and a group under 30 people carries a "small group" note.</p>
+          </li>
+          <li>
+            <span class="hi" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="6.5" r="3.6" fill="none" stroke="#9B3D8F" stroke-width="1.8" stroke-dasharray="3 2.2"/><rect x="6.8" y="12" width="10.4" height="9.5" rx="4" fill="none" stroke="#9B3D8F" stroke-width="1.8" stroke-dasharray="3 2.2"/></svg></span>
+            <p><b>The residents are made up.</b> Ballinacloud and everyone in it are invented. Each answer a resident gives is drawn at random from how real respondents from the same kind of area answered.</p>
+          </li>
+          <li>
+            <span class="hi" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24"><path d="M4 11.5a8 7 0 1 1 3.6 5.9L4 19.5l.9-4.1A7 7 0 0 1 4 11.5z" fill="none" stroke="#241C17" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 10h7M8.5 13h4.5" stroke="#241C17" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+            <p><b>In this survey, not "in Ireland".</b> It tells us what these <span class="n-all">200</span> people said, not what the whole country thinks. A cross-tab shows a pattern, not a cause.</p>
+          </li>
+        </ul>
+      </div>
+      <div class="sources-card">
+        <h3>Main sources</h3>
+        <ul id="sources">
+          <li><a id="s-cso" href="https://www.cso.ie/en/releasesandpublications/ep/p-dcmec/datacentresmeteredelectricityconsumption2025/keyfindings/">CSO - data centre electricity, 2015-2025</a><span>cso.ie</span></li>
+          <li><a href="https://www.seai.ie/data-and-insights/seai-statistics/renewables">SEAI - renewable electricity statistics</a><span>seai.ie</span></li>
+          <li><a href="https://cms.eirgrid.ie/sites/default/files/publications/Annual-Renewable-Constraint-and-Curtailment-Report-2024-V1.0.pdf">EirGrid - renewable constraint and curtailment 2024</a><span>eirgrid.ie · PDF</span></li>
+          <li><a href="https://www.cru.ie/about-us/news/the-cru-publishes-its-decision-on-new-electricity-connection-policy-for-data-centres/">CRU - data centre connection policy (Dec 2025)</a><span>cru.ie</span></li>
+          <li><a href="https://enterprise.gov.ie/en/publications/publication-files/the-value-of-data-centres-to-ireland.pdf">KPMG for DETE - The value of data centres to Ireland (2026)</a><span>enterprise.gov.ie · PDF</span></li>
+          <li><a href="https://www.iea.org/reports/energy-and-ai/energy-demand-from-ai">IEA - Energy and AI</a><span>iea.org</span></li>
+        </ul>
+        <p class="more">Every source used is listed inside the game, on the end screen, along with the survey questions behind each story.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band band-ink" id="team" aria-labelledby="team-h">
+    <div class="wrap team">
+      <div>
+        <p class="eyebrow">Team and credits</p>
+        <h2 id="team-h">Who made it</h2>
+        <p class="made">Made by <b>Mehmet Özel</b>, <b>Yavuz Aydın</b> and <b>İbrahim Yılmaz</b> at the BU Induction Hack 2026.</p>
+        <p class="brief">The brief: <q>Data centres: behind the headlines - make data playable.</q></p>
+        <div class="cta">
+          <a class="btn primary" href="vox-pop.html">Play Vox Pop <span class="arr" aria-hidden="true">→</span></a>
+          <a class="btn on-ink" href="https://github.com/madara88645/behind-the-headlines">Source code on GitHub</a>
+        </div>
+        <p class="licence">Code: MIT License · Survey data: Maynooth University (not covered by the licence)</p>
+        <p class="stack">Plain HTML, CSS and JavaScript with no build step. The town, its people and every chart are drawn in code.</p>
+      </div>
+      <div class="pass" aria-hidden="true">
+        <div class="pass-top">
+          <p class="pass-kind">PRESS</p>
+          <p class="pass-station">Ballinacloud Community Radio</p>
+        </div>
+        <dl>
+          <div><dt>Reporters</dt><dd>Mehmet Özel<br>Yavuz Aydın<br>İbrahim Yılmaz</dd></div>
+          <div><dt>Assignment</dt><dd>Data centres: behind the headlines</dd></div>
+          <div><dt>Filed at</dt><dd>BU Induction Hack 2026</dd></div>
+        </dl>
+        <div class="pass-foot"><span>Vox Pop</span><svg viewBox="0 0 24 24" width="22" height="22"><rect x="9" y="12" width="6" height="10" rx="2" fill="#241C17"/><circle cx="12" cy="8" r="6.5" fill="#9B3D8F"/><circle cx="10" cy="6" r="1.8" fill="#fff" opacity=".5"/></svg></div>
+      </div>
+    </div>
+  </section>
+  </main>
+
+<footer class="site-foot">
+  <div class="wrap foot-in">
+    <p class="foot-brand"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="12" width="6" height="10" rx="2" fill="#241C17"/><circle cx="12" cy="8" r="6.5" fill="#9B3D8F"/><circle cx="10" cy="6" r="1.8" fill="#fff" opacity=".5"/></svg>Vox Pop · Behind the Headlines</p>
+    <p>No accounts, no analytics. Your scores stay in your browser.</p>
+    <p><a href="#top">Back to top <span aria-hidden="true">↑</span></a></p>
+  </div>
+</footer>
 
 <script src="data/survey_stats.js"></script>
 <script src="data/facts.js"></script>
 <script src="shared/survey.js"></script>
 <script>
 (function () {
-  var S = window.Survey, F = window.DC_FACTS;
-  if (!S || !F) return;
-  var last = F.csoSeries.years[F.csoSeries.years.length - 1];
-  var set = function (id, v) { var el = document.getElementById(id); if (el) el.textContent = v; };
-  set('d-num', last.pct + '%');
-  set('d-year', last.year);
-  document.getElementById('d-src').href = F.csoSeries.url;
-  set('o-num', S.fmt(S.pct('q96', /supportive/)));
-  var near = S.fmt(S.pct('q77', function (o) { return o.value >= 4; }));
-  set('o-num2', near);
-  set('m-from', S.fmt(S.pct('q96', /supportive/)));
-  set('m-to', near);
-  set('a-num', S.fmt(S.pct('q18', 'True')));
-  document.getElementById('a-src').href = F.trueFalse.q18.sources[0].url;
-  document.querySelectorAll('.n-all').forEach(function (el) { el.textContent = S.n; });
-  set('n-q', S.questions.length);
+  'use strict';
+  // shared/survey.js swaps the whole page for a setup message when the survey file is missing.
+  // The home page should still read fine (the numbers just show a dash), so keep it.
+  if (!window.SURVEY_STATS) {
+    window.addEventListener('DOMContentLoaded', function (e) { e.stopImmediatePropagation(); }, true);
+  }
 
-  var srcs = [
-    ['CSO - data centre electricity, 2015-2025', F.csoSeries.url],
-    ['SEAI - renewable electricity statistics', 'https://www.seai.ie/data-and-insights/seai-statistics/renewables'],
-    ['EirGrid - renewable constraint and curtailment 2024', 'https://cms.eirgrid.ie/sites/default/files/publications/Annual-Renewable-Constraint-and-Curtailment-Report-2024-V1.0.pdf'],
-    ['CRU - data centre connection policy (Dec 2025)', 'https://www.cru.ie/about-us/news/the-cru-publishes-its-decision-on-new-electricity-connection-policy-for-data-centres/'],
-    ['KPMG for DETE - The value of data centres to Ireland (2026)', 'https://enterprise.gov.ie/en/publications/publication-files/the-value-of-data-centres-to-ireland.pdf'],
-    ['IEA - Energy and AI', 'https://www.iea.org/reports/energy-and-ai/energy-demand-from-ai']
-  ];
-  var ul = document.getElementById('sources');
-  srcs.forEach(function (s) {
-    var li = document.createElement('li'), a = document.createElement('a');
-    a.href = s[1]; a.textContent = s[0]; a.rel = 'noopener'; a.target = '_blank';
-    li.appendChild(a); ul.appendChild(li);
+  var S = window.Survey, F = window.DC_FACTS;
+  var $ = function (id) { return document.getElementById(id); };
+  var get = function (fn) { try { var v = fn(); return v == null || v === '' ? null : v; } catch (e) { return null; } };
+  var put = function (id, v) { var el = $(id); if (el && v != null) el.textContent = v; };
+  var link = function (id, url) { var el = $(id); if (el && url) el.href = url; };
+
+  /* ---------------------------------------------------------------- live numbers: survey */
+  if (S) {
+    document.querySelectorAll('.n-all').forEach(function (el) { el.textContent = S.n; });
+    put('n-q', get(function () { return S.questions.length; }));
+    put('min-cell', get(function () { return S.meta.min_cell; }));
+    put('o-num', get(function () { return S.fmt(S.pct('q96', /supportive/)); }));
+    put('o-near', get(function () { return S.fmt(S.pct('q77', function (o) { return o.value >= 4; })); }));
+    put('o-n1', get(function () { return S.q('q96').n_answered; }));
+    put('o-n2', get(function () { return S.q('q77').n_answered; }));
+    put('a-num', get(function () { return S.fmt(S.pct('q18', 'True')); }));
+    put('a-n', get(function () { return S.q('q18').n_answered; }));
+    put('a-stmt', get(function () { return S.label('q18'); }));
+  }
+
+  /* ---------------------------------------------------------------- live numbers: checked facts */
+  if (F) {
+    var last = get(function () { return F.csoSeries.years[F.csoSeries.years.length - 1]; });
+    if (last) { put('d-num', last.pct + '%'); put('d-year', last.year); }
+    drawSpark(get(function () { return F.csoSeries.years; }));
+    var cso = get(function () { return F.csoSeries.url; });
+    link('d-src', cso);
+    link('s-cso', cso);
+    var tf = get(function () { return F.trueFalse.q18; });
+    if (tf && tf.tag) {
+      put('a-mark', tf.verdict === 'true' ? '✓' : tf.verdict === 'false' ? '✗' : '~');
+      put('a-tag', tf.tag.toLowerCase());
+      put('a-short', tf.short);
+      $('a-verdict').hidden = false;
+    }
+    link('a-src', get(function () { return F.trueFalse.q18.sources[0].url; }));
+  }
+
+  /** DATA card: one bar per year of the CSO series, first and latest years labelled. */
+  function drawSpark(years) {
+    var fig = $('d-spark');
+    if (!fig || !years || years.length < 2) return;
+    var W = 300, top = 16, base = 56, H = 72, gap = 4, n = years.length;
+    var bw = (W - gap * (n - 1)) / n, r = 4;
+    var max = Math.max.apply(null, years.map(function (y) { return y.pct; }));
+    if (!(max > 0)) return;
+    var first = years[0], lastY = years[n - 1];
+    var cols = years.map(function (y, i) {
+      var x = i * (bw + gap), h = Math.max(2, (y.pct / max) * (base - top)), t = base - h, rr = Math.min(r, h / 2);
+      var d = 'M' + x + ' ' + base + 'V' + (t + rr) + 'Q' + x + ' ' + t + ' ' + (x + rr) + ' ' + t + 'H' + (x + bw - rr) + 'Q' + (x + bw) + ' ' + t + ' ' + (x + bw) + ' ' + (t + rr) + 'V' + base + 'Z';
+      return '<g class="col"><title>' + y.year + ': ' + y.pct + '%' + (y.gwh ? ' (' + y.gwh.toLocaleString('en-GB') + ' GWh)' : '') + '</title>' +
+        '<rect class="hit" x="' + (x - gap / 2) + '" y="0" width="' + (bw + gap) + '" height="' + H + '"/>' +
+        '<path class="bar' + (i === n - 1 ? ' now' : '') + '" d="' + d + '"/></g>';
+    }).join('');
+    var firstTop = base - Math.max(2, (first.pct / max) * (base - top));
+    fig.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Bar chart: data centres\' share of Ireland\'s metered electricity by year, from ' + first.pct + '% in ' + first.year + ' to ' + lastY.pct + '% in ' + lastY.year + '.">' +
+      cols +
+      '<line class="base" x1="0" x2="' + W + '" y1="' + (base + .5) + '" y2="' + (base + .5) + '"/>' +
+      '<text x="' + (bw / 2) + '" y="' + (firstTop - 5) + '" text-anchor="middle">' + first.pct + '%</text>' +
+      '<text x="0" y="' + H + '">' + first.year + '</text>' +
+      '<text x="' + W + '" y="' + H + '" text-anchor="end">' + lastY.year + '</text></svg>';
+    fig.hidden = false;
+  }
+
+  /* ---------------------------------------------------------------- screenshots that fail to load */
+  document.querySelectorAll('.shot img').forEach(function (img) {
+    var mark = function () { img.parentNode.classList.add('missing'); };
+    img.addEventListener('error', mark);
+    if (img.complete && img.naturalWidth === 0) mark();
   });
-  var li = document.createElement('li');
-  li.textContent = 'Plus the news claims and sources listed inside each game.';
-  ul.appendChild(li);
+
+  /* ---------------------------------------------------------------- the hero clip */
+  var clip = $('clip'), video = $('clip-video'), source = $('clip-source'), toggle = $('clip-toggle'), label = $('clip-toggle-text');
+  if (!clip || !video || typeof video.play !== 'function') return;
+  var mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  var reduced = function () { return !!(mq && mq.matches); };
+  var userPaused = false, visible = true, broken = false;
+
+  function show(playing) {
+    clip.classList.toggle('is-playing', playing);
+    label.textContent = playing ? 'Pause' : 'Play';
+    toggle.setAttribute('aria-label', playing ? 'Pause the clip' : 'Play the clip');
+  }
+  function fail() {
+    broken = true;
+    clip.classList.add('no-video');
+    clip.classList.remove('is-playing');
+    toggle.hidden = true;
+  }
+  function start() {
+    if (broken) return;
+    video.muted = true;
+    video.preload = 'auto';
+    var p = video.play();
+    if (p && typeof p.catch === 'function') p.catch(function () { if (!broken) show(false); });
+  }
+
+  source.addEventListener('error', fail);
+  video.addEventListener('error', fail);
+  video.addEventListener('play', function () { show(true); });
+  video.addEventListener('pause', function () { show(false); });
+  toggle.addEventListener('click', function () {
+    if (video.paused) { userPaused = false; start(); } else { userPaused = true; video.pause(); }
+  });
+  toggle.hidden = false;
+  show(false);
+
+  // Moving pictures only start by themselves when the viewer hasn't asked for less motion.
+  if (!reduced()) start();
+  if (mq) {
+    var onChange = function () { if (reduced()) video.pause(); else if (!userPaused && visible) start(); };
+    if (mq.addEventListener) mq.addEventListener('change', onChange); else if (mq.addListener) mq.addListener(onChange);
+  }
+  // Pause while the clip is scrolled out of view.
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      visible = entries[0].isIntersecting;
+      if (!visible && !video.paused) video.pause();
+      else if (visible && video.paused && !userPaused && !reduced()) start();
+    }, { threshold: 0.15 }).observe(video);
+  }
 })();
 </script>
 </body>

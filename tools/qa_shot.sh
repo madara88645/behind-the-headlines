@@ -1,6 +1,6 @@
 #!/bin/bash
 # qa_shot.sh - headless-Chrome smoke test for a game page.
-# Usage: tools/qa_shot.sh rigged.html out.png [width] [height] [hash]
+# Usage: tools/qa_shot.sh vox-pop.html out.png [width] [height] [hash]
 #   Saves a screenshot and prints any console errors/warnings the page logged.
 #   Optional [hash] is appended to the URL (e.g. "#screen=start") so a page can jump to a state.
 #   Headless Chrome will not lay out narrower than 500px, so for phone widths (<500) the page is

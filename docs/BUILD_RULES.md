@@ -1,13 +1,13 @@
-# Build rules for all three games
+# Build rules
 
-> The up-to-date guide for adding games (and for AI assistants) is `AGENTS.md` in the project root. This file is the original checklist used to build the first three games.
+> The full guide (for the team and for AI assistants) is `AGENTS.md` in the project root. This file is the build checklist behind Vox Pop.
 
-These apply to every game in `games/`. They exist so the games work on any laptop at the hackathon, look finished, and never misrepresent the data.
+These apply to Vox Pop and to any game added to `games/` later. They exist so the game works on any laptop straight from the file, looks finished, and never misrepresents the data.
 
 ## Tech
 - Plain HTML + CSS + JavaScript. No build step, no npm, no frameworks. Each game's page is `<slug>.html` in the project root; its `style.css`, `game.js` (and any helper JS) live in `games/<slug>/`.
 - Why the page is in the root: Safari only lets a file:// page load files from its own folder and below. A page inside `games/<slug>/` could not load `../../data/` in Safari.
-- Must work by double-clicking `index.html` (file://). So: no `fetch()` of local files, no ES modules (`type="module"` breaks on file://). Load data with classic `<script src>` tags in this order:
+- Must work by double-clicking the page (`index.html`, `vox-pop.html`) from the file system (file://). So: no `fetch()` of local files, no ES modules (`type="module"` breaks on file://). Load data with classic `<script src>` tags in this order:
   ```html
   <script src="data/survey_stats.js"></script>
   <script src="data/facts.js"></script>
@@ -16,7 +16,7 @@ These apply to every game in `games/`. They exist so the games work on any lapto
   ```
 - Allowed external resources: Google Fonts only (with a sensible local fallback stack). No other CDNs, no images from the web. Draw illustrations with inline SVG / CSS.
 - No backend. If a game "remembers" player answers, use `localStorage` wrapped in try/catch, and label it honestly ("answers from this device", never "live poll").
-- Every page links back to the launcher: `index.html`.
+- Every page links back to the home page: `index.html`.
 
 ## Data honesty (the hackathon rules say "don't misrepresent the data")
 - Survey numbers come ONLY from `window.Survey` (see `shared/survey.js`) at runtime - never hard-code a survey percentage in HTML or JS. Hard-coded copy may reference a question id and compute the number, e.g. `Survey.fmt(Survey.pct('q77', /Somewhat acceptable|Completely acceptable/))`.
@@ -30,11 +30,11 @@ These apply to every game in `games/`. They exist so the games work on any lapto
 
 ## Debug screens (for automated screenshots)
 - Support a URL hash `#screen=<name>` that jumps straight to a representative state of each major screen with plausible sample player answers already filled in (e.g. `#screen=start`, `#screen=round`, `#screen=reveal`, `#screen=finale`, `#screen=end` - name them after your own screens). Normal play (no hash) must be unaffected.
-- Check your work with `tools/qa_shot.sh games/<slug>/index.html /path/out.png 1280 800 "#screen=<name>"` and again at `390 844` (phone). It saves a screenshot and prints console errors. Open the PNG with the Read tool and look at it critically.
+- Check your work with `tools/qa_shot.sh <slug>.html /path/out.png 1280 800 "#screen=<name>"` (optionally also at a narrow width such as `420 800`). It saves a screenshot and prints console errors. Open the PNG with the Read tool and look at it critically.
 
 ## Quality floor
 - English only, plain and friendly, sentence case. No lorem ipsum, no TODOs, no placeholder text.
-- Responsive from 360 px phone width to a 1440 px laptop, no horizontal scroll. Test mentally at both.
+- Laptop first (1280×800 and larger). Narrow windows down to 360 px must not scroll sideways; phones are not a priority.
 - Keyboard playable: every control is a real `<button>`/`<input>`, visible focus ring, Enter/Space work.
 - Respect `prefers-reduced-motion` (turn big animations into fades).
 - Colour contrast AA for text. Don't rely on colour alone for right/wrong - add an icon or word.

@@ -25,10 +25,6 @@
   const GREET = ['Go on so, quick one.', 'Is this for the radio? Grand.', 'Fire away.', "I've two minutes.", 'Oh, a vox pop! Go on.', 'Sure, ask away.', 'On the record? Fine.', 'Make it quick, the rain\'s coming.'];
   const BYE = ['Best of luck with the story.', 'Mind yourself.', 'Will I be on the radio?', 'Cheers now.', 'Grand so.', 'Good luck with it.'];
   const DECLINE = ["I'd rather not say, sorry.", "I'll pass on that one, if it's all the same.", "Ah no, I'd rather keep that to myself."];
-  // Voiced version only: which of the three female (f1-f3) or three male (m1-m3) voices reads a resident's lines.
-  const FEMALE = new Set(['Aoife', 'Niamh', 'Siobhán', 'Róisín', 'Saoirse', 'Gráinne', 'Clodagh', 'Méabh', 'Orla', 'Nuala', 'Bríd', 'Sinéad',
-    'Mary', 'Olena', 'Priya', 'Ana', 'Kasia', 'Lucía', 'Fiadh', 'Eimear']);
-  const voiceOf = (name, id) => (FEMALE.has(name) ? 'f' : 'm') + (1 + (id % 3));
 
   function pick(a, r) { return a[Math.floor(r() * a.length) % a.length]; }
 
@@ -50,7 +46,7 @@
       for (let i = 0; i < per[d.key]; i++) {
         const t = tiles[Math.floor(r() * tiles.length)];
         out.push({
-          id: id, name: names[id % names.length], voice: voiceOf(names[id % names.length], id), district: d.key,
+          id: id, name: names[id % names.length], district: d.key,
           x: t[0] + 0.5, y: t[1] + 0.5, dir: pick(['se', 'sw', 'ne', 'nw'], r), phase: r() * 6, moving: false,
           speed: 1.1 + r() * 0.8, path: null, wait: r() * 3, look: makeLook(r),
           doing: pick(DOING[d.key], r), greet: pick(GREET, r), bye: pick(BYE, r), decline: pick(DECLINE, r),
