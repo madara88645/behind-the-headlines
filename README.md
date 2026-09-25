@@ -175,7 +175,7 @@ LICENSE                 MIT for the code and docs, and what it does not cover
 
 ## Team
 
-Made by **Mehmet Özel** ([@madara88645](https://github.com/madara88645)), **Yavuz Aydın** ([@yavuzaydn](https://github.com/yavuzaydn)) and **İbrahim Yılmaz** at the BU (Bournemouth University) Induction Hack 2026, for the brief *"Data centres: behind the headlines - make data playable"*.
+Made by **Mehmet Özel** ([@madara88645](https://github.com/madara88645)), **Yavuz Aydın** ([@yavuzaydn](https://github.com/yavuzaydn)) and **İbrahim Yılmaz** ([@Ibrahim0633](https://github.com/Ibrahim0633)) at the BU (Bournemouth University) Induction Hack 2026, for the brief *"Data centres: behind the headlines - make data playable"*.
 
 ## Credits and sources
 
