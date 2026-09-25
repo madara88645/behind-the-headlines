@@ -1,10 +1,6 @@
 # macOS
 .DS_Store
 
-# Video project: dependencies and rendered output (re-create with `npm install` / `npm run render` in video/)
-video/node_modules/
-video/out/
-
 # Python
 __pycache__/
 *.pyc

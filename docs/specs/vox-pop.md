@@ -1,4 +1,4 @@
-# Game 4 - VOX POP
+# VOX POP - game design spec
 **Tagline:** Ask the street. Guess the town. Then meet the 200.
 **Page:** `vox-pop.html` · **Folder:** `games/vox-pop/`
 **Genre:** isometric walk-and-talk reporting game. Three stories, about 5 minutes.
@@ -51,7 +51,7 @@ Each story question lists the facts that are relevant to it (e.g. q11 → `promp
 5. **Signature moment - "Meet the 200" (5 s).** An ON AIR banner puts your headline (ASSUMPTION) next to the survey result (OPINION) and says in one sentence how far apart they are; the full headline sentence and the crowd details sit under a *Headline and crowd details* disclosure. The camera pulls back to the whole town, the residents fade, and 200 little figures pop up across the districts, one per survey answer, placed by the real q4 cross-tab counts and marked ● (counts toward your headline) / ○ (other answer) / ◌ (didn't answer). A counter runs up to the survey figure.
 6. **Story report (20-30 s).** Three numbers side by side: your headline (ASSUMPTION), your vox pop (OPINION, n), the survey (OPINION, n answered). Stars for accuracy. **100 parallel vox pops**: a dot strip of 100 simulated reporters asking the same number of random residents, with yours marked, plus the spread you'd get with 30 people. **Where you asked** vs the survey's district results (q4 cross-tab, with n). Relevant DATA facts (found ✓ / missed, and where they were).
 7. Stories 2 and 3 repeat 2-6 with new questions; the light moves from morning to evening (street lamps on for the six o'clock news).
-8. **End (30 s).** Press card with a rank, a table of the three stories (question id, people asked, headline vs vox pop vs survey, miss, sourced), the lesson drawn from the player's own run (e.g. biggest miss and how many people it came from), a DATA / OPINION / ASSUMPTION recap, "Reporters on this device" (localStorage, labelled honestly), "How this works", every source used, *Play again* (new residents, new question offers) and *All games*.
+8. **End (30 s).** Press card with a rank, a table of the three stories (question id, people asked, headline vs vox pop vs survey, miss, sourced), the lesson drawn from the player's own run (e.g. biggest miss and how many people it came from), a DATA / OPINION / ASSUMPTION recap, "Reporters on this device" (localStorage, labelled honestly), "How this works", every source used, *Play again* (new residents, new question offers) and *Home*.
 
 ## Scoring
 - Miss = |headline − survey| in percentage points. ★★★ ≤ 5, ★★ ≤ 12, ★ ≤ 20. +1 "Sourced" if a relevant fact was collected. Max 12.
@@ -66,15 +66,12 @@ Each story question lists the facts that are relevant to it (e.g. q11 → `promp
 - Canvas 2D for the world (tiles, buildings, people, all drawn in code), DOM for every control and panel (real buttons, visible focus). Reduced motion: no camera shake or bobbing, crowd appears at once, the parallel-vox-pop dots appear without falling, turbines turn slowly.
 - Laptop first (1280×800+). Narrow windows: panels become full-width sheets; no horizontal scroll.
 
-## Sound (on hold)
-Built, then put on hold by the team on 24 Sep: the game loads no sound. `games/vox-pop/audio.js` (Web Audio engine: music bed, ducking, one *Sound* switch + <kbd>M</kbd>, remembered in `localStorage`), `music.js` ("Etirwer" by Kistol, CC0) and `voices.js` (the characters' direct speech, computer-generated with Kokoro-82M, Apache-2.0, by `tools/make_vox_pop_voices.py` from `tools/vox_pop_voice_lines.json`) stay in the repo. game.js keeps its null-safe hooks (`VP.Audio` is optional), so adding the script tags back to `vox-pop.html` turns sound on again - regenerate `voices.js` first, because two answer lines were reworded afterwards.
-
 ## Debug screens
 `#screen=` `start` (how to play), `brief` (story-1 brief after it), `brief2` (story-2 brief), `first-walk` (walking before the first interview), `play`, `talk`, `fact`, `notebook`, `file`, `crowd`, `report`, `end`, `help`, `evening` (story 3 at dusk).
 
 ---
 
 ## Runner-up concepts (for the team to redirect to)
-**B. Liaison Officer (build + negotiate).** You are the new community liaison officer for a data-centre campus in an isometric town. Walk around and collect residents' worries (q52 negative-impact areas) and wishes (q88 top-three conditions), then spend a budget placing things on the map - a heat pipe, a community hall, solar panels, a public path - and watch a simulated town meeting vote. Insight: people *rate* every condition as helpful but *choose* very different ones when forced (q78-q87 vs q88). Rejected because it overlaps with 5 KM's town hall.
+**B. Liaison Officer (build + negotiate).** You are the new community liaison officer for a data-centre campus in an isometric town. Walk around and collect residents' worries (q52 negative-impact areas) and wishes (q88 top-three conditions), then spend a budget placing things on the map - a heat pipe, a community hall, solar panels, a public path - and watch a simulated town meeting vote. Insight: people *rate* every condition as helpful but *choose* very different ones when forced (q78-q87 vs q88). Rejected because it overlaps with an earlier prototype's town-hall vote.
 
-**C. Rumour Mill (spread + correct).** A false belief ("all data centres run on fossil fuels", q18) spreads between wandering residents like a contagion, seeded by the survey's true/false shares (q18-q25). You carry DATA cards from the campus buildings to residents to correct them, but the survey says many people find it hard to change their view (q64), so corrections only stick sometimes. Insight: a fact reaching someone is not the same as a mind changing. Rejected because the spreading and persuasion rules would be invented (no data behind them) and it overlaps with Bubble Sort's true/false round.
+**C. Rumour Mill (spread + correct).** A false belief ("all data centres run on fossil fuels", q18) spreads between wandering residents like a contagion, seeded by the survey's true/false shares (q18-q25). You carry DATA cards from the campus buildings to residents to correct them, but the survey says many people find it hard to change their view (q64), so corrections only stick sometimes. Insight: a fact reaching someone is not the same as a mind changing. Rejected because the spreading and persuasion rules would be invented (no data behind them) and it overlaps with an earlier prototype's true/false round.
