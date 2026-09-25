@@ -1,7 +1,0 @@
-Gameplay footage slot - see ../../README.md ("Drop in real gameplay footage").
-
-Put screen recordings here with exactly these names:
-  bubble-sort.mp4   (Bubble Sort scene, 14.0 s)
-  5km.mp4           (5 KM scene, 18.7 s)
-  rigged.mp4        (Rigged scene, 17.3 s)
-If a file is missing, the video shows its motion-graphics recreation instead.
