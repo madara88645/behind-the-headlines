@@ -526,7 +526,7 @@ thead th { font: 500 11px var(--mono); text-transform: uppercase; letter-spacing
 .stories td, .stories th { font-size: 14px; }
 .nline { display: block; color: var(--ink-soft); }
 .nw { white-space: nowrap; }
-.lesson p, .recap li, .device p { font-size: 15px; }
+.lesson p, .recap li, .device-runs p { font-size: 15px; }
 .recap ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
 .recap li { display: grid; grid-template-columns: 118px 1fr; gap: 10px; align-items: start; }
 .sources ul { padding-left: 18px; font-size: 13px; display: grid; gap: 5px; margin: 0; }
